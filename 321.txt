@@ -1,0 +1,1318 @@
+local l_script_FirstAncestor_0 = script:FindFirstAncestor("FusionPackage");
+local v1 = require(l_script_FirstAncestor_0.Fusion);
+local v2 = require(l_script_FirstAncestor_0.Utils);
+local v3 = require(l_script_FirstAncestor_0.State);
+local v4 = require(l_script_FirstAncestor_0.Actions);
+local v5 = require(l_script_FirstAncestor_0.Sounds);
+local v6 = require(l_script_FirstAncestor_0.Colors);
+local _ = require(l_script_FirstAncestor_0.Types);
+local v8 = require(l_script_FirstAncestor_0.Keys);
+local l_Children_0 = v1.Children;
+local l_OnEvent_0 = v1.OnEvent;
+local l_peek_0 = v1.peek;
+local _ = v1.scoped;
+local _ = v1.doCleanup;
+local l_innerScope_0 = v1.innerScope;
+local v15 = {
+    ActionButton = require(l_script_FirstAncestor_0.Components.ActionButton), 
+    Gift = require(l_script_FirstAncestor_0.Components.Gift), 
+    Shine = require(l_script_FirstAncestor_0.Components.Effects.Shine), 
+    Magic = require(l_script_FirstAncestor_0.Components.Effects.Magic), 
+    Burst = require(l_script_FirstAncestor_0.Components.Effects.Burst), 
+    ScrollingGradient = require(l_script_FirstAncestor_0.Components.Effects.ScrollingGradient), 
+    ScrollingText = require(l_script_FirstAncestor_0.Components.Effects.ScrollingText), 
+    ItemSlot = require(l_script_FirstAncestor_0.Components.Slot), 
+    UnitSlot = require(l_script_FirstAncestor_0.Components.Slot), 
+    VirtualScroller = require(l_script_FirstAncestor_0.Components.VirtualScroller), 
+    ItemTooltip = require(l_script_FirstAncestor_0.Components.Tooltips.Item), 
+    MenuBackground = require(l_script_FirstAncestor_0.Components.MenuBackground), 
+    Bar = require(l_script_FirstAncestor_0.Components.Bar)
+};
+local v16 = UDim.new(0, 24);
+local v17 = Color3.fromRGB(120, 134, 255);
+return function(v18, v19) --[[ Line: 60 ]]
+    -- upvalues: l_innerScope_0 (copy), v1 (copy), v3 (copy), v15 (copy), l_peek_0 (copy), v6 (copy), v17 (copy), v16 (copy), l_Children_0 (copy), l_OnEvent_0 (copy), v4 (copy), v2 (copy), v5 (copy), v8 (copy)
+    local v20 = l_innerScope_0(v18, v1, v3, v15);
+    local _ = v20:OsTime();
+    local v22 = v20:Value();
+    local v23 = v20:Value();
+    local v24 = nil;
+    local v27 = v20:Spring(v20:Computed(function(v25, _) --[[ Line: 68 ]]
+        -- upvalues: v19 (copy)
+        if v25(v19.Enabled) then
+            return 1;
+        else
+            return 0;
+        end;
+    end), 10, 0.5);
+    local v30 = v20:Spring(v20:Computed(function(v28, _) --[[ Line: 72 ]]
+        -- upvalues: v19 (copy)
+        if v28(v19.Enabled) then
+            return 1;
+        else
+            return 0;
+        end;
+    end), 10, 0.5);
+    local v31 = v20:Spring(v20:Value(0), 10, 0.5);
+    local _ = v20:Computed(function(v32, _) --[[ Line: 77 ]]
+        -- upvalues: v19 (copy)
+        return v32(v19.PassData.PersonalExp) ~= nil;
+    end);
+    local v40 = v20:Computed(function(v35, _) --[[ Line: 80 ]]
+        -- upvalues: v19 (copy)
+        local v37 = v35(v19.PassData.Rewards);
+        local v38 = 0;
+        for _ in v37 do
+            v38 = v38 + 1;
+        end;
+        return v38;
+    end);
+    local _ = v20:KeyOf(v19.Dependencies.ItemInfo, "BattlepassEXP");
+    local v42 = v20:KeyOf(v19.Dependencies.ItemImages, "BattlepassEXP");
+    table.insert(v20, v20:Observer(v19.PassData.Premium):onBind(function() --[[ Line: 92 ]]
+        -- upvalues: l_peek_0 (ref), v19 (copy), v30 (copy), v20 (copy), v6 (ref), v22 (copy)
+        if l_peek_0(v19.PassData.Premium) then
+            v30:addVelocity(10);
+            v20:Burst({
+                Size = UDim2.fromScale(2, 2), 
+                Color = v6.Yellow, 
+                Enabled = true, 
+                Count = 16, 
+                ZIndex = 10, 
+                Parent = v22
+            });
+        end;
+    end));
+    table.insert(v20, v20:Observer(v19.Enabled):onBind(function() --[[ Line: 107 ]]
+        -- upvalues: l_peek_0 (ref), v19 (copy), v27 (copy)
+        if l_peek_0(v19.Enabled) then
+            v27:setPosition(0);
+        end;
+    end));
+    v24 = task.spawn(function() --[[ Line: 113 ]]
+        -- upvalues: v30 (copy), v24 (ref)
+        while true do
+            v30:addVelocity(2);
+            task.wait(4);
+        end;
+    end);
+    table.insert(v20, function() --[[ Line: 120 ]]
+        -- upvalues: v24 (ref)
+        if v24 then
+            task.cancel(v24);
+        end;
+    end);
+    return v20:MenuBackground({
+        WindowColor = v17, 
+        Position = UDim2.fromScale(0.5, 0.5), 
+        AnchorPoint = Vector2.new(0.5, 0.5), 
+        CornerRadius = v16, 
+        Parent = v19.Parent, 
+        [l_Children_0] = {
+            v19[l_Children_0]; 
+            HeaderContent = v20:New("Frame")({
+                Size = UDim2.new(1, 0, 0, 100), 
+                BackgroundTransparency = 1, 
+                ClipsDescendants = true, 
+                ZIndex = 2000, 
+                [l_Children_0] = {
+                    HeaderText = v20:New("Frame")({
+                        Size = UDim2.fromScale(1, 0), 
+                        AutomaticSize = Enum.AutomaticSize.Y, 
+                        Position = UDim2.new(0, 48, 0.5, 0), 
+                        AnchorPoint = Vector2.new(0, 0.5), 
+                        BackgroundTransparency = 1, 
+                        [l_Children_0] = {
+                            v20:New("UIListLayout")({
+                                FillDirection = Enum.FillDirection.Horizontal, 
+                                HorizontalAlignment = Enum.HorizontalAlignment.Left, 
+                                VerticalAlignment = Enum.VerticalAlignment.Center, 
+                                Padding = UDim.new(0, 16)
+                            }); 
+                            Title = v20:New("TextLabel")({
+                                Size = UDim2.new(), 
+                                AutomaticSize = Enum.AutomaticSize.XY, 
+                                BackgroundTransparency = 1, 
+                                Text = "Battlepass", 
+                                TextColor3 = v6.White, 
+                                TextSize = 48, 
+                                FontFace = Font.fromName("FredokaOne"), 
+                                TextXAlignment = Enum.TextXAlignment.Left, 
+                                [l_Children_0] = {
+                                    v20:New("UIGradient")({
+                                        Color = v6.Gradients.White, 
+                                        Rotation = 90
+                                    }), 
+                                    v20:New("UIStroke")({
+                                        Thickness = 3, 
+                                        Transparency = 0.5
+                                    })
+                                }
+                            }), 
+                            Season = v20:New("TextLabel")({
+                                Size = UDim2.new(), 
+                                AutomaticSize = Enum.AutomaticSize.XY, 
+                                BackgroundTransparency = 1, 
+                                Text = v20:Computed(function(v43, _) --[[ Line: 182 ]]
+                                    -- upvalues: v19 (copy)
+                                    return (("(Season %*)"):format(v43(v19.PassData.Season) or "???"));
+                                end), 
+                                TextColor3 = v6.White, 
+                                TextSize = 36, 
+                                FontFace = Font.fromName("FredokaOne"), 
+                                TextXAlignment = Enum.TextXAlignment.Left, 
+                                [l_Children_0] = {
+                                    v20:New("UIGradient")({
+                                        Color = v20:ScrollingGradient({
+                                            ColorSequence = v6.Gradients.Rainbow
+                                        }), 
+                                        Rotation = 0
+                                    }), 
+                                    v20:New("UIStroke")({
+                                        Thickness = 3, 
+                                        Transparency = 0.5
+                                    })
+                                }
+                            })
+                        }
+                    }), 
+                    CloseButton = v20:ActionButton({
+                        Size = UDim2.fromOffset(64, 64), 
+                        Position = UDim2.new(1, -16, 0.5, 0), 
+                        AnchorPoint = Vector2.new(1, 0.5), 
+                        Text = "", 
+                        Color = Color3.fromRGB(232, 43, 43), 
+                        ZIndex = 10, 
+                        [l_OnEvent_0("Activated")] = v4.Battlepass_CloseMenu, 
+                        [l_Children_0] = {
+                            v20:New("UIAspectRatioConstraint")({
+                                AspectRatio = 1
+                            }), 
+                            v20:New("ImageLabel")({
+                                Name = "Icon", 
+                                Size = UDim2.fromScale(0.406, 0.406), 
+                                Position = UDim2.fromScale(0.5, 0.5), 
+                                AnchorPoint = Vector2.new(0.5, 0.5), 
+                                BackgroundColor3 = Color3.fromRGB(255, 255, 255), 
+                                BackgroundTransparency = 1, 
+                                BorderColor3 = Color3.fromRGB(0, 0, 0), 
+                                BorderSizePixel = 0, 
+                                Image = "rbxassetid://17771024073", 
+                                ZIndex = 10
+                            })
+                        }
+                    }), 
+                    v20:ScrollingText({
+                        Size = UDim2.new(1, 0, 0, 28), 
+                        Position = UDim2.fromScale(0, 1), 
+                        AnchorPoint = Vector2.yAxis, 
+                        Text = "BATTLEPASS // ALS / ", 
+                        TextSize = 18, 
+                        TextColor3 = v17, 
+                        TextTransparency = 0.75, 
+                        Count = 10, 
+                        Scale = v19.Scale
+                    }), 
+                    Fill = v20:New("Frame")({
+                        Size = UDim2.fromScale(1, 1), 
+                        BackgroundTransparency = 1, 
+                        ClipsDescendants = true, 
+                        ZIndex = -10, 
+                        [l_Children_0] = {
+                            v20:New("Frame")({
+                                Size = UDim2.new(1, 0, 0, 2), 
+                                Position = UDim2.fromScale(0, 1), 
+                                AnchorPoint = Vector2.new(0, 1), 
+                                BackgroundColor3 = Color3.new(), 
+                                BackgroundTransparency = 0.25
+                            }), 
+                            v20:New("Frame")({
+                                Size = UDim2.fromScale(1, 2), 
+                                BackgroundColor3 = Color3.new(), 
+                                BackgroundTransparency = 0.25, 
+                                [l_Children_0] = {
+                                    v20:New("UICorner")({
+                                        CornerRadius = v16
+                                    })
+                                }
+                            })
+                        }
+                    })
+                }
+            }), 
+            InfoBar = v20:New("Frame")({
+                Size = UDim2.new(1, 0, 0, 80), 
+                Position = UDim2.fromOffset(0, 100), 
+                BackgroundTransparency = 0.5, 
+                BackgroundColor3 = v6.Black, 
+                ZIndex = 2000, 
+                [l_Children_0] = {
+                    v20:New("Frame")({
+                        Size = UDim2.new(1, 0, 0, 2), 
+                        Position = UDim2.fromScale(0, 1), 
+                        AnchorPoint = Vector2.new(0, 1), 
+                        BackgroundColor3 = Color3.new(), 
+                        BackgroundTransparency = 0.25
+                    }), 
+                    v20:New("Frame")({
+                        Size = UDim2.new(1, -40, 0, 40), 
+                        Position = UDim2.new(0, 20, 1, -20), 
+                        AnchorPoint = Vector2.yAxis, 
+                        BackgroundTransparency = 1, 
+                        [l_Children_0] = {
+                            v20:New("UICorner")({
+                                CornerRadius = UDim.new(1, 0)
+                            }), 
+                            v20:New("UIStroke")({
+                                Thickness = 4, 
+                                Transparency = 0.5
+                            })
+                        }
+                    }), 
+                    v20:New("Frame")({
+                        Size = UDim2.new(1, -32, 0, 48), 
+                        Position = UDim2.new(0, 16, 1, -16), 
+                        AnchorPoint = Vector2.yAxis, 
+                        BackgroundTransparency = 0.5, 
+                        BackgroundColor3 = Color3.new(), 
+                        [l_Children_0] = {
+                            v20:New("UIPadding")({
+                                PaddingLeft = UDim.new(0, 48), 
+                                PaddingRight = UDim.new(0, 48)
+                            }), 
+                            v20:New("UICorner")({
+                                CornerRadius = UDim.new(1, 0)
+                            }), 
+                            v20:New("UIListLayout")({
+                                FillDirection = Enum.FillDirection.Horizontal, 
+                                VerticalAlignment = Enum.VerticalAlignment.Center, 
+                                SortOrder = Enum.SortOrder.LayoutOrder, 
+                                Padding = UDim.new(0, 32)
+                            }), 
+                            v20:New("TextLabel")({
+                                Size = UDim2.fromScale(0, 1), 
+                                AutomaticSize = Enum.AutomaticSize.X, 
+                                BackgroundTransparency = 1, 
+                                Text = v20:Computed(function(v45, _) --[[ Line: 330 ]]
+                                    -- upvalues: v19 (copy), v40 (copy)
+                                    return (("Level %* <font transparency=\"0.5\" weight=\"ExtraBold\">/ %*</font>"):format(v45(v19.PassData.Level) or 0, (v45(v40))));
+                                end), 
+                                FontFace = Font.fromName("Montserrat", Enum.FontWeight.Heavy, Enum.FontStyle.Italic), 
+                                TextColor3 = Color3.new(1, 1, 1), 
+                                TextXAlignment = Enum.TextXAlignment.Left, 
+                                TextYAlignment = Enum.TextYAlignment.Center, 
+                                TextSize = 20, 
+                                RichText = true, 
+                                LayoutOrder = 1
+                            }), 
+                            v20:Bar({
+                                Size = UDim2.fromOffset(0, 24), 
+                                Progress = v20:Computed(function(v47, _) --[[ Line: 345 ]]
+                                    -- upvalues: v19 (copy)
+                                    return (v47(v19.PassData.Exp) or 0) / (v47(v19.PassData.MaxExp) or 1);
+                                end), 
+                                Color = v6.Gradients.Purple, 
+                                IdleShine = true, 
+                                Divisions = 4, 
+                                LayoutOrder = 5, 
+                                [l_Children_0] = {
+                                    v20:New("UIFlexItem")({
+                                        FlexMode = Enum.UIFlexMode.Fill
+                                    })
+                                }
+                            }), 
+                            v20:New("TextLabel")({
+                                Size = UDim2.fromScale(0, 1), 
+                                AutomaticSize = Enum.AutomaticSize.X, 
+                                BackgroundTransparency = 1, 
+                                Text = v20:Computed(function(v49, _) --[[ Line: 365 ]]
+                                    -- upvalues: v19 (copy), v2 (ref)
+                                    local v51 = v49(v19.PassData.Exp) or 0;
+                                    local v52 = v49(v19.PassData.MaxExp) or 0;
+                                    return (("%* <font transparency=\"0.5\" weight=\"ExtraBold\">/ %* EXP</font>"):format(v2.convertNumber(v51), (v2.convertNumber(v52))));
+                                end), 
+                                FontFace = Font.fromName("Montserrat", Enum.FontWeight.Heavy, Enum.FontStyle.Italic), 
+                                TextColor3 = Color3.new(1, 1, 1), 
+                                TextXAlignment = Enum.TextXAlignment.Left, 
+                                TextYAlignment = Enum.TextYAlignment.Center, 
+                                TextSize = 20, 
+                                RichText = true, 
+                                LayoutOrder = 10
+                            })
+                        }
+                    })
+                }
+            }), 
+            Body = v20:New("Frame")({
+                Size = UDim2.new(1, 0, 1, -276), 
+                Position = UDim2.fromOffset(0, 180), 
+                BackgroundTransparency = 1, 
+                ClipsDescendants = true, 
+                ZIndex = 1000, 
+                [l_Children_0] = {
+                    v20:New("UIListLayout")({
+                        FillDirection = Enum.FillDirection.Horizontal, 
+                        HorizontalAlignment = Enum.HorizontalAlignment.Left, 
+                        SortOrder = Enum.SortOrder.LayoutOrder
+                    }), 
+                    PremiumAd = v20:New("Frame")({
+                        Size = UDim2.new(0, 320, 1, 0), 
+                        BackgroundTransparency = 1, 
+                        LayoutOrder = -1000, 
+                        [l_Children_0] = {
+                            v20:New("Frame")({
+                                Size = UDim2.new(0, 2, 1, 0), 
+                                Position = UDim2.fromScale(1, 0), 
+                                AnchorPoint = Vector2.xAxis, 
+                                BackgroundColor3 = Color3.new(), 
+                                BackgroundTransparency = 0.5
+                            }), 
+                            v23:set(v20:New("TextButton")({
+                                Size = UDim2.new(1, -32, 1, -32), 
+                                Position = UDim2.fromScale(0.5, 0.5), 
+                                AnchorPoint = Vector2.new(0.5, 0.5), 
+                                BackgroundColor3 = Color3.new(), 
+                                BackgroundTransparency = 0.25, 
+                                Text = "", 
+                                [l_OnEvent_0("Activated")] = function() --[[ Line: 416 ]]
+                                    -- upvalues: v30 (copy), v31 (copy), v4 (ref)
+                                    local v53 = math.random(-1, 1);
+                                    v30:addVelocity(2);
+                                    v31:addVelocity(math.random(60, 180) * v53);
+                                    v4.Battlepass_BuyPremium();
+                                end, 
+                                [l_Children_0] = {
+                                    v20:New("UICorner")({
+                                        CornerRadius = UDim.new(0, 16)
+                                    }), 
+                                    v20:New("TextLabel")({
+                                        Size = UDim2.fromOffset(0, 44), 
+                                        AutomaticSize = Enum.AutomaticSize.X, 
+                                        Position = v2.lerpProgress(v20, v27, UDim2.new(0.5, 0, 0, 48), UDim2.new(0.5, 0, 0, 24)), 
+                                        AnchorPoint = Vector2.new(0.5, 0), 
+                                        BackgroundTransparency = 1, 
+                                        Text = "PREMIUM", 
+                                        FontFace = Font.fromName("Montserrat", Enum.FontWeight.Heavy, Enum.FontStyle.Italic), 
+                                        TextSize = 48, 
+                                        TextXAlignment = Enum.TextXAlignment.Center, 
+                                        TextColor3 = Color3.new(1, 1, 1), 
+                                        ZIndex = 20, 
+                                        [l_Children_0] = {
+                                            v20:New("UIGradient")({
+                                                Color = v20:ScrollingGradient({
+                                                    ColorSequence = v6.Gradients.Rainbow
+                                                })
+                                            }), 
+                                            v20:New("UIStroke")({
+                                                Color = v6.LightBlack, 
+                                                Thickness = 4
+                                            }), 
+                                            v20:New("TextLabel")({
+                                                Size = UDim2.fromOffset(0, 22), 
+                                                AutomaticSize = Enum.AutomaticSize.X, 
+                                                Position = v2.lerpProgress(v20, v27, UDim2.fromScale(0.5, 1.2), UDim2.fromScale(0.5, 0.95)), 
+                                                AnchorPoint = Vector2.new(0.5, 0), 
+                                                BackgroundTransparency = 1, 
+                                                Text = v20:Computed(function(v54) --[[ Line: 455 ]]
+                                                    -- upvalues: v19 (copy)
+                                                    return (("- Season %* Pass -"):format((v54(v19.PassData.Season))));
+                                                end), 
+                                                FontFace = Font.fromName("Montserrat", Enum.FontWeight.Heavy, Enum.FontStyle.Italic), 
+                                                TextSize = 22, 
+                                                TextXAlignment = Enum.TextXAlignment.Center, 
+                                                TextColor3 = Color3.new(1, 1, 1), 
+                                                [l_Children_0] = {
+                                                    v20:New("UIGradient")({
+                                                        Color = v20:ScrollingGradient({
+                                                            ColorSequence = v6.Gradients.Rainbow
+                                                        })
+                                                    }), 
+                                                    v20:New("UIStroke")({
+                                                        Color = v6.LightBlack, 
+                                                        Thickness = 3
+                                                    })
+                                                }
+                                            })
+                                        }
+                                    }), 
+                                    v20:New("TextLabel")({
+                                        Size = UDim2.fromOffset(0, 16), 
+                                        AutomaticSize = Enum.AutomaticSize.X, 
+                                        Position = v2.lerpProgress(v20, v27, UDim2.new(0.5, 0, 1, -150), UDim2.new(0.5, 0, 1, -96)), 
+                                        AnchorPoint = Vector2.new(0.5, 1), 
+                                        BackgroundTransparency = 1, 
+                                        Text = v20:Computed(function(v55) --[[ Line: 484 ]]
+                                            -- upvalues: v19 (copy)
+                                            return (("Redeemable for Season %*!"):format((v55(v19.PassData.Season))));
+                                        end), 
+                                        FontFace = Font.fromName("Montserrat", Enum.FontWeight.ExtraBold, Enum.FontStyle.Normal), 
+                                        TextSize = 16, 
+                                        TextXAlignment = Enum.TextXAlignment.Center, 
+                                        TextColor3 = v6.White, 
+                                        ZIndex = 20, 
+                                        [l_Children_0] = {
+                                            v20:New("UIGradient")({
+                                                Color = v20:ScrollingGradient({
+                                                    ColorSequence = v6.Gradients.Rainbow
+                                                })
+                                            }), 
+                                            v20:New("UIStroke")({
+                                                Color = v6.LightBlack, 
+                                                Thickness = 2
+                                            })
+                                        }
+                                    }), 
+                                    v20:New("TextLabel")({
+                                        Size = UDim2.fromOffset(0, 16), 
+                                        AutomaticSize = Enum.AutomaticSize.X, 
+                                        Position = v2.lerpProgress(v20, v27, UDim2.new(0.5, 0, 1, -166), UDim2.new(0.5, 0, 1, -112)), 
+                                        AnchorPoint = Vector2.new(0.5, 1), 
+                                        BackgroundTransparency = 1, 
+                                        Text = "Check inventory once purchased!", 
+                                        FontFace = Font.fromName("Montserrat", Enum.FontWeight.ExtraBold, Enum.FontStyle.Normal), 
+                                        TextSize = 14, 
+                                        TextXAlignment = Enum.TextXAlignment.Center, 
+                                        TextColor3 = v6.White, 
+                                        TextTransparency = 0.1, 
+                                        ZIndex = 20, 
+                                        [l_Children_0] = {
+                                            v20:New("UIGradient")({
+                                                Color = v20:ScrollingGradient({
+                                                    ColorSequence = v6.Gradients.Rainbow
+                                                })
+                                            }), 
+                                            v20:New("UIStroke")({
+                                                Color = v6.LightBlack, 
+                                                Thickness = 2
+                                            })
+                                        }
+                                    }), 
+                                    BuyPremium = v20:ActionButton({
+                                        Size = UDim2.new(1, 0, 0, 56), 
+                                        Position = v2.lerpProgress(v20, v27, UDim2.new(0.5, 0, 1, -48), UDim2.new(0.5, 0, 1, -24)), 
+                                        AnchorPoint = Vector2.new(0.5, 1), 
+                                        Text = "799\238\128\130", 
+                                        Gradient = v20:ScrollingGradient({
+                                            ColorSequence = v6.Gradients.Rainbow
+                                        }), 
+                                        GradientRotation = 0, 
+                                        LayoutOrder = 1, 
+                                        ZIndex = 20, 
+                                        [l_OnEvent_0("Activated")] = v4.Battlepass_BuyPremium, 
+                                        [l_Children_0] = v20:New("UIAspectRatioConstraint")({
+                                            AspectRatio = 4
+                                        })
+                                    }), 
+                                    PassImage = v22:set(v20:New("Frame")({
+                                        Size = UDim2.fromOffset(320, 320), 
+                                        Position = UDim2.fromScale(0.5, 0.5), 
+                                        AnchorPoint = Vector2.new(0.5, 0.5), 
+                                        BackgroundTransparency = 1, 
+                                        [l_Children_0] = {
+                                            v20:Magic({
+                                                Size = UDim2.fromScale(1.25, 1.25), 
+                                                Color = Color3.fromRGB(255, 203, 47), 
+                                                Enabled = true, 
+                                                ZIndex = 10, 
+                                                [l_Children_0] = v20:New("UIScale")({
+                                                    Scale = v20:Computed(function(v56, _) --[[ Line: 578 ]]
+                                                        -- upvalues: v30 (copy)
+                                                        return 1.5 - v56(v30) * 0.5;
+                                                    end)
+                                                })
+                                            }), 
+                                            v20:New("ImageLabel")({
+                                                Size = UDim2.fromScale(1, 1), 
+                                                Position = UDim2.fromScale(0.5, 0.5), 
+                                                AnchorPoint = Vector2.new(0.5, 0.5), 
+                                                Rotation = v31, 
+                                                BackgroundTransparency = 1, 
+                                                Image = "rbxassetid://122465189279013", 
+                                                [l_Children_0] = v20:New("UIScale")({
+                                                    Scale = v30
+                                                })
+                                            }), 
+                                            v20:Shine({
+                                                Size = UDim2.fromScale(1.5, 2), 
+                                                Gradient = v20:ScrollingGradient({
+                                                    ColorSequence = v6.Gradients.Rainbow
+                                                }), 
+                                                Transparency = 0.5, 
+                                                Enabled = true, 
+                                                ZIndex = -10
+                                            })
+                                        }
+                                    })), 
+                                    v20:New("Frame")({
+                                        Size = UDim2.fromScale(1, 1), 
+                                        BackgroundTransparency = 0.75, 
+                                        ZIndex = -20, 
+                                        [l_Children_0] = {
+                                            v20:New("UICorner")({
+                                                CornerRadius = UDim.new(0, 16)
+                                            }), 
+                                            v20:New("UIGradient")({
+                                                Color = v20:ScrollingGradient({
+                                                    ColorSequence = v6.Gradients.Rainbow
+                                                }), 
+                                                Transparency = NumberSequence.new({
+                                                    NumberSequenceKeypoint.new(0, 0), 
+                                                    NumberSequenceKeypoint.new(0.5, 1), 
+                                                    NumberSequenceKeypoint.new(1, 0)
+                                                }), 
+                                                Rotation = 56
+                                            })
+                                        }
+                                    }), 
+                                    v20:New("Frame")({
+                                        Size = UDim2.new(1, -8, 1, -8), 
+                                        Position = UDim2.fromScale(0.5, 0.5), 
+                                        AnchorPoint = Vector2.new(0.5, 0.5), 
+                                        BackgroundTransparency = 1, 
+                                        ZIndex = -10, 
+                                        [l_Children_0] = {
+                                            v20:New("UICorner")({
+                                                CornerRadius = UDim.new(0, 12)
+                                            }), 
+                                            v20:New("UIStroke")({
+                                                Thickness = 4, 
+                                                Transparency = 0.5
+                                            })
+                                        }
+                                    })
+                                }
+                            }))
+                        }
+                    }), 
+                    v20:New("Frame")({
+                        Size = UDim2.fromScale(0, 1), 
+                        BackgroundTransparency = 1, 
+                        [l_Children_0] = {
+                            v20:New("UIFlexItem")({
+                                FlexMode = Enum.UIFlexMode.Fill
+                            }), 
+                            v20:New("Frame")({
+                                Size = UDim2.new(1, 0, 0, 12), 
+                                Position = UDim2.fromScale(0, 1), 
+                                AnchorPoint = Vector2.yAxis, 
+                                BackgroundTransparency = 0.25, 
+                                BackgroundColor3 = Color3.new()
+                            }), 
+                            v20:VirtualScroller({
+                                Size = UDim2.fromScale(1, 1), 
+                                ScrollingDirection = Enum.ScrollingDirection.X, 
+                                HorizontalScrollBarInset = Enum.ScrollBarInset.None, 
+                                ScrollBarImageColor3 = v6.White, 
+                                ScrollBarThickness = 12, 
+                                BackgroundTransparency = 1, 
+                                ItemHeight = 200, 
+                                ItemCount = v40, 
+                                UIScale = v19.Scale, 
+                                RenderItem = function(v58, v59) --[[ Line: 677 ]] --[[ Name: RenderItem ]]
+                                    -- upvalues: l_peek_0 (ref), v19 (copy), l_Children_0 (ref), v6 (ref), v4 (ref), v5 (ref), l_OnEvent_0 (ref), v2 (ref)
+                                    local v60 = l_peek_0(v19.PassData.Rewards)[v59];
+                                    local v61 = v59 % 2 ~= 0;
+                                    return v58:New("Frame")({
+                                        Size = UDim2.new(0, 200, 1, 0), 
+                                        BackgroundColor3 = Color3.new(), 
+                                        BackgroundTransparency = v61 and 0.85 or 1, 
+                                        LayoutOrder = v59, 
+                                        [l_Children_0] = {
+                                            BackgroundGradient = v58:New("Frame")({
+                                                Size = UDim2.fromScale(1, 1), 
+                                                BackgroundColor3 = Color3.new(), 
+                                                BackgroundTransparency = 0.75, 
+                                                [l_Children_0] = v58:New("UIGradient")({
+                                                    Transparency = NumberSequence.new({
+                                                        NumberSequenceKeypoint.new(0, v61 and 0 or 1), 
+                                                        NumberSequenceKeypoint.new(0.5, v61 and 1 or 0), 
+                                                        NumberSequenceKeypoint.new(1, v61 and 0 or 1)
+                                                    }), 
+                                                    Rotation = 90
+                                                })
+                                            }), 
+                                            Divider = v58:New("Frame")({
+                                                Size = UDim2.new(0, 2, 1, 0), 
+                                                Position = UDim2.fromScale(1, 0), 
+                                                AnchorPoint = Vector2.xAxis, 
+                                                BackgroundColor3 = Color3.new(), 
+                                                BackgroundTransparency = 0.5
+                                            }); 
+                                            v58:New("Frame")({
+                                                Size = UDim2.fromScale(1, 1), 
+                                                BackgroundTransparency = 1, 
+                                                ZIndex = 10, 
+                                                [l_Children_0] = {
+                                                    v58:New("UIListLayout")({
+                                                        FillDirection = Enum.FillDirection.Vertical, 
+                                                        VerticalAlignment = Enum.VerticalAlignment.Top, 
+                                                        SortOrder = Enum.SortOrder.LayoutOrder
+                                                    }); 
+                                                    Label = v58:New("Frame")({
+                                                        Size = UDim2.new(1, 0, 0, 40), 
+                                                        BackgroundColor3 = Color3.new(), 
+                                                        BackgroundTransparency = 0.25, 
+                                                        LayoutOrder = 1, 
+                                                        [l_Children_0] = {
+                                                            v58:New("UIPadding")({
+                                                                PaddingLeft = UDim.new(0, 16), 
+                                                                PaddingRight = UDim.new(0, 16)
+                                                            }), 
+                                                            v58:New("UIListLayout")({
+                                                                FillDirection = Enum.FillDirection.Horizontal, 
+                                                                HorizontalAlignment = Enum.HorizontalAlignment.Center, 
+                                                                VerticalAlignment = Enum.VerticalAlignment.Center, 
+                                                                SortOrder = Enum.SortOrder.LayoutOrder, 
+                                                                Padding = UDim.new(0, 4)
+                                                            }), 
+                                                            v58:New("ImageLabel")({
+                                                                Size = UDim2.fromOffset(16, 16), 
+                                                                BackgroundTransparency = 1, 
+                                                                Image = "rbxassetid://129601872262406", 
+                                                                ImageColor3 = v6.White, 
+                                                                ImageTransparency = 0.9, 
+                                                                LayoutOrder = -2000
+                                                            }), 
+                                                            v58:New("Frame")({
+                                                                Size = UDim2.fromOffset(0, 2), 
+                                                                BackgroundColor3 = v6.White, 
+                                                                BackgroundTransparency = 0.9, 
+                                                                LayoutOrder = -1000, 
+                                                                [l_Children_0] = v58:New("UIFlexItem")({
+                                                                    FlexMode = Enum.UIFlexMode.Fill
+                                                                })
+                                                            }), 
+                                                            v58:New("TextLabel")({
+                                                                Size = UDim2.fromOffset(0, 2), 
+                                                                AutomaticSize = Enum.AutomaticSize.X, 
+                                                                BackgroundTransparency = 1, 
+                                                                Text = ("Lv. %*"):format(v59), 
+                                                                FontFace = Font.fromName("Montserrat", Enum.FontWeight.Heavy, Enum.FontStyle.Normal), 
+                                                                TextColor3 = Color3.new(1, 1, 1), 
+                                                                TextSize = 22, 
+                                                                LayoutOrder = 0, 
+                                                                [l_Children_0] = v58:New("UIFlexItem")({
+                                                                    FlexMode = Enum.UIFlexMode.Fill
+                                                                })
+                                                            }), 
+                                                            v58:New("Frame")({
+                                                                Size = UDim2.fromOffset(0, 2), 
+                                                                BackgroundColor3 = v6.White, 
+                                                                BackgroundTransparency = 0.9, 
+                                                                LayoutOrder = 1000, 
+                                                                [l_Children_0] = v58:New("UIFlexItem")({
+                                                                    FlexMode = Enum.UIFlexMode.Fill
+                                                                })
+                                                            }), 
+                                                            v58:New("ImageLabel")({
+                                                                Size = UDim2.fromOffset(16, 16), 
+                                                                BackgroundTransparency = 1, 
+                                                                Image = "rbxassetid://129601872262406", 
+                                                                ImageColor3 = v6.White, 
+                                                                ImageTransparency = 0.9, 
+                                                                LayoutOrder = 2000
+                                                            })
+                                                        }
+                                                    }), 
+                                                    Free = v58:New("Frame")({
+                                                        Size = UDim2.new(1, 0, 0, 160), 
+                                                        BackgroundColor3 = Color3.new(), 
+                                                        BackgroundTransparency = 0.8, 
+                                                        ZIndex = 10, 
+                                                        LayoutOrder = 2, 
+                                                        [l_Children_0] = {
+                                                            v58:Computed(function(_, v63) --[[ Line: 798 ]]
+                                                                -- upvalues: v60 (copy), v19 (ref), v59 (copy), l_peek_0 (ref), v4 (ref), v5 (ref), v6 (ref), l_OnEvent_0 (ref), l_Children_0 (ref), v2 (ref)
+                                                                local l_Reward_0 = v60.Regular.Reward;
+                                                                local l_Value_0 = v60.Regular.Value;
+                                                                local v66 = nil;
+                                                                local v67 = v63:KeyOf(v19.Dependencies.TowerInfo, l_Reward_0);
+                                                                local v72 = v63:Computed(function(v68, _) --[[ Line: 805 ]]
+                                                                    -- upvalues: v19 (ref), v59 (ref)
+                                                                    local v70 = v68(v19.PassData.Level) or 1;
+                                                                    local v71 = v68(v19.PassData.SkippedLevels) or 0;
+                                                                    return v59 > v70 + v71;
+                                                                end);
+                                                                local v78 = v63:Computed(function(v73, _) --[[ Line: 810 ]]
+                                                                    -- upvalues: v19 (ref), v59 (ref)
+                                                                    local v75 = v73(v19.PassData.PersonalExpPerTier);
+                                                                    if type(v75) == "number" then
+                                                                        local v76 = v73(v19.PassData.PersonalExp) or 0;
+                                                                        local v77 = v73(v19.PassData.SkippedLevels) or 0;
+                                                                        return v76 < v75 * (v59 - v77);
+                                                                    else
+                                                                        return false;
+                                                                    end;
+                                                                end);
+                                                                local v81 = v63:Computed(function(v79, _) --[[ Line: 821 ]]
+                                                                    -- upvalues: v72 (copy), v78 (copy)
+                                                                    return v79(v72) or v79(v78);
+                                                                end);
+                                                                local v86 = v63:Computed(function(v82, _) --[[ Line: 824 ]]
+                                                                    -- upvalues: v19 (ref), v59 (ref)
+                                                                    local v84 = v82(v19.PassData.ClaimedLevels);
+                                                                    local v85 = v84 and v84.Regular;
+                                                                    return not v85 or v85[tostring(v59)];
+                                                                end);
+                                                                local function v87() --[[ Line: 830 ]] --[[ Name: onActivated ]]
+                                                                    -- upvalues: l_peek_0 (ref), v78 (copy), v72 (copy), v4 (ref), v86 (copy), v59 (ref), v5 (ref), v63 (copy), v6 (ref), v66 (ref)
+                                                                    if l_peek_0(v78) or l_peek_0(v72) then
+                                                                        v4.Battlepass_SkipLevel();
+                                                                        return;
+                                                                    else
+                                                                        if not l_peek_0(v86) then
+                                                                            v4.Battlepass_ClaimReward("Regular", v59);
+                                                                            v5.Success:Play();
+                                                                            v63:Burst({
+                                                                                Size = UDim2.fromScale(4, 4), 
+                                                                                Color = v6.Yellow, 
+                                                                                Enabled = true, 
+                                                                                Count = 16, 
+                                                                                ZIndex = 200, 
+                                                                                Parent = v66
+                                                                            });
+                                                                        end;
+                                                                        return;
+                                                                    end;
+                                                                end;
+                                                                v66 = v63:Computed(function(v88, v89) --[[ Line: 850 ]]
+                                                                    -- upvalues: v67 (copy), l_Reward_0 (copy), v81 (copy), v19 (ref), l_OnEvent_0 (ref), v87 (copy), l_Children_0 (ref), v78 (copy), v59 (ref), v2 (ref), v6 (ref), v72 (copy), l_Value_0 (copy), v86 (copy)
+                                                                    if v88(v67) ~= nil then
+                                                                        return v89:UnitSlot({
+                                                                            Size = UDim2.fromOffset(100, 100), 
+                                                                            Position = UDim2.fromScale(0.5, 0.5), 
+                                                                            AnchorPoint = Vector2.new(0.5, 0.5), 
+                                                                            DisplayType = "Labeled", 
+                                                                            Parameters = {
+                                                                                Unit = l_Reward_0
+                                                                            }, 
+                                                                            Animated = true, 
+                                                                            Disabled = v81, 
+                                                                            Dependencies = v19.Dependencies, 
+                                                                            [l_OnEvent_0("Activated")] = v87, 
+                                                                            [l_Children_0] = {
+                                                                                v89:New("UIScale")({
+                                                                                    Scale = 1.2
+                                                                                }), 
+                                                                                v89:Computed(function(v90, v91) --[[ Line: 871 ]]
+                                                                                    -- upvalues: v78 (ref), v19 (ref), v59 (ref), v2 (ref), v6 (ref), l_Children_0 (ref)
+                                                                                    if v90(v78) then
+                                                                                        return v91:New("TextLabel")({
+                                                                                            Size = UDim2.fromScale(1, 1), 
+                                                                                            Position = UDim2.fromScale(0.5, 0.5), 
+                                                                                            AnchorPoint = Vector2.new(0.5, 0.5), 
+                                                                                            BackgroundTransparency = 0.5, 
+                                                                                            BackgroundColor3 = Color3.new(), 
+                                                                                            Text = v91:Computed(function(v92, _) --[[ Line: 879 ]]
+                                                                                                -- upvalues: v19 (ref), v59 (ref), v2 (ref)
+                                                                                                local v94 = v92(v19.PassData.PersonalExpPerTier);
+                                                                                                local _ = v92(v19.PassData.PersonalExp) or 0;
+                                                                                                local v96 = v92(v19.PassData.SkippedLevels) or 0;
+                                                                                                local v97 = v94 * (v59 - v96);
+                                                                                                return (("%* Valor Required"):format((v2.formatNumber(v97))));
+                                                                                            end), 
+                                                                                            FontFace = Font.fromName("FredokaOne"), 
+                                                                                            TextSize = 18, 
+                                                                                            TextWrapped = true, 
+                                                                                            TextXAlignment = Enum.TextXAlignment.Center, 
+                                                                                            TextYAlignment = Enum.TextYAlignment.Center, 
+                                                                                            TextColor3 = v6.White, 
+                                                                                            ZIndex = 20, 
+                                                                                            [l_Children_0] = {
+                                                                                                v91:New("UICorner")({
+                                                                                                    CornerRadius = UDim.new(0.12, 0)
+                                                                                                }), 
+                                                                                                v91:New("UIStroke")({
+                                                                                                    Thickness = 2, 
+                                                                                                    Transparency = 0.5
+                                                                                                })
+                                                                                            }
+                                                                                        });
+                                                                                    else
+                                                                                        return;
+                                                                                    end;
+                                                                                end); 
+                                                                                Lock = v89:New("ImageLabel")({
+                                                                                    Size = UDim2.fromOffset(26.6666667, 26.6666667), 
+                                                                                    Position = UDim2.fromScale(1, 0), 
+                                                                                    AnchorPoint = Vector2.new(1, 0), 
+                                                                                    BackgroundTransparency = 1, 
+                                                                                    Image = "rbxassetid://13505635139", 
+                                                                                    ZIndex = 100, 
+                                                                                    Visible = v72
+                                                                                })
+                                                                            }
+                                                                        });
+                                                                    else
+                                                                        return v89:ItemSlot({
+                                                                            Size = UDim2.fromOffset(100, 100), 
+                                                                            Position = UDim2.fromScale(0.5, 0.5), 
+                                                                            AnchorPoint = Vector2.new(0.5, 0.5), 
+                                                                            Parameters = {
+                                                                                Item = l_Reward_0, 
+                                                                                Amount = l_Value_0
+                                                                            }, 
+                                                                            Dependencies = v19.Dependencies, 
+                                                                            Disabled = v81, 
+                                                                            Claimed = v86, 
+                                                                            [l_OnEvent_0("Activated")] = v87, 
+                                                                            [l_Children_0] = {
+                                                                                v89:New("UIScale")({
+                                                                                    Scale = 1.2
+                                                                                }), 
+                                                                                v89:Computed(function(v98, v99) --[[ Line: 938 ]]
+                                                                                    -- upvalues: v78 (ref), v19 (ref), v59 (ref), v2 (ref), v6 (ref), l_Children_0 (ref)
+                                                                                    if v98(v78) then
+                                                                                        return v99:New("TextLabel")({
+                                                                                            Size = UDim2.fromScale(1, 1), 
+                                                                                            Position = UDim2.fromScale(0.5, 0.5), 
+                                                                                            AnchorPoint = Vector2.new(0.5, 0.5), 
+                                                                                            BackgroundTransparency = 0.5, 
+                                                                                            BackgroundColor3 = Color3.new(), 
+                                                                                            Text = v99:Computed(function(v100, _) --[[ Line: 946 ]]
+                                                                                                -- upvalues: v19 (ref), v59 (ref), v2 (ref)
+                                                                                                local v102 = v100(v19.PassData.PersonalExpPerTier);
+                                                                                                local _ = v100(v19.PassData.PersonalExp) or 0;
+                                                                                                local v104 = v100(v19.PassData.SkippedLevels) or 0;
+                                                                                                local v105 = v102 * (v59 - v104);
+                                                                                                return (("%* Valor Required"):format((v2.formatNumber(v105))));
+                                                                                            end), 
+                                                                                            FontFace = Font.fromName("FredokaOne"), 
+                                                                                            TextSize = 18, 
+                                                                                            TextWrapped = true, 
+                                                                                            TextXAlignment = Enum.TextXAlignment.Center, 
+                                                                                            TextYAlignment = Enum.TextYAlignment.Center, 
+                                                                                            TextColor3 = v6.White, 
+                                                                                            ZIndex = 20, 
+                                                                                            [l_Children_0] = {
+                                                                                                v99:New("UICorner")({
+                                                                                                    CornerRadius = UDim.new(0.12, 0)
+                                                                                                }), 
+                                                                                                v99:New("UIStroke")({
+                                                                                                    Thickness = 2, 
+                                                                                                    Transparency = 0.5
+                                                                                                })
+                                                                                            }
+                                                                                        });
+                                                                                    else
+                                                                                        return;
+                                                                                    end;
+                                                                                end); 
+                                                                                Lock = v89:New("ImageLabel")({
+                                                                                    Size = UDim2.fromOffset(26.6666667, 26.6666667), 
+                                                                                    Position = UDim2.fromScale(1, 0), 
+                                                                                    AnchorPoint = Vector2.new(1, 0), 
+                                                                                    BackgroundTransparency = 1, 
+                                                                                    Image = "rbxassetid://13505635139", 
+                                                                                    ZIndex = 100, 
+                                                                                    Visible = v72
+                                                                                })
+                                                                            }
+                                                                        });
+                                                                    end;
+                                                                end);
+                                                                return v66;
+                                                            end)
+                                                        }
+                                                    }), 
+                                                    Premium = v58:New("Frame")({
+                                                        Size = UDim2.fromScale(1, 0), 
+                                                        BackgroundTransparency = 1, 
+                                                        ZIndex = 20, 
+                                                        LayoutOrder = 3, 
+                                                        [l_Children_0] = {
+                                                            v58:New("UIFlexItem")({
+                                                                FlexMode = Enum.UIFlexMode.Fill
+                                                            }), 
+                                                            v58:Computed(function(_, v107) --[[ Line: 1000 ]]
+                                                                -- upvalues: v60 (copy), v19 (ref), v59 (copy), l_peek_0 (ref), v4 (ref), v5 (ref), v6 (ref), l_OnEvent_0 (ref), l_Children_0 (ref), v2 (ref)
+                                                                local l_Reward_1 = v60.Premium.Reward;
+                                                                local l_Value_1 = v60.Premium.Value;
+                                                                local v110 = nil;
+                                                                local v111 = v107:KeyOf(v19.Dependencies.TowerInfo, l_Reward_1);
+                                                                local v116 = v107:Computed(function(v112, _) --[[ Line: 1007 ]]
+                                                                    -- upvalues: v19 (ref), v59 (ref)
+                                                                    local v114 = v112(v19.PassData.Level) or 1;
+                                                                    local v115 = v112(v19.PassData.SkippedLevels) or 0;
+                                                                    return not v112(v19.PassData.Premium) or v59 > v114 + v115;
+                                                                end);
+                                                                local v122 = v107:Computed(function(v117, _) --[[ Line: 1013 ]]
+                                                                    -- upvalues: v19 (ref), v59 (ref)
+                                                                    local v119 = v117(v19.PassData.PersonalExpPerTier);
+                                                                    if type(v119) == "number" then
+                                                                        local v120 = v117(v19.PassData.PersonalExp) or 0;
+                                                                        local v121 = v117(v19.PassData.SkippedLevels) or 0;
+                                                                        return v120 < v119 * (v59 - v121);
+                                                                    else
+                                                                        return false;
+                                                                    end;
+                                                                end);
+                                                                local v125 = v107:Computed(function(v123, _) --[[ Line: 1024 ]]
+                                                                    -- upvalues: v116 (copy), v122 (copy)
+                                                                    return v123(v116) or v123(v122);
+                                                                end);
+                                                                local v130 = v107:Computed(function(v126, _) --[[ Line: 1027 ]]
+                                                                    -- upvalues: v19 (ref), v59 (ref)
+                                                                    local v128 = v126(v19.PassData.ClaimedLevels);
+                                                                    local v129 = v128 and v128.Premium;
+                                                                    return not v129 or v129[tostring(v59)];
+                                                                end);
+                                                                local function v131() --[[ Line: 1033 ]] --[[ Name: onActivated ]]
+                                                                    -- upvalues: l_peek_0 (ref), v19 (ref), v4 (ref), v122 (copy), v116 (copy), v130 (copy), v59 (ref), v5 (ref), v107 (copy), v6 (ref), v110 (ref)
+                                                                    if not l_peek_0(v19.PassData.Premium) then
+                                                                        v4.Battlepass_BuyPremium();
+                                                                        return;
+                                                                    elseif l_peek_0(v122) or l_peek_0(v116) then
+                                                                        v4.Battlepass_SkipLevel();
+                                                                        return;
+                                                                    else
+                                                                        if not l_peek_0(v130) then
+                                                                            v4.Battlepass_ClaimReward("Premium", v59);
+                                                                            v5.Success:Play();
+                                                                            v107:Burst({
+                                                                                Size = UDim2.fromScale(4, 4), 
+                                                                                Color = v6.Yellow, 
+                                                                                Enabled = true, 
+                                                                                Count = 16, 
+                                                                                ZIndex = 200, 
+                                                                                Parent = v110
+                                                                            });
+                                                                        end;
+                                                                        return;
+                                                                    end;
+                                                                end;
+                                                                v110 = v107:Computed(function(v132, v133) --[[ Line: 1056 ]]
+                                                                    -- upvalues: v111 (copy), l_Reward_1 (copy), v125 (copy), v19 (ref), l_OnEvent_0 (ref), v131 (copy), l_Children_0 (ref), v116 (copy), v122 (copy), v59 (ref), v2 (ref), v6 (ref), l_Value_1 (copy), v130 (copy)
+                                                                    if v132(v111) ~= nil then
+                                                                        return v133:UnitSlot({
+                                                                            Size = UDim2.fromOffset(100, 100), 
+                                                                            Position = UDim2.fromScale(0.5, 0.5), 
+                                                                            AnchorPoint = Vector2.new(0.5, 0.5), 
+                                                                            DisplayType = "Labeled", 
+                                                                            Parameters = {
+                                                                                Unit = l_Reward_1
+                                                                            }, 
+                                                                            Animated = true, 
+                                                                            Disabled = v125, 
+                                                                            Dependencies = v19.Dependencies, 
+                                                                            [l_OnEvent_0("Activated")] = v131, 
+                                                                            [l_Children_0] = {
+                                                                                v133:New("UIScale")({
+                                                                                    Scale = 1.2
+                                                                                }), 
+                                                                                Lock = v133:New("ImageLabel")({
+                                                                                    Size = UDim2.fromOffset(26.6666667, 26.6666667), 
+                                                                                    Position = UDim2.fromScale(1, 0), 
+                                                                                    AnchorPoint = Vector2.new(1, 0), 
+                                                                                    BackgroundTransparency = 1, 
+                                                                                    Image = "rbxassetid://13505635139", 
+                                                                                    ZIndex = 100, 
+                                                                                    Visible = v116
+                                                                                }), 
+                                                                                v133:Computed(function(v134, v135) --[[ Line: 1087 ]]
+                                                                                    -- upvalues: v122 (ref), v19 (ref), v59 (ref), v2 (ref), v6 (ref), l_Children_0 (ref)
+                                                                                    if v134(v122) then
+                                                                                        return v135:New("TextLabel")({
+                                                                                            Size = UDim2.fromScale(1, 1), 
+                                                                                            Position = UDim2.fromScale(0.5, 0.5), 
+                                                                                            AnchorPoint = Vector2.new(0.5, 0.5), 
+                                                                                            BackgroundTransparency = 0.5, 
+                                                                                            BackgroundColor3 = Color3.new(), 
+                                                                                            Text = v135:Computed(function(v136, _) --[[ Line: 1095 ]]
+                                                                                                -- upvalues: v19 (ref), v59 (ref), v2 (ref)
+                                                                                                local v138 = v136(v19.PassData.PersonalExpPerTier);
+                                                                                                local _ = v136(v19.PassData.PersonalExp) or 0;
+                                                                                                local v140 = v136(v19.PassData.SkippedLevels) or 0;
+                                                                                                local v141 = v138 * (v59 - v140);
+                                                                                                return (("%* Valor Required"):format((v2.formatNumber(v141))));
+                                                                                            end), 
+                                                                                            FontFace = Font.fromName("FredokaOne"), 
+                                                                                            TextSize = 18, 
+                                                                                            TextWrapped = true, 
+                                                                                            TextXAlignment = Enum.TextXAlignment.Center, 
+                                                                                            TextYAlignment = Enum.TextYAlignment.Center, 
+                                                                                            TextColor3 = v6.White, 
+                                                                                            ZIndex = 20, 
+                                                                                            [l_Children_0] = {
+                                                                                                v135:New("UICorner")({
+                                                                                                    CornerRadius = UDim.new(0.12, 0)
+                                                                                                }), 
+                                                                                                v135:New("UIStroke")({
+                                                                                                    Thickness = 2, 
+                                                                                                    Transparency = 0.5
+                                                                                                })
+                                                                                            }
+                                                                                        });
+                                                                                    else
+                                                                                        return;
+                                                                                    end;
+                                                                                end)
+                                                                            }
+                                                                        });
+                                                                    else
+                                                                        return v133:ItemSlot({
+                                                                            Size = UDim2.fromOffset(100, 100), 
+                                                                            Position = UDim2.fromScale(0.5, 0.5), 
+                                                                            AnchorPoint = Vector2.new(0.5, 0.5), 
+                                                                            Parameters = {
+                                                                                Item = l_Reward_1, 
+                                                                                Amount = l_Value_1
+                                                                            }, 
+                                                                            Dependencies = v19.Dependencies, 
+                                                                            Disabled = v125, 
+                                                                            Claimed = v130, 
+                                                                            [l_OnEvent_0("Activated")] = v131, 
+                                                                            [l_Children_0] = {
+                                                                                v133:New("UIScale")({
+                                                                                    Scale = 1.2
+                                                                                }), 
+                                                                                Lock = v133:New("ImageLabel")({
+                                                                                    Size = UDim2.fromOffset(26.6666667, 26.6666667), 
+                                                                                    Position = UDim2.fromScale(1, 0), 
+                                                                                    AnchorPoint = Vector2.new(1, 0), 
+                                                                                    BackgroundTransparency = 1, 
+                                                                                    Image = "rbxassetid://13505635139", 
+                                                                                    ZIndex = 100, 
+                                                                                    Visible = v116
+                                                                                }), 
+                                                                                v133:Computed(function(v142, v143) --[[ Line: 1154 ]]
+                                                                                    -- upvalues: v122 (ref), v19 (ref), v59 (ref), v2 (ref), v6 (ref), l_Children_0 (ref)
+                                                                                    if v142(v122) then
+                                                                                        return v143:New("TextLabel")({
+                                                                                            Size = UDim2.fromScale(1, 1), 
+                                                                                            Position = UDim2.fromScale(0.5, 0.5), 
+                                                                                            AnchorPoint = Vector2.new(0.5, 0.5), 
+                                                                                            BackgroundTransparency = 0.5, 
+                                                                                            BackgroundColor3 = Color3.new(), 
+                                                                                            Text = v143:Computed(function(v144, _) --[[ Line: 1162 ]]
+                                                                                                -- upvalues: v19 (ref), v59 (ref), v2 (ref)
+                                                                                                local v146 = v144(v19.PassData.PersonalExpPerTier);
+                                                                                                local _ = v144(v19.PassData.PersonalExp) or 0;
+                                                                                                local v148 = v144(v19.PassData.SkippedLevels) or 0;
+                                                                                                local v149 = v146 * (v59 - v148);
+                                                                                                return (("%* Valor Required"):format((v2.formatNumber(v149))));
+                                                                                            end), 
+                                                                                            FontFace = Font.fromName("FredokaOne"), 
+                                                                                            TextSize = 18, 
+                                                                                            TextWrapped = true, 
+                                                                                            TextXAlignment = Enum.TextXAlignment.Center, 
+                                                                                            TextYAlignment = Enum.TextYAlignment.Center, 
+                                                                                            TextColor3 = v6.White, 
+                                                                                            ZIndex = 20, 
+                                                                                            [l_Children_0] = {
+                                                                                                v143:New("UICorner")({
+                                                                                                    CornerRadius = UDim.new(0.12, 0)
+                                                                                                }), 
+                                                                                                v143:New("UIStroke")({
+                                                                                                    Thickness = 2, 
+                                                                                                    Transparency = 0.5
+                                                                                                })
+                                                                                            }
+                                                                                        });
+                                                                                    else
+                                                                                        return;
+                                                                                    end;
+                                                                                end)
+                                                                            }
+                                                                        });
+                                                                    end;
+                                                                end);
+                                                                return v110;
+                                                            end)
+                                                        }
+                                                    })
+                                                }
+                                            })
+                                        }
+                                    });
+                                end
+                            })
+                        }
+                    })
+                }
+            }), 
+            FooterContent = v20:New("Frame")({
+                Size = UDim2.new(1, -96, 0, 96), 
+                Position = UDim2.fromScale(0.5, 1), 
+                AnchorPoint = Vector2.new(0.5, 1), 
+                BackgroundTransparency = 1, 
+                ZIndex = 3000, 
+                [l_Children_0] = {
+                    v20:New("Frame")({
+                        Size = UDim2.new(1, 0, 0, 56), 
+                        Position = UDim2.fromScale(0.5, 0.5), 
+                        AnchorPoint = Vector2.new(0.5, 0.5), 
+                        BackgroundTransparency = 1, 
+                        [l_Children_0] = {
+                            SkipLevel = v20:ActionButton({
+                                Size = UDim2.fromScale(1, 1), 
+                                Position = UDim2.fromScale(0, 0.5), 
+                                AnchorPoint = Vector2.new(0, 0.5), 
+                                Text = "Skip Level", 
+                                Color = v6.Green, 
+                                LayoutOrder = 1, 
+                                Visible = v20:Computed(function(v150, _) --[[ Line: 1229 ]]
+                                    -- upvalues: v19 (copy)
+                                    return (v150(v19.PassData.Level) or 1) < #(v150(v19.PassData.Rewards) or {});
+                                end), 
+                                [l_OnEvent_0("Activated")] = v4.Battlepass_SkipLevel, 
+                                [l_Children_0] = v20:New("UIAspectRatioConstraint")({
+                                    AspectRatio = 4
+                                })
+                            }), 
+                            v20:New("Frame")({
+                                Size = UDim2.fromOffset(0, 48), 
+                                AutomaticSize = Enum.AutomaticSize.X, 
+                                Position = UDim2.fromScale(0.5, 0.5), 
+                                AnchorPoint = Vector2.new(0.5, 0.5), 
+                                BackgroundColor3 = Color3.new(), 
+                                BackgroundTransparency = 0.25, 
+                                ZIndex = 10000, 
+                                LayoutOrder = 2, 
+                                [l_Children_0] = {
+                                    v20:New("UICorner")({
+                                        CornerRadius = UDim.new(1, 0)
+                                    }), 
+                                    v20:New("UIPadding")({
+                                        PaddingLeft = UDim.new(0, 3), 
+                                        PaddingRight = UDim.new(0, 3)
+                                    }), 
+                                    v20:New("Frame")({
+                                        Size = UDim2.new(0, 0, 1, -6), 
+                                        AutomaticSize = Enum.AutomaticSize.X, 
+                                        Position = UDim2.fromOffset(0, 3), 
+                                        BackgroundTransparency = 1, 
+                                        [l_Children_0] = {
+                                            v20:New("UICorner")({
+                                                CornerRadius = UDim.new(1, 0)
+                                            }), 
+                                            v20:New("UIStroke")({
+                                                Color = Color3.new(), 
+                                                Thickness = 3, 
+                                                Transparency = 0.25
+                                            }), 
+                                            v20:New("UIListLayout")({
+                                                FillDirection = Enum.FillDirection.Horizontal, 
+                                                HorizontalAlignment = Enum.HorizontalAlignment.Center, 
+                                                VerticalAlignment = Enum.VerticalAlignment.Center, 
+                                                SortOrder = Enum.SortOrder.LayoutOrder, 
+                                                Padding = UDim.new(0, 4)
+                                            }), 
+                                            v20:New("UIPadding")({
+                                                PaddingLeft = UDim.new(0, 1), 
+                                                PaddingRight = UDim.new(0, 29)
+                                            }), 
+                                            v20:New("Frame")({
+                                                Size = UDim2.fromOffset(64, 64), 
+                                                BackgroundTransparency = 1, 
+                                                LayoutOrder = 1, 
+                                                [v8.Tooltip] = function(v152) --[[ Line: 1290 ]]
+                                                    -- upvalues: l_innerScope_0 (ref), v1 (ref), v15 (ref), v19 (copy)
+                                                    return l_innerScope_0(v152, v1, v15):ItemTooltip({
+                                                        Parameters = {
+                                                            Item = "BattlepassEXP"
+                                                        }, 
+                                                        Dependencies = v19.Dependencies
+                                                    });
+                                                end, 
+                                                [l_Children_0] = {
+                                                    v20:New("ImageLabel")({
+                                                        Size = v20:Fallback(v20:KeyOf(v42, "Scale"), UDim2.fromScale(1, 1)), 
+                                                        Position = UDim2.fromScale(0.5, 0.5), 
+                                                        AnchorPoint = Vector2.new(0.5, 0.5), 
+                                                        BackgroundTransparency = 1, 
+                                                        Image = v20:Fallback(v20:KeyOf(v42, "AssetId"), "")
+                                                    })
+                                                }
+                                            }), 
+                                            v20:New("TextLabel")({
+                                                Size = UDim2.new(), 
+                                                AutomaticSize = Enum.AutomaticSize.XY, 
+                                                Position = UDim2.fromScale(0.5, 0.5), 
+                                                AnchorPoint = Vector2.new(0.5, 0.5), 
+                                                BackgroundTransparency = 1, 
+                                                Text = v20:Computed(function(_, _) --[[ Line: 1317 ]]
+                                                    -- upvalues: v2 (ref)
+                                                    return (("Earn %* from killing enemies!"):format((v2.weight("Battlepass EXP", "Heavy"))));
+                                                end), 
+                                                FontFace = Font.fromName("Montserrat", Enum.FontWeight.Bold, Enum.FontStyle.Italic), 
+                                                TextSize = 18, 
+                                                TextColor3 = v6.White, 
+                                                RichText = true, 
+                                                TextXAlignment = Enum.TextXAlignment.Center, 
+                                                TextYAlignment = Enum.TextYAlignment.Center, 
+                                                LayoutOrder = 2, 
+                                                [l_Children_0] = {
+                                                    v20:New("UIGradient")({
+                                                        Color = v20:ScrollingGradient({
+                                                            ColorSequence = v6.Gradients.White
+                                                        })
+                                                    }), 
+                                                    v20:New("UIStroke")({
+                                                        Thickness = 2, 
+                                                        Transparency = 0.25
+                                                    })
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
+                            }), 
+                            ClaimAll = v20:ActionButton({
+                                Size = UDim2.fromScale(1, 1), 
+                                Position = UDim2.fromScale(1, 0.5), 
+                                AnchorPoint = Vector2.new(1, 0.5), 
+                                Text = "Claim All", 
+                                Color = v6.Green, 
+                                LayoutOrder = 3, 
+                                [l_OnEvent_0("Activated")] = function() --[[ Line: 1364 ]]
+                                    -- upvalues: v4 (ref)
+                                    v4.Battlepass_ClaimReward("All");
+                                end, 
+                                [l_Children_0] = v20:New("UIAspectRatioConstraint")({
+                                    AspectRatio = 4
+                                })
+                            })
+                        }
+                    })
+                }
+            }), 
+            Footer = v20:New("Frame")({
+                Size = UDim2.new(1, 0, 0, 96), 
+                Position = UDim2.fromScale(0, 1), 
+                AnchorPoint = Vector2.yAxis, 
+                BackgroundTransparency = 1, 
+                ZIndex = 200, 
+                [l_Children_0] = {
+                    Fill = v20:New("Frame")({
+                        Size = UDim2.fromScale(1, 1), 
+                        BackgroundTransparency = 1, 
+                        ClipsDescendants = true, 
+                        ZIndex = -10, 
+                        [l_Children_0] = {
+                            v20:New("Frame")({
+                                Size = UDim2.new(1, 0, 0, 2), 
+                                Position = UDim2.fromScale(0, 0), 
+                                AnchorPoint = Vector2.new(0, 0), 
+                                BackgroundColor3 = Color3.new(), 
+                                BackgroundTransparency = 0.5
+                            }), 
+                            v20:New("Frame")({
+                                Size = UDim2.fromScale(1, 2), 
+                                Position = UDim2.fromScale(0, 1), 
+                                AnchorPoint = Vector2.new(0, 1), 
+                                BackgroundColor3 = Color3.new(), 
+                                BackgroundTransparency = 0.5, 
+                                [l_Children_0] = {
+                                    v20:New("UICorner")({
+                                        CornerRadius = v16
+                                    })
+                                }
+                            })
+                        }
+                    })
+                }
+            })
+        }
+    });
+end;
