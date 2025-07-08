@@ -147,7 +147,9 @@ local function handlePossessedRider()
 	task.wait(0.5)
 
 	-- Switch back to PvE
+	for i = 1, 5 do
 	fireRiderManager({ "War" })
+	end
 
 	-- Wait a few seconds for quest to register as complete
 	local label
