@@ -118,10 +118,8 @@ local function desireQuestLabel()
 end
 
 local function handlePossessedRider()
-	local rider = Workspace.Lives:FindFirstChild("Possessed Rider Lv.90")
+	-- Check if the quest is already completed (GUI label)
 	local questText = desireQuestLabel()
-
-	-- If quest is already complete, turn it in directly
 	if questText and questText:find("Quest Completed") then
 		tpTo(Vector3.new(-1555, 23, 824))
 		task.wait(0.5)
@@ -132,13 +130,14 @@ local function handlePossessedRider()
 		fireRemote({{ Choice = "Completed it." }}, "Dialogue")
 		task.wait(0.5)
 		fireRemote({{ Exit = true }}, "Dialogue")
-		return
+		return -- ✅ STOP here, don't touch boss
 	end
 
-	-- If boss not present, skip
+	-- If no boss spawned, skip
+	local rider = Workspace.Lives:FindFirstChild("Possessed Rider Lv.90")
 	if not rider then return end
 
-	-- Start Quest
+	-- Start the quest
 	tpTo(Vector3.new(-1555, 23, 824))
 	task.wait(0.5)
 	fireclickdetector(Workspace.NPC.ARKReplicator.ClickDetector)
@@ -147,16 +146,16 @@ local function handlePossessedRider()
 	task.wait(0.5)
 	fireRemote({{ Exit = true }}, "Dialogue")
 	task.wait(0.5)
-	fireRiderManager({ "War" }) -- Enable PvP
+	fireRiderManager({ "War" }) -- PvP
 
-	-- Wait for Quest UI
+	-- Wait for quest GUI to appear
 	repeat task.wait(0.5) until desireQuestLabel()
 
-	-- Fight Rider
+	-- Fight boss
 	killTarget("Possessed Rider Lv.90")
 	task.wait(0.5)
 
-	-- Claim chest
+	-- Open chest
 	local chest = Workspace:FindFirstChild("EFX") and Workspace.EFX:FindFirstChild("InteractableChest") and Workspace.EFX.InteractableChest:FindFirstChild("ClaimChest")
 	if chest and chest:IsA("ProximityPrompt") then
 		fireproximityprompt(chest, 0)
@@ -166,7 +165,7 @@ local function handlePossessedRider()
 	-- Switch back to PvE
 	fireRiderManager({ "War" })
 
-	-- Wait until the quest GUI confirms it's complete
+	-- Wait for GUI to confirm quest completion
 	for _ = 1, 20 do
 		questText = desireQuestLabel()
 		if questText and questText:find("Quest Completed") then break end
@@ -184,6 +183,7 @@ local function handlePossessedRider()
 	task.wait(0.5)
 	fireRemote({{ Exit = true }}, "Dialogue")
 end
+
 
 
 
