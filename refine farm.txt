@@ -188,7 +188,7 @@ local function killTarget(npcName)
 			repeat
 				local npcPos = targetHRP.Position
 				local npcCFrame = targetHRP.CFrame
-				local behindPos = npcPos - (npcCFrame.LookVector * 2) + Vector3.new(0, 1, 0) -- 2 studs behind, 1 stud up
+				local behindPos = npcPos - (npcCFrame.LookVector * 3.5) + Vector3.new(0, 1, 0) -- 2 studs behind, 1 stud up
 				tpTo(behindPos, npcPos) -- Force teleport every cycle
 				m1Attack(npcPos)
 				useSkill(npcPos)
