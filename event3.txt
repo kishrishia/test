@@ -12,9 +12,9 @@ local Handler = Character:WaitForChild("PlayerHandler"):WaitForChild("HandlerEve
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 -- === CONFIG ===
-local questName = "Summer's Eclipse"
+local QUEST_NAME = "Summer's Eclipse"
 local questPath = function()
-	return PlayerGui.Main.QuestAlertFrame.QuestGUI:FindFirstChild(questName)
+	return PlayerGui.Main.QuestAlertFrame.QuestGUI:FindFirstChild(QUEST_NAME)
 end
 
 local targetQueue = {
@@ -134,15 +134,20 @@ local function killTarget(npcName)
 
 			-- Face the enemy
 			HRP.CFrame = CFrame.new(HRP.Position, npc.HumanoidRootPart.Position)
-			useSkill2(npc.HumanoidRootPart.Position)
-			task.wait(0.5)	
-			useSkill2(npc.HumanoidRootPart.Position)
-			task.wait(0.5)
-			m1Attack(npc.HumanoidRootPart.Position)
-			task.wait(1)
-			useSkill(npc.HumanoidRootPart.Position)
 			
-			task.wait(0.25)
+			-- Prioritize skills over M1 attacks
+			useSkill2(npc.HumanoidRootPart.Position)
+			task.wait(0.3)
+			useSkill2(npc.HumanoidRootPart.Position)
+			task.wait(0.3)
+			useSkill(npc.HumanoidRootPart.Position)
+			task.wait(0.3)
+			useSkill(npc.HumanoidRootPart.Position)
+			task.wait(0.3)
+			-- Use M1 attack sparingly as a fallback
+			m1Attack(npc.HumanoidRootPart.Position)
+			task.wait(0.5)
+			
 		until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
 	end
 end
@@ -208,7 +213,7 @@ local function handlePossessedRider()
 	fireRemote({{ Choice = "Completed it." }}, "Dialogue")
 	task.wait(2)
 	fireRemote({{ Exit = true }}, "Dialogue")
-	end
+end
 
 -- === MAIN LOOP ===
 while true do
