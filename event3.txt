@@ -128,33 +128,39 @@ end
 local function killTarget(npcName)
 	local npc = Workspace.Lives:FindFirstChild(npcName)
 	if npc and npc:FindFirstChild("Humanoid") then
-		repeat
-			local behindPos = npc.HumanoidRootPart.Position - npc.HumanoidRootPart.CFrame.LookVector * 3
-			Character:MoveTo(behindPos + Vector3.new(0, 0, 0))
+		local maxRetries = 3
+		local retryCount = 0
 
-			-- Face the enemy
-			HRP.CFrame = CFrame.new(HRP.Position, npc.HumanoidRootPart.Position)
-			
-			-- Prioritize skills over M1 attacks with safety check
+		repeat
+			local humanoid = npc:FindFirstChild("Humanoid")
+			if not humanoid or humanoid.Health <= 0 then break end
+
 			local rootPart = npc:FindFirstChild("HumanoidRootPart")
 			if rootPart then
+				local behindPos = rootPart.Position - rootPart.CFrame.LookVector * 3
+				Character:MoveTo(behindPos + Vector3.new(0, 0, 0))
+
+				HRP.CFrame = CFrame.new(HRP.Position, rootPart.Position)
+				
 				useSkill2(rootPart.Position)
 				task.wait(0.3)
 				useSkill2(rootPart.Position)
 				task.wait(0.3)
 				m1Attack(rootPart.Position)
-				task.wait(0.5)
+				task.wait(0.3)
 				m1Attack(rootPart.Position)
-				task.wait(0.5)
-				-- Use M1 attack sparingly as a fallback
-				useSkill(rootPart.Position)
-				task.wait(0.5)
+				task.wait(0.3)
 			else
-				-- Wait briefly if HumanoidRootPart is missing, possibly due to cutscene
-				task.wait(1)
+				retryCount = retryCount + 1
+				if retryCount <= maxRetries then
+					warn("HumanoidRootPart missing, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
+					task.wait(2)
+				else
+					warn("Max retries reached, skipping target.")
+					break
+				end
 			end
-			
-		until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
+		until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0 or retryCount > maxRetries
 	end
 end
 
@@ -231,7 +237,11 @@ while true do
 	while not isQuestComplete() do
 		local target = targetQueue[index]
 		if target then
-			killTarget(target.npc)
+			local npc = Workspace.Lives:FindFirstChild(target.npc)
+			if npc and npc:FindFirstChild("Humanoid") and npc.Humanoid.Health > 0 then
+				killTarget(target.npc)
+			end
+			-- Move to next target only if current one is dead or invalid
 			index = (index % #targetQueue) + 1
 		end
 		task.wait(0.5)
