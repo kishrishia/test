@@ -130,7 +130,7 @@ local function handlePossessedRider()
 	task.wait(0.5)
 	fireRemote({{ Exit = true }}, "Dialogue")
 	task.wait(0.5)
-	fireRiderManager({ "War" }) -- switch to PvP
+	fireRiderManager({ "War" }) -- Enable PvP
 
 	-- Wait for Quest UI
 	repeat task.wait(0.5) until desireQuestLabel()
@@ -146,8 +146,16 @@ local function handlePossessedRider()
 	end
 	task.wait(0.5)
 
-	-- Switch back to PvE (after chest claim)
+	-- Switch back to PvE
 	fireRiderManager({ "War" })
+
+	-- Wait a few seconds for quest to register as complete
+	local label
+	for _ = 1, 20 do
+		label = desireQuestLabel()
+		if label and label:find("Quest Completed") then break end
+		task.wait(0.5)
+	end
 
 	-- Finish quest
 	tpTo(Vector3.new(-1555, 23, 824))
@@ -160,6 +168,7 @@ local function handlePossessedRider()
 	task.wait(0.5)
 	fireRemote({{ Exit = true }}, "Dialogue")
 end
+
 
 -- === MAIN LOOP ===
 while true do
