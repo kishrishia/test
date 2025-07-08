@@ -181,16 +181,20 @@ end
 local function killTarget(npcName)
 	local npc = Workspace.Lives:FindFirstChild(npcName)
 	if npc and npc:FindFirstChild("HumanoidRootPart") then
-		local targetHRP = npc.HumanoidRootPart
 		repeat
-			Character:MoveTo(targetHRP.Position + Vector3.new(1, 0, 0))
-			m1Attack(targetHRP.Position)
-			useSkill(targetHRP.Position)
+			local behindPos = npc.HumanoidRootPart.Position - npc.HumanoidRootPart.CFrame.LookVector * 3
+			Character:MoveTo(behindPos + Vector3.new(0, 0, 0))
+
+			-- Face the enemy
+			HRP.CFrame = CFrame.new(HRP.Position, npc.HumanoidRootPart.Position)
+
+			m1Attack(npc.HumanoidRootPart.Position)
+			useSkill(npc.HumanoidRootPart.Position)
+			useSkill2(npc.HumanoidRootPart.Position)
 			task.wait(0.25)
 		until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
 	end
 end
-
 -- === MAIN LOOP ===
 while true do
 	checkAndCraft()
