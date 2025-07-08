@@ -192,29 +192,52 @@ local function getValidTargets(npcName)
 end
 
 local function killTarget(npcName)
-	local mobs = getValidTargets(npcName)
-	while #mobs > 0 do
-		local target = mobs[1]
-		if not target or not target:FindFirstChild("Humanoid") or target.Humanoid.Health <= 0 then
-			table.remove(mobs, 1)
-			continue
+	local humanoid = Character:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		humanoid.AutoRotate = false
+	end
+
+	while true do
+		local closest = nil
+		local closestDist = math.huge
+
+		for _, npc in pairs(Workspace.Lives:GetChildren()) do
+			if npc.Name == npcName and npc:FindFirstChild("Humanoid") and npc.Humanoid.Health > 0 and npc:FindFirstChild("HumanoidRootPart") then
+				local dist = (npc.HumanoidRootPart.Position - HRP.Position).Magnitude
+				if dist < closestDist then
+					closest = npc
+					closestDist = dist
+				end
+			end
 		end
 
-		local targetPos = target.HumanoidRootPart.Position
-		Character:MoveTo(targetPos + Vector3.new(4, 0, 0))
-
-		-- Face the enemy
-		HRP.CFrame = CFrame.lookAt(HRP.Position, Vector3.new(targetPos.X, HRP.Position.Y, targetPos.Z))
-
-		-- Attack
-		m1Attack(targetPos)
-		useSkill(targetPos)
-		task.wait(0.25)
-
-		-- Refresh mob list
-		if not target:FindFirstChild("Humanoid") or target.Humanoid.Health <= 0 then
-			mobs = getValidTargets(npcName)
+		if not closest then
+			break -- No valid targets left
 		end
+
+		local targetHRP = closest:FindFirstChild("HumanoidRootPart")
+		if not targetHRP then break end
+
+		-- Move to mob
+		Character:MoveTo(targetHRP.Position + Vector3.new(4, 0, 0))
+		task.wait(0.2)
+
+		-- Face mob
+		local facePos = Vector3.new(targetHRP.Position.X, HRP.Position.Y, targetHRP.Position.Z)
+		HRP.CFrame = CFrame.lookAt(HRP.Position, facePos)
+
+		-- Attack loop
+		repeat
+			m1Attack(targetHRP.Position)
+			useSkill(targetHRP.Position)
+			task.wait(0.2)
+		until not closest:FindFirstChild("Humanoid") or closest.Humanoid.Health <= 0
+
+		task.wait(0.2)
+	end
+
+	if humanoid then
+		humanoid.AutoRotate = true
 	end
 end
 
