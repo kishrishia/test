@@ -188,11 +188,11 @@ local function killTarget(npcName)
 			repeat
 				local npcPos = targetHRP.Position
 				local npcCFrame = targetHRP.CFrame
-				local behindPos = npcPos - (npcCFrame.LookVector * 4) + Vector3.new(0, 1, 0) -- 4 studs behind, 1 stud up
+				local behindPos = npcPos - (npcCFrame.LookVector * 2) + Vector3.new(0, 1, 0) -- 2 studs behind, 1 stud up
 				tpTo(behindPos, npcPos) -- Force teleport every cycle
 				m1Attack(npcPos)
 				useSkill(npcPos)
-				task.wait(0.25)
+				task.wait(0.1) -- Faster loop for parasite-like sticking
 			until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0 or not Workspace.Lives:FindFirstChild(npc.Name) or isQuestComplete()
 			task.wait(0.3)
 			if isQuestComplete() then
