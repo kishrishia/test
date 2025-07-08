@@ -209,23 +209,23 @@ local function handlePossessedRider()
 				end
 			else
 				tpTo(Vector3.new(-1555, 23, 824))
-				task.wait(0.5)
+				task.wait(0.5) -- Initial wait after TP
 				local replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
 				retryCount = 0
 				while not replicator or not replicator:FindFirstChild("ClickDetector") do
 					retryCount = retryCount + 1
 					if retryCount > maxRetries then
-						warn("Max retries reached, skipping ARKReplicator.")
+						warn("Max retries reached, skipping ARKReplicator after TP.")
 						break
 					end
-					warn("ARKReplicator or ClickDetector not found, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
-					task.wait(2)
+					warn("ARKReplicator or ClickDetector not found after TP, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
+					task.wait(2) -- Increased wait to allow NPC to load post-quest
 					replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
 				end
 				if replicator then
 					local clickDetector = replicator:FindFirstChild("ClickDetector")
 					if clickDetector and typeof(clickDetector) == "ClickDetector" then
-						warn("Found ClickDetector, attempting fireclickdetector...")
+						warn("Found ClickDetector after TP, attempting fireclickdetector...")
 						fireclickdetector(clickDetector)
 						task.wait(1)
 						if ReplicatedStorage.Remote.Event.Dialogue then
@@ -265,17 +265,17 @@ local function handlePossessedRider()
 							while not replicator or not replicator:FindFirstChild("ClickDetector") do
 								retryCount = retryCount + 1
 								if retryCount > maxRetries then
-									warn("Max retries reached, skipping ARKReplicator.")
+									warn("Max retries reached, skipping ARKReplicator post-chest.")
 									break
 								end
-								warn("ARKReplicator or ClickDetector not found, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
+								warn("ARKReplicator or ClickDetector not found post-chest, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
 								task.wait(2)
 								replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
 							end
 							if replicator then
 								local clickDetector = replicator:FindFirstChild("ClickDetector")
 								if clickDetector and typeof(clickDetector) == "ClickDetector" then
-									warn("Found ClickDetector, attempting fireclickdetector...")
+									warn("Found ClickDetector post-chest, attempting fireclickdetector...")
 									fireclickdetector(clickDetector)
 									task.wait(1)
 									if ReplicatedStorage.Remote.Event.Dialogue then
@@ -288,7 +288,7 @@ local function handlePossessedRider()
 										warn("Dialogue remote event is nil, skipping...")
 									end
 								else
-									warn("ClickDetector is nil or not a ClickDetector, skipping...")
+									warn("ClickDetector is nil or not a ClickDetector post-chest, skipping...")
 								end
 							end
 							return
