@@ -113,7 +113,7 @@ local function killTarget(npcName)
 	local npc = Workspace.Lives:FindFirstChild(npcName)
 	if npc and npc:FindFirstChild("HumanoidRootPart") then
 		repeat
-			Character:MoveTo(npc.HumanoidRootPart.Position + Vector3.new(0, -4, 0))
+			Character:MoveTo(npc.HumanoidRootPart.Position + Vector3.new(0, -5, 0))
 			m1Attack(npc.HumanoidRootPart.Position)
 			useSkill(npc.HumanoidRootPart.Position)
 			task.wait(0.25)
