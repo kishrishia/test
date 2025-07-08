@@ -70,7 +70,7 @@ end
 -- === SUMMER QUEST ===
 local function startQuest()
 	tpTo(Vector3.new(-969, 26, -56))
-	task.wait(2)
+	task.wait(5)
 	fireclickdetector(Workspace.NPC.Sommic.ClickDetector)
 	task.wait(1)
 	fireDialogue("[ Event Quest ]")
@@ -128,7 +128,7 @@ local function handlePossessedRider()
 	local questText = desireQuestLabel()
 	if questText and questText:find("Quest Completed") then
 		tpTo(Vector3.new(-1555, 23, 824))
-		task.wait(2)
+		task.wait(5)
 		fireclickdetector(Workspace.NPC.ARKReplicator.ClickDetector)
 		task.wait(1)
 		fireRemote({{ Choice = "[ Desire Games ]" }}, "Dialogue")
