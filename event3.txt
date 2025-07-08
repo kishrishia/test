@@ -41,7 +41,7 @@ local function m1Attack(pos)
 		CombatAction = true,
 		MouseData = CFrame.new(pos),
 		Input = "Mouse2",
-		LightAttack = true,
+		HeavyAttack = true,
 		Attack = true
 	}}
 	Handler:FireServer(unpack(args))
