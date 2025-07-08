@@ -66,7 +66,6 @@ end
 
 -- === CRAFTING LOGIC ===
 local function checkAndCraft()
-	-- Step 1: open inventory UI via key navigation
 	pressKey(Enum.KeyCode.BackSlash)
 	task.wait(0.2)
 
@@ -78,10 +77,8 @@ local function checkAndCraft()
 	pressKey(Enum.KeyCode.Return)
 	task.wait(0.5)
 
-	-- Step 2: wait longer before closing
 	task.wait(1.2)
 
-	-- Read item safely
 	local inv = PlayerGui.Main.BackpackMainFrame.Inventory.ItemScroll
 	local ember = inv:FindFirstChild("Chunk of Ore")
 
@@ -90,16 +87,13 @@ local function checkAndCraft()
 
 	print("[CRAFT DEBUG] Parsed Qty:", qty)
 
-	-- Close inventory
 	task.wait(0.5)
 	pressKey(Enum.KeyCode.Return)
 	task.wait(0.5)
 	pressKey(Enum.KeyCode.BackSlash)
 	task.wait(0.2)
 
-	-- Proceed if enough quantity
 	if qty and qty > 60 then
-		-- Step 4: go to crafting NPC
 		tpTo(Vector3.new(-860, 26, -25))
 		task.wait(3)
 		fireclickdetector(Workspace.NPC.UniversalCrafting.ClickDetector)
@@ -107,34 +101,20 @@ local function checkAndCraft()
 		fireDialogue("[ Craft ]")
 		task.wait(1)
 
-		-- Step 5: craft 5x Summer's Amber
 		for i = 1, 10 do
-			local args = {
-				"Special",
-				"Blue Fragment"
-			}
+			local args = {"Special", "Blue Fragment"}
 			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
 			task.wait(0.25)
-			local args = {
-				"Special",
-				"Blue Sappyre"
-			}
+			local args = {"Special", "Blue Sappyre"}
 			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
 			task.wait(0.25)
-			local args = {
-				"Special",
-				"Red Fragment"
-			}
+			local args = {"Special", "Red Fragment"}
 			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
 			task.wait(0.25)
-			local args = {
-				"Special",
-				"Red Emperor"
-			}
+			local args = {"Special", "Red Emperor"}
 			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
 		end
 
-		-- Step 6: navigate to exit crafting UI
 		pressKey(Enum.KeyCode.BackSlash)
 		task.wait(0.2)
 		for _ = 1, 2 do pressKey(Enum.KeyCode.Down) task.wait(0.1) end
@@ -169,12 +149,17 @@ end
 local function waitForQuestText()
 	clickQuestButton()
 	repeat task.wait(0.5)
-	until questPath() and questPath().Text:match("%(.-/.-%)") or questPath().Text:find("Quest Completed")
+	until questPath() and (questPath().Text:match("%(.-/.-%)") or questPath().Text:find("Quest Completed"))
 end
 
 local function isQuestComplete()
 	local q = questPath()
-	return q and q.Text and q.Text:find("Quest Completed")
+	if q and q.Text then
+		clickQuestButton()
+		task.wait(0.5)
+		return q.Text:find("Quest Completed")
+	end
+	return false
 end
 
 local function killTarget(npcName)
@@ -194,9 +179,13 @@ local function killTarget(npcName)
 				useSkill(targetHRP.Position)
 				task.wait(0.25)
 			until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0 or not Workspace.Lives:FindFirstChild(npc.Name)
-			task.wait(0.5) -- Brief pause before moving to next NPC
+			task.wait(0.5)
+			if isQuestComplete() then
+				return true -- Exit early if quest is complete
+			end
 		end
 	end
+	return false
 end
 
 -- === MAIN LOOP ===
@@ -208,7 +197,9 @@ while true do
 
 	while not isQuestComplete() do
 		for _, target in ipairs(targetQueue) do
-			killTarget(target.npc)
+			if killTarget(target.npc) then
+				break -- Exit the target loop if quest is complete
+			end
 			task.wait(0.5)
 			clickQuestButton()
 		end
