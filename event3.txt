@@ -203,12 +203,11 @@ local function killTarget(npcName)
 				task.wait(0.3)
 				useSkill2(rootPart.Position)
 				task.wait(0.3)
-				useSkill(rootPart.Position)
-				task.wait(0.3)
-				useSkill(rootPart.Position)
-				task.wait(0.3)
 				m1Attack(rootPart.Position)
-				task.wait(0.5)
+				task.wait(0.6)
+				m1Attack(rootPart.Position)
+				task.wait(0.6)
+
 			else
 				retryCount = retryCount + 1
 				if retryCount <= maxRetries then
