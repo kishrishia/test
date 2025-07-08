@@ -140,12 +140,12 @@ local function killTarget(npcName)
 			task.wait(0.3)
 			useSkill2(npc.HumanoidRootPart.Position)
 			task.wait(0.3)
-			useSkill(npc.HumanoidRootPart.Position)
+			m1Attack(npc.HumanoidRootPart.Position)
 			task.wait(0.3)
-			useSkill(npc.HumanoidRootPart.Position)
+			m1Attack(npc.HumanoidRootPart.Position)
 			task.wait(0.3)
 			-- Use M1 attack sparingly as a fallback
-			m1Attack(npc.HumanoidRootPart.Position)
+			useSkill(npc.HumanoidRootPart.Position)
 			task.wait(0.5)
 			
 		until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
