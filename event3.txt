@@ -37,11 +37,20 @@ local function fireRiderManager(args)
 end
 
 local function m1Attack(pos)
-	Handler:FireServer({{ CombatAction = true, LightAttack = true, MouseData = CFrame.new(pos) }})
+	Handler:FireServer({{
+		CombatAction = true,
+		LightAttack = true,
+		MouseData = CFrame.new(pos)
+	}})
 end
 
 local function useSkill(pos)
-	Handler:FireServer({{ Skill = true, AttackType = "Down", Key = "E", MouseData = CFrame.new(pos) }})
+	Handler:FireServer({{
+		Skill = true,
+		AttackType = "Down",
+		Key = "E",
+		MouseData = CFrame.new(pos)
+	}})
 end
 
 local function clickQuestButton()
@@ -152,10 +161,10 @@ local function handlePossessedRider()
 	if chest and chest:IsA("ProximityPrompt") then
 		fireproximityprompt(chest, 0)
 	end
-	task.wait(5)
-	for i = 1, 5 do
+	task.wait(0.5)
+
 	fireRiderManager({ "War" })
-	end
+
 	for _ = 1, 20 do
 		questText = desireQuestLabel()
 		if questText and questText:find("Quest Completed") then break end
