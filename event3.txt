@@ -134,10 +134,11 @@ local function killTarget(npcName)
 
 			-- Face the enemy
 			HRP.CFrame = CFrame.new(HRP.Position, npc.HumanoidRootPart.Position)
-
+			useSkill2(npc.HumanoidRootPart.Position)
+			useSkill2(npc.HumanoidRootPart.Position)
 			m1Attack(npc.HumanoidRootPart.Position)
 			useSkill(npc.HumanoidRootPart.Position)
-			useSkill2(npc.HumanoidRootPart.Position)
+			
 			task.wait(0.25)
 		until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
 	end
