@@ -39,18 +39,17 @@ end
 local function m1Attack(pos)
 	Handler:FireServer({{
 		CombatAction = true,
-		LightAttack = true,
-		Attack = true,
+		MouseData = CFrame.new(pos),
 		Input = "Mouse1",
-		MouseData = CFrame.new(pos)
+		LightAttack = true,
+		Attack = true
 	}})
 end
 
 local function useSkill(pos)
 	Handler:FireServer({{
-		Skill = true,
-		AttackType = "Down",
 		Key = "E",
+		Skill = true,
 		MouseData = CFrame.new(pos)
 	}})
 end
