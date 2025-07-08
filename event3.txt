@@ -70,6 +70,8 @@ end
 
 -- === SUMMER QUEST LOGIC ===
 local function startQuest()
+	tpTo(Vector3.new(-969, 26, -56))
+	task.wait(0.5)
 	fireclickdetector(Workspace.NPC.Sommic.ClickDetector)
 	task.wait(1)
 	fireDialogue("[ Event Quest ]")
