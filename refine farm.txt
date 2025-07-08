@@ -80,7 +80,6 @@ local function checkAndCraft()
 	end
 
 	pressKey(Enum.KeyCode.Return)
-	task.wait(0.5)
 
 	task.wait(1.2)
 
@@ -190,6 +189,7 @@ local function killTarget(npcName)
 				local npcCFrame = targetHRP.CFrame
 				local behindPos = npcPos - (npcCFrame.LookVector * 3.5) + Vector3.new(0, 1, 0) -- 2 studs behind, 1 stud up
 				tpTo(behindPos, npcPos) -- Force teleport every cycle
+				m1Attack(npcPos)
 				m1Attack(npcPos)
 				useSkill(npcPos)
 				task.wait(0.1) -- Faster loop for parasite-like sticking
