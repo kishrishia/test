@@ -66,8 +66,14 @@ local function clickQuestButton()
 	end
 end
 
+local function tpTo(position)
+	LocalPlayer.Character:MoveTo(position)
+end
+
 -- === QUEST LOGIC ===
 local function startQuest()
+	tpTo(Vector3.new(-969, 26, -56))
+	task.wait(3)
 	fireclickdetector(Workspace.NPC.Sommic.ClickDetector)
 	task.wait(1)
 	fireDialogue("[ Event Quest ]")
