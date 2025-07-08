@@ -99,7 +99,7 @@ local function checkAndCraft()
 		task.wait(1)
 
 		-- Step 5: craft 5x Summer's Amber
-		for i = 1, 5 do
+		for i = 1, 10 do
 			local args = {
 				"Event",
 				"Summer's Amber"
