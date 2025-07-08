@@ -189,10 +189,7 @@ local function killTarget(npcName)
 				local npcPos = targetHRP.Position
 				local npcCFrame = targetHRP.CFrame
 				local behindPos = npcPos - (npcCFrame.LookVector * 4) + Vector3.new(0, 1, 0) -- 4 studs behind, 1 stud up
-				-- Only teleport if not already close to the behind position
-				if (HRP.Position - behindPos).Magnitude > 1 then
-					tpTo(behindPos, npcPos)
-				end
+				tpTo(behindPos, npcPos) -- Force teleport every cycle
 				m1Attack(npcPos)
 				useSkill(npcPos)
 				task.wait(0.25)
