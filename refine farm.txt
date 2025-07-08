@@ -17,8 +17,6 @@ end
 
 local targetQueue = {
 	{ui = "Miner Goon Lv.50", npc = "Miner Goon Lv.50"},
-	{ui = "Miner Goon Lv.50", npc = "Miner Goon Lv.50"},
-	{ui = "Miner Goon Lv.50", npc = "Miner Goon Lv.50"},
 }
 
 -- === UTILITIES ===
@@ -123,13 +121,13 @@ local function checkAndCraft()
 			}
 			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
 			task.wait(0.25)
-				local args = {
+			local args = {
 				"Special",
 				"Red Fragment"
 			}
 			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
 			task.wait(0.25)
-				local args = {
+			local args = {
 				"Special",
 				"Red Emperor"
 			}
@@ -146,7 +144,6 @@ local function checkAndCraft()
 		pressKey(Enum.KeyCode.BackSlash)
 	end
 end
-
 
 -- === QUEST LOGIC ===
 local function startQuest()
@@ -181,15 +178,24 @@ local function isQuestComplete()
 end
 
 local function killTarget(npcName)
-	local npc = Workspace.Lives:FindFirstChild(npcName)
-	if npc and npc:FindFirstChild("HumanoidRootPart") then
-		local targetHRP = npc.HumanoidRootPart
-		repeat
-			Character:MoveTo(targetHRP.Position + Vector3.new(0, 0, 0))
-			m1Attack(targetHRP.Position)
-			useSkill(targetHRP.Position)
-			task.wait(0.1)
-		until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
+	local npcs = {}
+	for _, npc in ipairs(Workspace.Lives:GetChildren()) do
+		if npc.Name == npcName and npc:FindFirstChild("HumanoidRootPart") and npc:FindFirstChild("Humanoid") and npc.Humanoid.Health > 0 then
+			table.insert(npcs, npc)
+		end
+	end
+
+	for _, npc in ipairs(npcs) do
+		local targetHRP = npc:FindFirstChild("HumanoidRootPart")
+		if targetHRP then
+			repeat
+				Character:MoveTo(targetHRP.Position + Vector3.new(1, 0, 0))
+				m1Attack(targetHRP.Position)
+				useSkill(targetHRP.Position)
+				task.wait(0.25)
+			until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0 or not Workspace.Lives:FindFirstChild(npc.Name)
+			task.wait(0.5) -- Brief pause before moving to next NPC
+		end
 	end
 end
 
@@ -200,16 +206,12 @@ while true do
 	startQuest()
 	waitForQuestText()
 
-	local index = 1
 	while not isQuestComplete() do
-		local target = targetQueue[index]
-		if target then
+		for _, target in ipairs(targetQueue) do
 			killTarget(target.npc)
-			index = index + 1
-			if index > #targetQueue then index = 1 end
+			task.wait(0.5)
+			clickQuestButton()
 		end
-		task.wait(0.5)
-		clickQuestButton()
 	end
 
 	completeQuest()
