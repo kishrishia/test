@@ -164,10 +164,11 @@ local function handlePossessedRider()
 	if chest and chest:IsA("ProximityPrompt") then
 		fireproximityprompt(chest, 0)
 	end
-	task.wait(0.5)
-
+	task.wait(5)
+	for i = 1, 5 do
 	fireRiderManager({ "War" })
-
+	end
+	task.wait(0.5)
 	for _ = 1, 20 do
 		questText = desireQuestLabel()
 		if questText and questText:find("Quest Completed") then break end
