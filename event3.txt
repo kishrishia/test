@@ -40,6 +40,8 @@ local function m1Attack(pos)
 	Handler:FireServer({{
 		CombatAction = true,
 		LightAttack = true,
+		Attack = true,
+		Input = "Mouse1",
 		MouseData = CFrame.new(pos)
 	}})
 end
@@ -70,7 +72,7 @@ end
 -- === SUMMER QUEST ===
 local function startQuest()
 	tpTo(Vector3.new(-969, 26, -56))
-	task.wait(5)
+	task.wait(2)
 	fireclickdetector(Workspace.NPC.Sommic.ClickDetector)
 	task.wait(1)
 	fireDialogue("[ Event Quest ]")
@@ -128,7 +130,7 @@ local function handlePossessedRider()
 	local questText = desireQuestLabel()
 	if questText and questText:find("Quest Completed") then
 		tpTo(Vector3.new(-1555, 23, 824))
-		task.wait(5)
+		task.wait(2)
 		fireclickdetector(Workspace.NPC.ARKReplicator.ClickDetector)
 		task.wait(1)
 		fireRemote({{ Choice = "[ Desire Games ]" }}, "Dialogue")
@@ -161,10 +163,10 @@ local function handlePossessedRider()
 	if chest and chest:IsA("ProximityPrompt") then
 		fireproximityprompt(chest, 0)
 	end
-	task.wait(5)
-	for i = 1, 5 do
+	task.wait(0.5)
+
 	fireRiderManager({ "War" })
-	end
+
 	for _ = 1, 20 do
 		questText = desireQuestLabel()
 		if questText and questText:find("Quest Completed") then break end
