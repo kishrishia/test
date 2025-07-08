@@ -58,48 +58,47 @@ local function tpTo(position)
 	LocalPlayer.Character:MoveTo(position)
 end
 
--- === PRESS KEY FUNCTION ===
 local function pressKey(key)
 	VirtualInputManager:SendKeyEvent(true, key, false, game)
 	VirtualInputManager:SendKeyEvent(false, key, false, game)
 end
 
+local function killTarget(npcName)
+	local npc = Workspace.Lives:FindFirstChild(npcName)
+	if npc and npc:FindFirstChild("HumanoidRootPart") then
+		repeat
+			local behindPos = npc.HumanoidRootPart.Position - npc.HumanoidRootPart.CFrame.LookVector * 3
+			Character:MoveTo(behindPos)
+
+			HRP.CFrame = CFrame.new(HRP.Position, npc.HumanoidRootPart.Position)
+
+			m1Attack(npc.HumanoidRootPart.Position)
+			useSkill(npc.HumanoidRootPart.Position)
+			task.wait(0.25)
+		until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
+	end
+end
+
 -- === CRAFTING LOGIC ===
 local function checkAndCraft()
-	-- Step 1: open inventory UI via key navigation
 	pressKey(Enum.KeyCode.BackSlash)
 	task.wait(0.2)
-
-	for _ = 1, 4 do
-		pressKey(Enum.KeyCode.Down)
-		task.wait(0.1)
-	end
-
+	for _ = 1, 4 do pressKey(Enum.KeyCode.Down) task.wait(0.1) end
 	pressKey(Enum.KeyCode.Return)
-	task.wait(0.5)
-
-	-- Step 2: wait longer before closing
 	task.wait(1.2)
 
-	-- Read item safely
 	local inv = PlayerGui.Main.BackpackMainFrame.Inventory.ItemScroll
 	local ember = inv:FindFirstChild("Chunk of Ore")
-
 	local rawText = ember and ember:FindFirstChild("Qty") and ember.Qty.Text or ""
 	local qty = tonumber(string.match(rawText, ">(%d+)<"))
-
 	print("[CRAFT DEBUG] Parsed Qty:", qty)
 
-	-- Close inventory
 	task.wait(0.5)
 	pressKey(Enum.KeyCode.Return)
 	task.wait(0.5)
 	pressKey(Enum.KeyCode.BackSlash)
-	task.wait(0.2)
 
-	-- Proceed if enough quantity
 	if qty and qty > 50 then
-		-- Step 4: go to crafting NPC
 		tpTo(Vector3.new(-860, 26, -25))
 		task.wait(3)
 		fireclickdetector(Workspace.NPC.UniversalCrafting.ClickDetector)
@@ -107,34 +106,20 @@ local function checkAndCraft()
 		fireDialogue("[ Craft ]")
 		task.wait(1)
 
-		-- Step 5: craft 5x Summer's Amber
 		for i = 1, 10 do
-			local args = {
-				"Special",
-				"Blue Fragment"
-			}
+			local args = { "Special", "Blue Fragment" }
 			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
 			task.wait(0.25)
-			local args = {
-				"Special",
-				"Blue Sappyre"
-			}
+			args = { "Special", "Blue Sappyre" }
 			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
 			task.wait(0.25)
-				local args = {
-				"Special",
-				"Red Fragment"
-			}
+			args = { "Special", "Red Fragment" }
 			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
 			task.wait(0.25)
-				local args = {
-				"Special",
-				"Red Emperor"
-			}
+			args = { "Special", "Red Emperor" }
 			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
 		end
 
-		-- Step 6: navigate to exit crafting UI
 		pressKey(Enum.KeyCode.BackSlash)
 		task.wait(0.2)
 		for _ = 1, 2 do pressKey(Enum.KeyCode.Down) task.wait(0.1) end
@@ -144,7 +129,6 @@ local function checkAndCraft()
 		pressKey(Enum.KeyCode.BackSlash)
 	end
 end
-
 
 -- === QUEST LOGIC ===
 local function startQuest()
@@ -178,26 +162,9 @@ local function isQuestComplete()
 	return q and q.Text and q.Text:find("Quest Completed")
 end
 
-local function killTarget(npcName)
-	local npc = Workspace.Lives:FindFirstChild(npcName)
-	if npc and npc:FindFirstChild("HumanoidRootPart") then
-		repeat
-			local behindPos = npc.HumanoidRootPart.Position - npc.HumanoidRootPart.CFrame.LookVector * 3
-			Character:MoveTo(behindPos + Vector3.new(0, 0, 0))
-
-			-- Face the enemy
-			HRP.CFrame = CFrame.new(HRP.Position, npc.HumanoidRootPart.Position)
-
-			m1Attack(npc.HumanoidRootPart.Position)
-			useSkill(npc.HumanoidRootPart.Position)
-			task.wait(0.25)
-		until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
-	end
-end
 -- === MAIN LOOP ===
 while true do
 	checkAndCraft()
-
 	startQuest()
 	waitForQuestText()
 
@@ -206,8 +173,7 @@ while true do
 		local target = targetQueue[index]
 		if target then
 			killTarget(target.npc)
-			index = index + 1
-			if index > #targetQueue then index = 1 end
+			index = (index % #targetQueue) + 1
 		end
 		task.wait(0.5)
 		clickQuestButton()
