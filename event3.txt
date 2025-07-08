@@ -82,85 +82,58 @@ end
 -- === SUMMER QUEST ===
 local function startQuest()
 	tpTo(Vector3.new(-969, 26, -56))
-	task.wait(6)
-	fireclickdetector(Workspace.NPC.Sommic.ClickDetector)
 	task.wait(2)
-	local args = {[1]={["Choice"]="[ Event Quest ]"}}
-	game:GetService("ReplicatedStorage").Remote.Event.Dialogue:FireServer(unpack(args))
-	task.wait(2)
-	local args = {[1]={["Exit"]=true}}
-	game:GetService("ReplicatedStorage").Remote.Event.Dialogue:FireServer(unpack(args))
+	local sommic = Workspace.NPC:FindFirstChild("Sommic")
+	local maxRetries = 5
+	local retryCount = 0
+	while sommic and not sommic:FindFirstChild("ClickDetector") or not sommic do
+		retryCount = retryCount + 1
+		if retryCount > maxRetries then
+			warn("Max retries reached, skipping Sommic.")
+			break
+		end
+		warn("Sommic or ClickDetector not found, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
+		task.wait(2)
+		sommic = Workspace.NPC:FindFirstChild("Sommic")
+	end
+	if sommic and sommic:FindFirstChild("ClickDetector") then
+		fireclickdetector(sommic.ClickDetector)
+		task.wait(2)
+		local args = {[1]={["Choice"]="[ Event Quest ]"}}
+		game:GetService("ReplicatedStorage").Remote.Event.Dialogue:FireServer(unpack(args))
+		task.wait(2)
+		local args = {[1]={["Exit"]=true}}
+		game:GetService("ReplicatedStorage").Remote.Event.Dialogue:FireServer(unpack(args))
+	end
 end
 
 local function completeQuest()
 	tpTo(Vector3.new(-969, 26, -56))
-	task.wait(6)
-	fireclickdetector(Workspace.NPC.Sommic.ClickDetector)
 	task.wait(2)
-	local args = {[1]={["Choice"]="[ Event Quest ]"}}
-	game:GetService("ReplicatedStorage").Remote.Event.Dialogue:FireServer(unpack(args))
-	task.wait(2)
-	local args = {[1]={["Choice"]="Yep!"}}
-	game:GetService("ReplicatedStorage").Remote.Event.Dialogue:FireServer(unpack(args))
-	task.wait(2)
-	local args = {[1]={["Exit"]=true}}
-	game:GetService("ReplicatedStorage").Remote.Event.Dialogue:FireServer(unpack(args))
-end
-
-local function waitForQuestText()
-	clickQuestButton()
-	repeat
-		local label = questPath()
-		if label and label.Text then
-			if label.Text:match("%(.-/.-%)") or label.Text:find("Quest Completed") then
-				break
-			end
+	local sommic = Workspace.NPC:FindFirstChild("Sommic")
+	local maxRetries = 5
+	local retryCount = 0
+	while sommic and not sommic:FindFirstChild("ClickDetector") or not sommic do
+		retryCount = retryCount + 1
+		if retryCount > maxRetries then
+			warn("Max retries reached, skipping Sommic.")
+			break
 		end
-		task.wait(0.5)
-	until false
-end
-
-local function isQuestComplete()
-	local q = questPath()
-	return q and q.Text and q.Text:find("Quest Completed")
-end
-
-local function killTarget(npcName)
-	local npc = Workspace.Lives:FindFirstChild(npcName)
-	if npc and npc:FindFirstChild("Humanoid") then
-		local maxRetries = 3
-		local retryCount = 0
-
-		repeat
-			local humanoid = npc:FindFirstChild("Humanoid")
-			if not humanoid or humanoid.Health <= 0 then break end
-
-			local rootPart = npc:FindFirstChild("HumanoidRootPart")
-			if rootPart then
-				local behindPos = rootPart.Position - rootPart.CFrame.LookVector * 3
-				Character:MoveTo(behindPos + Vector3.new(0, 0, 0))
-
-				HRP.CFrame = CFrame.new(HRP.Position, rootPart.Position)
-				
-				useSkill2(rootPart.Position)
-				task.wait(0.3)
-				useSkill2(rootPart.Position)
-				task.wait(0.3)
-				m1Attack(rootPart.Position)
-				task.wait(0.5)
-				m1Attack(rootPart.Position)
-				task.wait(0.5)
-			else
-				retryCount = retryCount + 1
-				if retryCount <= maxRetries then
-					warn("HumanoidRootPart missing, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
-					task.wait(2)
-				else
-					warn("Max retries reached, skipping target.")
-					break
-				end
-			end
-		until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0 or retryCount > maxRetries
+		warn("Sommic or ClickDetector not found, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
+		task.wait(2)
+		sommic = Workspace.NPC:FindFirstChild("Sommic")
+	end
+	if sommic and sommic:FindFirstChild("ClickDetector") then
+		fireclickdetector(sommic.ClickDetector)
+		task.wait(2)
+		local args = {[1]={["Choice"]="[ Event Quest ]"}}
+		game:GetService("ReplicatedStorage").Remote.Event.Dialogue:FireServer(unpack(args))
+		task.wait(2)
+		local args = {[1]={["Choice"]="Yep!"}}
+		game:GetService("ReplicatedStorage").Remote.Event.Dialogue:FireServer(unpack(args))
+		task.wait(2)
+		local args = {[1]={["Exit"]=true}}
+		game:GetService("ReplicatedStorage").Remote.Event.Dialogue:FireServer(unpack(args))
 	end
 end
 
@@ -171,15 +144,26 @@ local function desireQuestLabel()
 end
 
 local function handlePossessedRider()
-	local maxRetries = 3
+	local maxRetries = 5
 	local retryCount = 0
 
 	repeat
 		local questText = desireQuestLabel()
 		if questText and questText:find("Quest Completed") then
 			tpTo(Vector3.new(-1555, 23, 824))
-			task.wait(6)
+			task.wait(2)
 			local replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
+			retryCount = 0
+			while replicator and not replicator:FindFirstChild("ClickDetector") or not replicator do
+				retryCount = retryCount + 1
+				if retryCount > maxRetries then
+					warn("Max retries reached, skipping ARKReplicator.")
+					break
+				end
+				warn("ARKReplicator or ClickDetector not found, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
+				task.wait(2)
+				replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
+			end
 			if replicator and replicator:FindFirstChild("ClickDetector") then
 				fireclickdetector(replicator.ClickDetector)
 				task.wait(1)
@@ -215,8 +199,19 @@ local function handlePossessedRider()
 				end
 			else
 				tpTo(Vector3.new(-1555, 23, 824))
-				task.wait(6)
+				task.wait(0.5)
 				local replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
+				retryCount = 0
+				while replicator and not replicator:FindFirstChild("ClickDetector") or not replicator do
+					retryCount = retryCount + 1
+					if retryCount > maxRetries then
+						warn("Max retries reached, skipping ARKReplicator.")
+						break
+					end
+					warn("ARKReplicator or ClickDetector not found, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
+					task.wait(2)
+					replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
+				end
 				if replicator and replicator:FindFirstChild("ClickDetector") then
 					fireclickdetector(replicator.ClickDetector)
 					task.wait(1)
@@ -251,14 +246,27 @@ local function handlePossessedRider()
 					end
 
 					tpTo(Vector3.new(-1555, 23, 824))
-					task.wait(6)
-					fireclickdetector(replicator.ClickDetector)
-					task.wait(1)
-					fireRemote({{ Choice = "[ Desire Games ]" }}, "Dialogue")
 					task.wait(2)
-					fireRemote({{ Choice = "Completed it." }}, "Dialogue")
-					task.wait(2)
-					fireRemote({{ Exit = true }}, "Dialogue")
+					retryCount = 0
+					while replicator and not replicator:FindFirstChild("ClickDetector") or not replicator do
+						retryCount = retryCount + 1
+						if retryCount > maxRetries then
+							warn("Max retries reached, skipping ARKReplicator.")
+							break
+						end
+						warn("ARKReplicator or ClickDetector not found, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
+						task.wait(2)
+						replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
+					end
+					if replicator and replicator:FindFirstChild("ClickDetector") then
+						fireclickdetector(replicator.ClickDetector)
+						task.wait(1)
+						fireRemote({{ Choice = "[ Desire Games ]" }}, "Dialogue")
+						task.wait(2)
+						fireRemote({{ Choice = "Completed it." }}, "Dialogue")
+						task.wait(2)
+						fireRemote({{ Exit = true }}, "Dialogue")
+					end
 					return
 				end
 			end
