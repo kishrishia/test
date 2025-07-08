@@ -40,7 +40,7 @@ local function m1Attack(pos)
 	local args = {[1] = {
 		CombatAction = true,
 		MouseData = CFrame.new(pos),
-		Input = "Mouse1",
+		Input = "Mouse2",
 		LightAttack = true,
 		Attack = true
 	}}
@@ -49,7 +49,7 @@ end
 
 local function useSkill(pos)
 	local args = {[1] = {
-		Key = "E",
+		Key = "R",
 		Skill = true,
 		MouseData = CFrame.new(pos)
 	}}
@@ -58,7 +58,7 @@ end
 
 local function useSkill2(pos)
 	local args = {[1] = {
-		Key = "R",
+		Key = "V",
 		Skill = true,
 		MouseData = CFrame.new(pos)
 	}}
