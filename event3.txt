@@ -236,6 +236,12 @@ local function handlePossessedRider()
 						fireproximityprompt(chest, 0)
 					end
 					task.wait(3)
+					for i = 1, 5 do
+						local args = {[1]="Progrise Cache"}
+						game:GetService("ReplicatedStorage").Remote.Function.InventoryFunction:InvokeServer(unpack(args))
+						local args = {[1]="War's Box"}
+						game:GetService("ReplicatedStorage").Remote.Function.InventoryFunction:InvokeServer(unpack(args))
+					end
 					local args = {[1]="War"} game:GetService("ReplicatedStorage").Remote.Event.RiderManager:FireServer(unpack(args))
 					task.wait(0.5)
 					for _ = 1, 20 do
@@ -245,7 +251,7 @@ local function handlePossessedRider()
 					end
 
 					tpTo(Vector3.new(-1555, 23, 824))
-					task.wait(0.5)
+					task.wait(6)
 					fireclickdetector(replicator.ClickDetector)
 					task.wait(1)
 					fireRemote({{ Choice = "[ Desire Games ]" }}, "Dialogue")
@@ -259,6 +265,7 @@ local function handlePossessedRider()
 		end
 	until retryCount > maxRetries
 end
+
 -- === MAIN LOOP ===
 while true do
 	handlePossessedRider()
