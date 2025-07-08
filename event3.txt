@@ -119,6 +119,23 @@ end
 
 local function handlePossessedRider()
 	local rider = Workspace.Lives:FindFirstChild("Possessed Rider Lv.90")
+	local questText = desireQuestLabel()
+
+	-- If quest is already complete, turn it in directly
+	if questText and questText:find("Quest Completed") then
+		tpTo(Vector3.new(-1555, 23, 824))
+		task.wait(0.5)
+		fireclickdetector(Workspace.NPC.ARKReplicator.ClickDetector)
+		task.wait(1)
+		fireRemote({{ Choice = "[ Desire Games ]" }}, "Dialogue")
+		task.wait(0.5)
+		fireRemote({{ Choice = "Completed it." }}, "Dialogue")
+		task.wait(0.5)
+		fireRemote({{ Exit = true }}, "Dialogue")
+		return
+	end
+
+	-- If boss not present, skip
 	if not rider then return end
 
 	-- Start Quest
@@ -147,19 +164,16 @@ local function handlePossessedRider()
 	task.wait(0.5)
 
 	-- Switch back to PvE
-	for i = 1, 5 do
 	fireRiderManager({ "War" })
-	end
 
-	-- Wait a few seconds for quest to register as complete
-	local label
+	-- Wait until the quest GUI confirms it's complete
 	for _ = 1, 20 do
-		label = desireQuestLabel()
-		if label and label:find("Quest Completed") then break end
+		questText = desireQuestLabel()
+		if questText and questText:find("Quest Completed") then break end
 		task.wait(0.5)
 	end
 
-	-- Finish quest
+	-- Turn in
 	tpTo(Vector3.new(-1555, 23, 824))
 	task.wait(0.5)
 	fireclickdetector(Workspace.NPC.ARKReplicator.ClickDetector)
@@ -170,6 +184,7 @@ local function handlePossessedRider()
 	task.wait(0.5)
 	fireRemote({{ Exit = true }}, "Dialogue")
 end
+
 
 
 -- === MAIN LOOP ===
