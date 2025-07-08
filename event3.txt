@@ -88,7 +88,8 @@ local function startQuest()
 	local args = {[1]={["Choice"]="[ Event Quest ]"}}
 	game:GetService("ReplicatedStorage").Remote.Event.Dialogue:FireServer(unpack(args))
 	task.wait(2)
-	fireDialogue("Exit")
+	local args = {[1]={["Exit"]=true}}
+	game:GetService("ReplicatedStorage").Remote.Event.Dialogue:FireServer(unpack(args))
 end
 
 local function completeQuest()
@@ -101,7 +102,8 @@ local function completeQuest()
 	task.wait(2)
 	fireDialogue("Yep!")
 	task.wait(2)
-	fireDialogue("Exit")
+	local args = {[1]={["Exit"]=true}}
+	game:GetService("ReplicatedStorage").Remote.Event.Dialogue:FireServer(unpack(args))
 end
 
 local function waitForQuestText()
