@@ -46,16 +46,6 @@ local function useSkill(pos)
 	Handler:FireServer(unpack(args))
 end
 
-local function useSkill2(pos)
-	local args = {{
-		Skill = true,
-		AttackType = "Down",
-		Key = "R",
-		MouseData = CFrame.new(pos)
-	}}
-	Handler:FireServer(unpack(args))
-end
-
 local function clickQuestButton()
 	local btn = PlayerGui:WaitForChild("Main"):WaitForChild("FunctionFrame"):WaitForChild("QuestButton")
 	if btn and btn.AbsolutePosition then
@@ -68,6 +58,63 @@ end
 
 local function tpTo(position)
 	LocalPlayer.Character:MoveTo(position)
+end
+
+-- === PRESS KEY FUNCTION ===
+local function pressKey(key)
+	VirtualInputManager:SendKeyEvent(true, key, false, game)
+	VirtualInputManager:SendKeyEvent(false, key, false, game)
+end
+
+-- === CRAFTING LOGIC ===
+local function checkAndCraft()
+	-- Step 1: open inventory UI via key navigation
+	pressKey(Enum.KeyCode.BackSlash)
+	task.wait(0.2)
+
+	for _ = 1, 4 do
+		pressKey(Enum.KeyCode.Down)
+		task.wait(0.1)
+	end
+
+	pressKey(Enum.KeyCode.Return)
+	task.wait(0.5)
+
+	-- Step 2: close inventory again
+	pressKey(Enum.KeyCode.BackSlash)
+	task.wait(0.2)
+
+	-- Step 3: check item quantity
+	local inv = PlayerGui.Main.BackpackMainFrame.Inventory.ItemScroll
+	local ember = inv:FindFirstChild("Shattered Ember Stone")
+	if ember and tonumber(ember.Qty.Text) > 24 then
+		-- Go to crafting NPC
+		tpTo(Vector3.new(-860, 26, -25))
+		task.wait(3)
+		fireclickdetector(Workspace.NPC.UniversalCrafting.ClickDetector)
+		task.wait(1)
+		fireDialogue("[ Craft ]")
+		task.wait(1)
+
+		-- Craft 5 times
+		for i = 1, 5 do
+			local args = {
+				"Event",
+				"Summer's Amber"
+			}
+			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
+			task.wait(0.25)
+		end
+
+		-- Step 4: navigate and close UI
+		pressKey(Enum.KeyCode.BackSlash)
+		task.wait(0.2)
+		for _ = 1, 2 do pressKey(Enum.KeyCode.Down) task.wait(0.1) end
+		for _ = 1, 5 do pressKey(Enum.KeyCode.Left) task.wait(0.1) end
+		pressKey(Enum.KeyCode.Return)
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.BackSlash)
+	end
 end
 
 -- === QUEST LOGIC ===
@@ -119,6 +166,8 @@ end
 
 -- === MAIN LOOP ===
 while true do
+	checkAndCraft()
+
 	startQuest()
 	waitForQuestText()
 
@@ -127,11 +176,8 @@ while true do
 		local target = targetQueue[index]
 		if target then
 			killTarget(target.npc)
-			-- Rotate queue
 			index = index + 1
-			if index > #targetQueue then
-				index = 1
-			end
+			if index > #targetQueue then index = 1 end
 		end
 		task.wait(0.5)
 		clickQuestButton()
