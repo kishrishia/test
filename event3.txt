@@ -1,3 +1,5 @@
+-- Autofarm Event Script with Desire Boss + Summer Quest
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
@@ -23,8 +25,7 @@ local targetQueue = {
 
 -- === UTILS ===
 local function fireDialogue(choice)
-	local args = {{ Choice = choice }}
-	ReplicatedStorage.Remote.Event.Dialogue:FireServer(unpack(args))
+	ReplicatedStorage.Remote.Event.Dialogue:FireServer({{ Choice = choice }})
 end
 
 local function fireRemote(args, remoteName)
@@ -36,22 +37,11 @@ local function fireRiderManager(args)
 end
 
 local function m1Attack(pos)
-	local args = {{
-		CombatAction = true,
-		LightAttack = true,
-		MouseData = CFrame.new(pos)
-	}}
-	Handler:FireServer(unpack(args))
+	Handler:FireServer({{ CombatAction = true, LightAttack = true, MouseData = CFrame.new(pos) }})
 end
 
 local function useSkill(pos)
-	local args = {{
-		Skill = true,
-		AttackType = "Down",
-		Key = "E",
-		MouseData = CFrame.new(pos)
-	}}
-	Handler:FireServer(unpack(args))
+	Handler:FireServer({{ Skill = true, AttackType = "Down", Key = "E", MouseData = CFrame.new(pos) }})
 end
 
 local function clickQuestButton()
@@ -68,7 +58,7 @@ local function tpTo(position)
 	LocalPlayer.Character:MoveTo(position)
 end
 
--- === SUMMER QUEST LOGIC ===
+-- === SUMMER QUEST ===
 local function startQuest()
 	tpTo(Vector3.new(-969, 26, -56))
 	task.wait(2)
@@ -91,8 +81,15 @@ end
 
 local function waitForQuestText()
 	clickQuestButton()
-	repeat task.wait(0.5)
-	until questPath() and questPath().Text:match("%(.-/.-%)") or questPath().Text:find("Quest Completed")
+	repeat
+		local label = questPath()
+		if label and label.Text then
+			if label.Text:match("%(.-/.-%)") or label.Text:find("Quest Completed") then
+				break
+			end
+		end
+		task.wait(0.5)
+	until false
 end
 
 local function isQuestComplete()
@@ -103,24 +100,22 @@ end
 local function killTarget(npcName)
 	local npc = Workspace.Lives:FindFirstChild(npcName)
 	if npc and npc:FindFirstChild("HumanoidRootPart") then
-		local targetHRP = npc.HumanoidRootPart
 		repeat
-			Character:MoveTo(targetHRP.Position + Vector3.new(0, -4, 0))
-			m1Attack(targetHRP.Position)
-			useSkill(targetHRP.Position)
+			Character:MoveTo(npc.HumanoidRootPart.Position + Vector3.new(0, -4, 0))
+			m1Attack(npc.HumanoidRootPart.Position)
+			useSkill(npc.HumanoidRootPart.Position)
 			task.wait(0.25)
 		until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
 	end
 end
 
--- === DESIRE GAMES SPECIAL BOSS ===
+-- === DESIRE BOSS ===
 local function desireQuestLabel()
 	local gui = PlayerGui.Main.QuestAlertFrame.QuestGUI:FindFirstChild("Desire Games")
 	return gui and gui.Text or nil
 end
 
 local function handlePossessedRider()
-	-- Check if the quest is already completed (GUI label)
 	local questText = desireQuestLabel()
 	if questText and questText:find("Quest Completed") then
 		tpTo(Vector3.new(-1555, 23, 824))
@@ -132,14 +127,12 @@ local function handlePossessedRider()
 		fireRemote({{ Choice = "Completed it." }}, "Dialogue")
 		task.wait(0.5)
 		fireRemote({{ Exit = true }}, "Dialogue")
-		return -- ✅ STOP here, don't touch boss
+		return
 	end
 
-	-- If no boss spawned, skip
 	local rider = Workspace.Lives:FindFirstChild("Possessed Rider Lv.90")
 	if not rider then return end
 
-	-- Start the quest
 	tpTo(Vector3.new(-1555, 23, 824))
 	task.wait(0.5)
 	fireclickdetector(Workspace.NPC.ARKReplicator.ClickDetector)
@@ -148,33 +141,27 @@ local function handlePossessedRider()
 	task.wait(0.5)
 	fireRemote({{ Exit = true }}, "Dialogue")
 	task.wait(0.5)
-	fireRiderManager({ "War" }) -- PvP
+	fireRiderManager({ "War" })
 
-	-- Wait for quest GUI to appear
 	repeat task.wait(0.5) until desireQuestLabel()
 
-	-- Fight boss
 	killTarget("Possessed Rider Lv.90")
-	task.wait(0.5)
+	task.wait(8)
 
-	-- Open chest
 	local chest = Workspace:FindFirstChild("EFX") and Workspace.EFX:FindFirstChild("InteractableChest") and Workspace.EFX.InteractableChest:FindFirstChild("ClaimChest")
 	if chest and chest:IsA("ProximityPrompt") then
 		fireproximityprompt(chest, 0)
 	end
 	task.wait(0.5)
 
-	-- Switch back to PvE
 	fireRiderManager({ "War" })
 
-	-- Wait for GUI to confirm quest completion
 	for _ = 1, 20 do
 		questText = desireQuestLabel()
 		if questText and questText:find("Quest Completed") then break end
 		task.wait(0.5)
 	end
 
-	-- Turn in
 	tpTo(Vector3.new(-1555, 23, 824))
 	task.wait(0.5)
 	fireclickdetector(Workspace.NPC.ARKReplicator.ClickDetector)
@@ -186,15 +173,9 @@ local function handlePossessedRider()
 	fireRemote({{ Exit = true }}, "Dialogue")
 end
 
-
-
-
 -- === MAIN LOOP ===
 while true do
-	-- Check and kill Possessed Rider first
 	handlePossessedRider()
-
-	-- Then run regular Summer's Eclipse quest
 	startQuest()
 	waitForQuestText()
 
