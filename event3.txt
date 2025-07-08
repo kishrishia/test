@@ -242,21 +242,26 @@ local function handlePossessedRider()
 					return
 				end
 				warn("ARKReplicator or ClickDetector not found post-quest, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
-				task.wait(2)
+				task.wait(3) -- Increased wait to 3 seconds
 				replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
 			end
-			if replicator and replicator:FindFirstChild("ClickDetector") then
+			if replicator then
 				local clickDetector = replicator:FindFirstChild("ClickDetector")
 				if clickDetector and typeof(clickDetector) == "ClickDetector" then
-					warn("Found ClickDetector post-quest, attempting fireclickdetector...")
-					fireclickdetector(clickDetector)
-					task.wait(1)
-					fireDialogue("[ Desire Games ]")
-					task.wait(2)
-					fireDialogue("Completed it.")
-					task.wait(2)
-					fireDialogue({["Exit"] = true})
-					return
+					warn("Attempting fireclickdetector on ARKReplicator post-quest...")
+					local success, err = pcall(function() fireclickdetector(clickDetector) end)
+					if success then
+						task.wait(1)
+						warn("fireclickdetector succeeded, proceeding with dialogue...")
+						fireDialogue("[ Desire Games ]")
+						task.wait(2)
+						fireDialogue("Completed it.")
+						task.wait(2)
+						fireDialogue({["Exit"] = true})
+						return
+					else
+						warn("fireclickdetector failed: " .. tostring(err))
+					end
 				else
 					warn("Invalid ClickDetector on ARKReplicator post-quest")
 				end
@@ -296,84 +301,92 @@ local function handlePossessedRider()
 						return
 					end
 					warn("ARKReplicator or ClickDetector not found after TP, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
-					task.wait(2)
+					task.wait(3) -- Increased wait to 3 seconds
 					replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
 				end
-				if replicator and replicator:FindFirstChild("ClickDetector") then
+				if replicator then
 					local clickDetector = replicator:FindFirstChild("ClickDetector")
 					if clickDetector and typeof(clickDetector) == "ClickDetector" then
-						warn("Found ClickDetector after TP, attempting fireclickdetector...")
-						fireclickdetector(clickDetector)
-						task.wait(1)
-						fireDialogue("[ Desire Games ]")
-						task.wait(0.5)
-						fireDialogue({["Exit"] = true})
-						task.wait(0.5)
-						local args = {[1]="War"}
-						fireRiderManager(args)
-
-						repeat task.wait(0.5) until desireQuestLabel()
-
-						killTarget("Possessed Rider Lv.90")
-						task.wait(8)
-
-						local chest = Workspace:FindFirstChild("EFX") and Workspace.EFX:FindFirstChild("InteractableChest") and Workspace.EFX.InteractableChest:FindFirstChild("ClaimChest")
-						if chest and chest:IsA("ProximityPrompt") then
-							fireproximityprompt(chest, 0)
-						end
-						task.wait(3)
-						for i = 1, 5 do
-							local args = {[1]="Progrise Cache"}
-							if ReplicatedStorage.Remote.Function.InventoryFunction then
-								ReplicatedStorage.Remote.Function.InventoryFunction:InvokeServer(unpack(args))
-							else
-								warn("InventoryFunction is nil")
-							end
-							local args = {[1]="War's Box"}
-							if ReplicatedStorage.Remote.Function.InventoryFunction then
-								ReplicatedStorage.Remote.Function.InventoryFunction:InvokeServer(unpack(args))
-							else
-								warn("InventoryFunction is nil")
-							end
-						end
-						local args = {[1]="War"}
-						fireRiderManager(args)
-						task.wait(0.5)
-						for _ = 1, 20 do
-							questText = desireQuestLabel()
-							if questText and questText:find("Quest Completed") then break end
+						warn("Attempting fireclickdetector on ARKReplicator after TP...")
+						local success, err = pcall(function() fireclickdetector(clickDetector) end)
+						if success then
+							task.wait(1)
+							warn("fireclickdetector succeeded, proceeding with dialogue...")
+							fireDialogue("[ Desire Games ]")
 							task.wait(0.5)
-						end
+							fireDialogue({["Exit"] = true})
+							task.wait(0.5)
+							local args = {[1]="War"}
+							fireRiderManager(args)
 
-						tpTo(Vector3.new(-1555, 23, 824))
-						task.wait(0.5)
-						retryCount = 0
-						while not replicator or not replicator:FindFirstChild("ClickDetector") do
-							retryCount = retryCount + 1
-							if retryCount > maxRetries then
-								warn("Max retries reached for ARKReplicator post-chest")
-								return
+							repeat task.wait(0.5) until desireQuestLabel()
+
+							killTarget("Possessed Rider Lv.90")
+							task.wait(8)
+
+							local chest = Workspace:FindFirstChild("EFX") and Workspace.EFX:FindFirstChild("InteractableChest") and Workspace.EFX.InteractableChest:FindFirstChild("ClaimChest")
+							if chest and chest:IsA("ProximityPrompt") then
+								fireproximityprompt(chest, 0)
 							end
-							warn("ARKReplicator or ClickDetector not found post-chest, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
-							task.wait(2)
-							replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
-						end
-						if replicator and replicator:FindFirstChild("ClickDetector") then
-							local clickDetector = replicator:FindFirstChild("ClickDetector")
-							if clickDetector and typeof(clickDetector) == "ClickDetector" then
-								warn("Found ClickDetector post-chest, attempting fireclickdetector...")
-								fireclickdetector(clickDetector)
-								task.wait(1)
-								fireDialogue("[ Desire Games ]")
-								task.wait(2)
-								fireDialogue("Completed it.")
-								task.wait(2)
-								fireDialogue({["Exit"] = true})
-							else
-								warn("Invalid ClickDetector on ARKReplicator post-chest")
+							task.wait(3)
+							for i = 1, 5 do
+								local args = {[1]="Progrise Cache"}
+								if ReplicatedStorage.Remote.Function.InventoryFunction then
+									ReplicatedStorage.Remote.Function.InventoryFunction:InvokeServer(unpack(args))
+								else
+									warn("InventoryFunction is nil")
+								end
+								local args = {[1]="War's Box"}
+								if ReplicatedStorage.Remote.Function.InventoryFunction then
+									ReplicatedStorage.Remote.Function.InventoryFunction:InvokeServer(unpack(args))
+								else
+									warn("InventoryFunction is nil")
+								end
 							end
+							local args = {[1]="War"}
+							fireRiderManager(args)
+							task.wait(0.5)
+							for _ = 1, 20 do
+								questText = desireQuestLabel()
+								if questText and questText:find("Quest Completed") then break end
+								task.wait(0.5)
+							end
+
+							tpTo(Vector3.new(-1555, 23, 824))
+							task.wait(0.5)
+							retryCount = 0
+							while not replicator or not replicator:FindFirstChild("ClickDetector") do
+								retryCount = retryCount + 1
+								if retryCount > maxRetries then
+									warn("Max retries reached for ARKReplicator post-chest")
+									return
+								end
+								warn("ARKReplicator or ClickDetector not found post-chest, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
+								task.wait(3) -- Increased wait to 3 seconds
+								replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
+							end
+							if replicator then
+								local clickDetector = replicator:FindFirstChild("ClickDetector")
+								if clickDetector and typeof(clickDetector) == "ClickDetector" then
+									warn("Attempting fireclickdetector on ARKReplicator post-chest...")
+									local success, err = pcall(function() fireclickdetector(clickDetector) end)
+									if success then
+										task.wait(1)
+										warn("fireclickdetector succeeded, proceeding with dialogue...")
+										fireDialogue("[ Desire Games ]")
+										task.wait(2)
+										fireDialogue("Completed it.")
+										task.wait(2)
+										fireDialogue({["Exit"] = true})
+									else
+										warn("fireclickdetector failed post-chest: " .. tostring(err))
+									end
+								else
+									warn("Invalid ClickDetector on ARKReplicator post-chest")
+								end
+							end
+							return
 						end
-						return
 					end
 				end
 			end
