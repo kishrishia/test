@@ -228,12 +228,12 @@ local function handlePossessedRider()
 	local maxRetries = 5
 	local retryCount = 0
 
-	-- Check for Possessed Rider first
+	-- Initial check for Possessed Rider
 	local rider = Workspace.Lives:FindFirstChild("Possessed Rider Lv.90")
 	if rider and rider:FindFirstChild("Humanoid") and rider.Humanoid.Health > 0 then
-		warn("Possessed Rider found, teleporting to ARKReplicator for quest...")
+		warn("Possessed Rider detected, teleporting to ARKReplicator...")
 		tpTo(Vector3.new(-1555, 23, 824))
-		task.wait(2)
+		task.wait(4) -- Longer initial wait to ensure loading
 		local replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
 		retryCount = 0
 		while not replicator or not replicator:FindFirstChild("ClickDetector") do
@@ -246,19 +246,39 @@ local function handlePossessedRider()
 			task.wait(3)
 			replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
 		end
-		if replicator and replicator:FindFirstChild("ClickDetector") then
+		if replicator then
 			local clickDetector = replicator:FindFirstChild("ClickDetector")
 			if clickDetector and typeof(clickDetector) == "ClickDetector" then
-				warn("Attempting to get quest from ARKReplicator...")
-				fireclickdetector(clickDetector)
-				task.wait(1)
-				fireDialogue("[ Desire Games ]")
-				task.wait(0.5)
-				fireDialogue({["Exit"] = true})
-				task.wait(0.5)
-				local args = {[1]="War"}
-				fireRiderManager(args)
-				return
+				warn("Valid ClickDetector found, attempting to get quest...")
+				local success, err = pcall(function() fireclickdetector(clickDetector) end)
+				if success then
+					task.wait(1)
+					warn("fireclickdetector succeeded, initiating quest dialogue...")
+					fireDialogue("[ Desire Games ]")
+					task.wait(0.5)
+					fireDialogue({["Exit"] = true})
+					task.wait(0.5)
+					local args = {[1]="War"}
+					fireRiderManager(args)
+					return
+				else
+					warn("fireclickdetector failed: " .. tostring(err))
+					-- Fallback: Attempt to connect and trigger manually (if supported)
+					if clickDetector.MouseClick then
+						warn("Attempting MouseClick fallback...")
+						clickDetector.MouseClick:Connect(function()
+							warn("Click detected, proceeding...")
+							fireDialogue("[ Desire Games ]")
+							task.wait(0.5)
+							fireDialogue({["Exit"] = true})
+							task.wait(0.5)
+							fireRiderManager({[1]="War"})
+						end)
+						clickDetector:FireServer() -- Trigger if available
+					else
+						warn("No MouseClick event available")
+					end
+				end
 			else
 				warn("Invalid ClickDetector on ARKReplicator after TP")
 			end
@@ -271,7 +291,7 @@ local function handlePossessedRider()
 		local questText = desireQuestLabel()
 		if questText and questText:find("Quest Completed") then
 			tpTo(Vector3.new(-1555, 23, 824))
-			task.wait(2)
+			task.wait(4) -- Longer wait post-quest
 			local replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
 			retryCount = 0
 			while not replicator or not replicator:FindFirstChild("ClickDetector") do
