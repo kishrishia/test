@@ -147,9 +147,9 @@ local function killTarget(npcName)
 				useSkill2(rootPart.Position)
 				task.wait(0.3)
 				m1Attack(rootPart.Position)
-				task.wait(0.3)
+				task.wait(0.5)
 				m1Attack(rootPart.Position)
-				task.wait(0.3)
+				task.wait(0.5)
 			else
 				retryCount = retryCount + 1
 				if retryCount <= maxRetries then
@@ -171,62 +171,94 @@ local function desireQuestLabel()
 end
 
 local function handlePossessedRider()
-	local questText = desireQuestLabel()
-	if questText and questText:find("Quest Completed") then
-		tpTo(Vector3.new(-1555, 23, 824))
-		task.wait(3)
-		fireclickdetector(Workspace.NPC.ARKReplicator.ClickDetector)
-		task.wait(1)
-		fireRemote({{ Choice = "[ Desire Games ]" }}, "Dialogue")
-		task.wait(2)
-		fireRemote({{ Choice = "Completed it." }}, "Dialogue")
-		task.wait(2)
-		fireRemote({{ Exit = true }}, "Dialogue")
-		return
-	end
+	local maxRetries = 3
+	local retryCount = 0
 
-	local rider = Workspace.Lives:FindFirstChild("Possessed Rider Lv.90")
-	if not rider then return end
+	repeat
+		local questText = desireQuestLabel()
+		if questText and questText:find("Quest Completed") then
+			tpTo(Vector3.new(-1555, 23, 824))
+			task.wait(2)
+			local replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
+			if replicator and replicator:FindFirstChild("ClickDetector") then
+				fireclickdetector(replicator.ClickDetector)
+				task.wait(1)
+				fireRemote({{ Choice = "[ Desire Games ]" }}, "Dialogue")
+				task.wait(2)
+				fireRemote({{ Choice = "Completed it." }}, "Dialogue")
+				task.wait(2)
+				fireRemote({{ Exit = true }}, "Dialogue")
+				return
+			end
+		end
 
-	tpTo(Vector3.new(-1555, 23, 824))
-	task.wait(0.5)
-	fireclickdetector(Workspace.NPC.ARKReplicator.ClickDetector)
-	task.wait(3)
-	fireRemote({{ Choice = "[ Desire Games ]" }}, "Dialogue")
-	task.wait(0.5)
-	fireRemote({{ Exit = true }}, "Dialogue")
-	task.wait(0.5)
-	local args = {[1]="War"} game:GetService("ReplicatedStorage").Remote.Event.RiderManager:FireServer(unpack(args))
+		local rider = Workspace.Lives:FindFirstChild("Possessed Rider Lv.90")
+		if not rider then
+			retryCount = retryCount + 1
+			if retryCount <= maxRetries then
+				warn("Possessed Rider not found, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
+				task.wait(2)
+			else
+				warn("Max retries reached, skipping Possessed Rider.")
+				break
+			end
+		else
+			local rootPart = rider:FindFirstChild("HumanoidRootPart")
+			if not rootPart then
+				retryCount = retryCount + 1
+				if retryCount <= maxRetries then
+					warn("HumanoidRootPart missing, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
+					task.wait(2)
+				else
+					warn("Max retries reached, skipping Possessed Rider.")
+					break
+				end
+			else
+				tpTo(Vector3.new(-1555, 23, 824))
+				task.wait(2)
+				local replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
+				if replicator and replicator:FindFirstChild("ClickDetector") then
+					fireclickdetector(replicator.ClickDetector)
+					task.wait(1)
+					fireRemote({{ Choice = "[ Desire Games ]" }}, "Dialogue")
+					task.wait(0.5)
+					fireRemote({{ Exit = true }}, "Dialogue")
+					task.wait(0.5)
+					local args = {[1]="War"} game:GetService("ReplicatedStorage").Remote.Event.RiderManager:FireServer(unpack(args))
 
-	repeat task.wait(0.5) until desireQuestLabel()
+					repeat task.wait(0.5) until desireQuestLabel()
 
-	killTarget("Possessed Rider Lv.90")
-	task.wait(8)
+					killTarget("Possessed Rider Lv.90")
+					task.wait(8)
 
-	local chest = Workspace:FindFirstChild("EFX") and Workspace.EFX:FindFirstChild("InteractableChest") and Workspace.EFX.InteractableChest:FindFirstChild("ClaimChest")
-	if chest and chest:IsA("ProximityPrompt") then
-		fireproximityprompt(chest, 0)
-	end
-	task.wait(3)
-	local args = {[1]="War"} game:GetService("ReplicatedStorage").Remote.Event.RiderManager:FireServer(unpack(args))
-	task.wait(0.5)
-	for _ = 1, 20 do
-		questText = desireQuestLabel()
-		if questText and questText:find("Quest Completed") then break end
-		task.wait(0.5)
-	end
+					local chest = Workspace:FindFirstChild("EFX") and Workspace.EFX:FindFirstChild("InteractableChest") and Workspace.EFX.InteractableChest:FindFirstChild("ClaimChest")
+					if chest and chest:IsA("ProximityPrompt") then
+						fireproximityprompt(chest, 0)
+					end
+					task.wait(3)
+					local args = {[1]="War"} game:GetService("ReplicatedStorage").Remote.Event.RiderManager:FireServer(unpack(args))
+					task.wait(0.5)
+					for _ = 1, 20 do
+						questText = desireQuestLabel()
+						if questText and questText:find("Quest Completed") then break end
+						task.wait(0.5)
+					end
 
-	tpTo(Vector3.new(-1555, 23, 824))
-	task.wait(0.5)
-	fireclickdetector(Workspace.NPC.ARKReplicator.ClickDetector)
-	task.wait(3)
-	fireRemote({{ Choice = "[ Desire Games ]" }}, "Dialogue")
-	task.wait(2)
-	fireRemote({{ Choice = "Completed it." }}, "Dialogue")
-	task.wait(2)
-	fireRemote({{ Exit = true }}, "Dialogue")
+					tpTo(Vector3.new(-1555, 23, 824))
+					task.wait(0.5)
+					fireclickdetector(replicator.ClickDetector)
+					task.wait(1)
+					fireRemote({{ Choice = "[ Desire Games ]" }}, "Dialogue")
+					task.wait(2)
+					fireRemote({{ Choice = "Completed it." }}, "Dialogue")
+					task.wait(2)
+					fireRemote({{ Exit = true }}, "Dialogue")
+					return
+				end
+			end
+		end
+	until retryCount > maxRetries
 end
-
 -- === MAIN LOOP ===
 while true do
 	handlePossessedRider()
