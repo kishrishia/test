@@ -56,6 +56,15 @@ local function useSkill(pos)
 	Handler:FireServer(unpack(args))
 end
 
+local function useSkill2(pos)
+	local args = {[1] = {
+		Key = "R",
+		Skill = true,
+		MouseData = CFrame.new(pos)
+	}}
+	Handler:FireServer(unpack(args))
+end
+
 local function clickQuestButton()
 	local btn = PlayerGui:WaitForChild("Main"):WaitForChild("FunctionFrame"):WaitForChild("QuestButton")
 	if btn and btn.AbsolutePosition then
@@ -123,6 +132,7 @@ local function killTarget(npcName)
 
 			m1Attack(npc.HumanoidRootPart.Position)
 			useSkill(npc.HumanoidRootPart.Position)
+			useSkill2(npc.HumanoidRootPart.Position)
 			task.wait(0.25)
 		until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
 	end
