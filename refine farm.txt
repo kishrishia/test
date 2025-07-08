@@ -54,8 +54,8 @@ local function clickQuestButton()
 	end
 end
 
-local function tpTo(position)
-	LocalPlayer.Character:MoveTo(position)
+local function tpTo(position, lookAt)
+	HRP.CFrame = CFrame.new(position, lookAt)
 end
 
 -- === PRESS KEY FUNCTION ===
@@ -94,7 +94,7 @@ local function checkAndCraft()
 	task.wait(0.2)
 
 	if qty and qty > 60 then
-		tpTo(Vector3.new(-860, 26, -25))
+		tpTo(Vector3.new(-860, 26, -25), Vector3.new(-860, 26, -25))
 		task.wait(3)
 		fireclickdetector(Workspace.NPC.UniversalCrafting.ClickDetector)
 		task.wait(1)
@@ -127,7 +127,7 @@ end
 
 -- === QUEST LOGIC ===
 local function startQuest()
-	tpTo(Vector3.new(-1237, 2, -1500))
+	tpTo(Vector3.new(-1237, 2, -1500), Vector3.new(-1237, 2, -1500))
 	task.wait(1)
 	fireclickdetector(Workspace.NPC.LeeTheMiner.ClickDetector)
 	task.wait(1)
@@ -137,7 +137,7 @@ local function startQuest()
 end
 
 local function completeQuest()
-	tpTo(Vector3.new(-1237, 2, -1500))
+	tpTo(Vector3.new(-1237, 2, -1500), Vector3.new(-1237, 2, -1500))
 	task.wait(1)
 	fireclickdetector(Workspace.NPC.LeeTheMiner.ClickDetector)
 	task.wait(1)
@@ -156,13 +156,17 @@ local function isQuestComplete()
 	local q = questPath()
 	if q and q.Text then
 		clickQuestButton()
-		task.wait(0.5)
+		task.wait(0.3)
 		return q.Text:find("Quest Completed")
 	end
 	return false
 end
 
 local function killTarget(npcName)
+	if isQuestComplete() then
+		return true
+	end
+
 	local npcs = {}
 	for _, npc in ipairs(Workspace.Lives:GetChildren()) do
 		if npc.Name == npcName and npc:FindFirstChild("HumanoidRootPart") and npc:FindFirstChild("Humanoid") and npc.Humanoid.Health > 0 then
@@ -171,17 +175,23 @@ local function killTarget(npcName)
 	end
 
 	for _, npc in ipairs(npcs) do
+		if isQuestComplete() then
+			return true
+		end
 		local targetHRP = npc:FindFirstChild("HumanoidRootPart")
 		if targetHRP then
+			local npcPos = targetHRP.Position
+			local npcCFrame = targetHRP.CFrame
+			local behindPos = npcPos - (npcCFrame.LookVector * 3) -- Position 3 studs behind NPC
+			tpTo(behindPos, npcPos) -- Face the NPC's position (back)
 			repeat
-				Character:MoveTo(targetHRP.Position + Vector3.new(1, 0, 0))
-				m1Attack(targetHRP.Position)
-				useSkill(targetHRP.Position)
+				m1Attack(npcPos)
+				useSkill(npcPos)
 				task.wait(0.25)
-			until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0 or not Workspace.Lives:FindFirstChild(npc.Name)
-			task.wait(0.5)
+			until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0 or not Workspace.Lives:FindFirstChild(npc.Name) or isQuestComplete()
+			task.wait(0.3)
 			if isQuestComplete() then
-				return true -- Exit early if quest is complete
+				return true
 			end
 		end
 	end
@@ -198,9 +208,9 @@ while true do
 	while not isQuestComplete() do
 		for _, target in ipairs(targetQueue) do
 			if killTarget(target.npc) then
-				break -- Exit the target loop if quest is complete
+				break
 			end
-			task.wait(0.5)
+			task.wait(0.3)
 			clickQuestButton()
 		end
 	end
