@@ -75,9 +75,9 @@ local function startQuest()
 	tpTo(Vector3.new(-969, 26, -56))
 	task.wait(2)
 	fireclickdetector(Workspace.NPC.Sommic.ClickDetector)
-	task.wait(1)
+	task.wait(2)
 	fireDialogue("[ Event Quest ]")
-	task.wait(0.5)
+	task.wait(2)
 	fireDialogue("Exit")
 end
 
@@ -85,9 +85,9 @@ local function completeQuest()
 	fireclickdetector(Workspace.NPC.Sommic.ClickDetector)
 	task.wait(1)
 	fireDialogue("[ Event Quest ]")
-	task.wait(0.5)
+	task.wait(2)
 	fireDialogue("Yep!")
-	task.wait(0.5)
+	task.wait(2)
 	fireDialogue("Exit")
 end
 
@@ -135,9 +135,9 @@ local function handlePossessedRider()
 		fireclickdetector(Workspace.NPC.ARKReplicator.ClickDetector)
 		task.wait(1)
 		fireRemote({{ Choice = "[ Desire Games ]" }}, "Dialogue")
-		task.wait(0.5)
+		task.wait(2)
 		fireRemote({{ Choice = "Completed it." }}, "Dialogue")
-		task.wait(0.5)
+		task.wait(2)
 		fireRemote({{ Exit = true }}, "Dialogue")
 		return
 	end
@@ -180,11 +180,11 @@ local function handlePossessedRider()
 	fireclickdetector(Workspace.NPC.ARKReplicator.ClickDetector)
 	task.wait(1)
 	fireRemote({{ Choice = "[ Desire Games ]" }}, "Dialogue")
-	task.wait(0.5)
+	task.wait(2)
 	fireRemote({{ Choice = "Completed it." }}, "Dialogue")
-	task.wait(0.5)
+	task.wait(2)
 	fireRemote({{ Exit = true }}, "Dialogue")
-end
+	end
 
 -- === MAIN LOOP ===
 while true do
