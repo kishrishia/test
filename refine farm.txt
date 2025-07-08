@@ -98,7 +98,7 @@ local function checkAndCraft()
 	task.wait(0.2)
 
 	-- Proceed if enough quantity
-	if qty and qty > 50 then
+	if qty and qty > 60 then
 		-- Step 4: go to crafting NPC
 		tpTo(Vector3.new(-860, 26, -25))
 		task.wait(3)
