@@ -81,19 +81,25 @@ local function checkAndCraft()
 	task.wait(0.5)
 
 	-- Step 2: wait longer before closing
-	task.wait(1.2) -- wait longer to ensure UI elements populate
+	task.wait(1.2)
 
-	-- Try refreshing local reference
-	local inv = PlayerGui:WaitForChild("Main"):WaitForChild("BackpackMainFrame"):WaitForChild("Inventory"):WaitForChild("ItemScroll")
+	-- Read item safely
+	local inv = PlayerGui.Main.BackpackMainFrame.Inventory.ItemScroll
 	local ember = inv:FindFirstChild("Shattered Ember Stone")
-	local qty = ember and ember:FindFirstChild("Qty") and tonumber(ember.Qty.Text)
 
-	print("[CRAFT DEBUG] Qty of Shattered Ember Stone:", qty)
+	local rawText = ember and ember:FindFirstChild("Qty") and ember.Qty.Text or ""
+	local qty = tonumber(string.match(rawText, ">(%d+)<"))
 
-	-- Step 3: close inventory
+	print("[CRAFT DEBUG] Parsed Qty:", qty)
+
+	-- Close inventory
+	task.wait(0.5)
+	pressKey(Enum.KeyCode.Return)
+	task.wait(0.5)
 	pressKey(Enum.KeyCode.BackSlash)
 	task.wait(0.2)
 
+	-- Proceed if enough quantity
 	if qty and qty > 24 then
 		-- Step 4: go to crafting NPC
 		tpTo(Vector3.new(-860, 26, -25))
