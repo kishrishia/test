@@ -17,6 +17,8 @@ end
 
 local targetQueue = {
 	{ui = "Miner Goon Lv.50", npc = "Miner Goon Lv.50"},
+	{ui = "Miner Goon Lv.50", npc = "Miner Goon Lv.50"},
+	{ui = "Miner Goon Lv.50", npc = "Miner Goon Lv.50"},
 }
 
 -- === UTILITIES ===
