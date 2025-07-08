@@ -82,6 +82,8 @@ local function startQuest()
 end
 
 local function completeQuest()
+	tpTo(Vector3.new(-969, 26, -56))
+	task.wait(3)
 	fireclickdetector(Workspace.NPC.Sommic.ClickDetector)
 	task.wait(1)
 	fireDialogue("[ Event Quest ]")
