@@ -1,0 +1,123 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local HRP = Character:WaitForChild("HumanoidRootPart")
+local Handler = Character:WaitForChild("PlayerHandler"):WaitForChild("HandlerEvent")
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+-- === CONFIG ===
+local questName = "Summer's Eclipse"
+local questPath = function()
+	return PlayerGui.Main.QuestAlertFrame.QuestGUI:FindFirstChild(questName)
+end
+
+local targetQueue = {
+	{ui = "Water Specialist Lv.80", npc = "Water Specialist Lv.80"},
+	{ui = "Festive Soldier Lv.80", npc = "Festive Soldier Lv.80"},
+	{ui = "Festive Elite Lv.90", npc = "Festive Elite Lv.90"},
+}
+
+-- === UTILITIES ===
+local function fireDialogue(choice)
+	local args = {{ Choice = choice }}
+	ReplicatedStorage.Remote.Event.Dialogue:FireServer(unpack(args))
+end
+
+local function m1Attack(pos)
+	local args = {{
+		CombatAction = true,
+		LightAttack = true,
+		MouseData = CFrame.new(pos)
+	}}
+	Handler:FireServer(unpack(args))
+end
+
+local function useSkill(pos)
+	local args = {{
+		Skill = true,
+		AttackType = "Down",
+		Key = "E",
+		MouseData = CFrame.new(pos)
+	}}
+	Handler:FireServer(unpack(args))
+end
+
+local function clickQuestButton()
+	local btn = PlayerGui:WaitForChild("Main"):WaitForChild("FunctionFrame"):WaitForChild("QuestButton")
+	if btn and btn.AbsolutePosition then
+		local pos = btn.AbsolutePosition + (btn.AbsoluteSize / 2)
+		VirtualInputManager:SendMouseButtonEvent(pos.X, pos.Y, 0, true, game, 0)
+		task.wait()
+		VirtualInputManager:SendMouseButtonEvent(pos.X, pos.Y, 0, false, game, 0)
+	end
+end
+
+-- === QUEST LOGIC ===
+local function startQuest()
+	fireclickdetector(Workspace.NPC.Sommic.ClickDetector)
+	task.wait(1)
+	fireDialogue("[ Event Quest ]")
+	task.wait(0.5)
+	fireDialogue("Exit = true")
+end
+
+local function completeQuest()
+	fireclickdetector(Workspace.NPC.Sommic.ClickDetector)
+	task.wait(1)
+	fireDialogue("[ Event Quest ]")
+	task.wait(0.5)
+	fireDialogue("Yep!")
+	task.wait(0.5)
+	fireDialogue("Exit = true")
+end
+
+local function waitForQuestText()
+	clickQuestButton()
+	repeat task.wait(0.5)
+	until questPath() and questPath().Text:match("%(.-/.-%)") or questPath().Text:find("Quest Completed")
+end
+
+local function isQuestComplete()
+	local q = questPath()
+	return q and q.Text and q.Text:find("Quest Completed")
+end
+
+local function killTarget(npcName)
+	local npc = Workspace.Lives:FindFirstChild(npcName)
+	if npc and npc:FindFirstChild("HumanoidRootPart") then
+		local targetHRP = npc.HumanoidRootPart
+		repeat
+			Character:MoveTo(targetHRP.Position + Vector3.new(0, 3, 0))
+			m1Attack(targetHRP.Position)
+			useSkill(targetHRP.Position)
+			task.wait(0.25)
+		until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
+	end
+end
+
+-- === MAIN LOOP ===
+while true do
+	startQuest()
+	waitForQuestText()
+
+	local index = 1
+	while not isQuestComplete() do
+		local target = targetQueue[index]
+		if target then
+			killTarget(target.npc)
+			-- Rotate queue
+			index = index + 1
+			if index > #targetQueue then
+				index = 1
+			end
+		end
+		task.wait(0.5)
+		clickQuestButton()
+	end
+
+	completeQuest()
+end
