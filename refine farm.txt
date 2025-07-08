@@ -178,30 +178,18 @@ local function isQuestComplete()
 	return q and q.Text and q.Text:find("Quest Completed")
 end
 
-local function lookAt(targetPos)
-	local charHRP = Character:FindFirstChild("HumanoidRootPart")
-	if charHRP then
-		local lookVector = (targetPos - charHRP.Position).Unit
-		local newCFrame = CFrame.new(charHRP.Position, charHRP.Position + Vector3.new(lookVector.X, 0, lookVector.Z))
-		charHRP.CFrame = newCFrame
-	end
-end
-
 local function killTarget(npcName)
 	local npc = Workspace.Lives:FindFirstChild(npcName)
 	if npc and npc:FindFirstChild("HumanoidRootPart") then
 		local targetHRP = npc.HumanoidRootPart
 		repeat
-			local targetPos = targetHRP.Position
-			Character:MoveTo(targetPos + Vector3.new(2, 0, 0))
-			lookAt(targetPos)
-			m1Attack(targetPos)
-			useSkill(targetPos)
+			Character:MoveTo(targetHRP.Position + Vector3.new(4, 0, 0))
+			m1Attack(targetHRP.Position)
+			useSkill(targetHRP.Position)
 			task.wait(0.25)
 		until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
 	end
 end
-
 
 -- === MAIN LOOP ===
 while true do
