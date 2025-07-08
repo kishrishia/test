@@ -84,11 +84,13 @@ local function checkAndCraft()
 	pressKey(Enum.KeyCode.BackSlash)
 	task.wait(0.2)
 
-	-- Step 3: check item quantity
+	-- Step 3: check item quantity safely
 	local inv = PlayerGui.Main.BackpackMainFrame.Inventory.ItemScroll
 	local ember = inv:FindFirstChild("Shattered Ember Stone")
-	if ember and tonumber(ember.Qty.Text) > 24 then
-		-- Go to crafting NPC
+	local qty = ember and ember:FindFirstChild("Qty") and tonumber(ember.Qty.Text)
+
+	if qty and qty > 24 then
+		-- Step 4: go to crafting NPC
 		tpTo(Vector3.new(-860, 26, -25))
 		task.wait(3)
 		fireclickdetector(Workspace.NPC.UniversalCrafting.ClickDetector)
@@ -96,7 +98,7 @@ local function checkAndCraft()
 		fireDialogue("[ Craft ]")
 		task.wait(1)
 
-		-- Craft 5 times
+		-- Step 5: craft 5x Summer's Amber
 		for i = 1, 5 do
 			local args = {
 				"Event",
@@ -106,7 +108,7 @@ local function checkAndCraft()
 			task.wait(0.25)
 		end
 
-		-- Step 4: navigate and close UI
+		-- Step 6: navigate to exit crafting UI
 		pressKey(Enum.KeyCode.BackSlash)
 		task.wait(0.2)
 		for _ = 1, 2 do pressKey(Enum.KeyCode.Down) task.wait(0.1) end
@@ -116,6 +118,7 @@ local function checkAndCraft()
 		pressKey(Enum.KeyCode.BackSlash)
 	end
 end
+
 
 -- === QUEST LOGIC ===
 local function startQuest()
