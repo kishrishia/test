@@ -158,7 +158,7 @@ local function handlePossessedRider()
 				retryCount = retryCount + 1
 				if retryCount > maxRetries then
 					warn("Max retries reached, skipping ARKReplicator.")
-					break
+					return -- Exit the function if retries fail
 				end
 				warn("ARKReplicator or ClickDetector not found, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
 				task.wait(2)
@@ -194,7 +194,7 @@ local function handlePossessedRider()
 				task.wait(2)
 			else
 				warn("Max retries reached, skipping Possessed Rider.")
-				break
+				return -- Exit the function if retries fail
 			end
 		else
 			local rootPart = rider:FindFirstChild("HumanoidRootPart")
@@ -205,21 +205,21 @@ local function handlePossessedRider()
 					task.wait(2)
 				else
 					warn("Max retries reached, skipping Possessed Rider.")
-					break
+					return -- Exit the function if retries fail
 				end
 			else
 				tpTo(Vector3.new(-1555, 23, 824))
-				task.wait(0.5) -- Initial wait after TP
+				task.wait(0.5)
 				local replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
 				retryCount = 0
 				while not replicator or not replicator:FindFirstChild("ClickDetector") do
 					retryCount = retryCount + 1
 					if retryCount > maxRetries then
 						warn("Max retries reached, skipping ARKReplicator after TP.")
-						break
+						return -- Exit the function if retries fail
 					end
 					warn("ARKReplicator or ClickDetector not found after TP, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
-					task.wait(2) -- Increased wait to allow NPC to load post-quest
+					task.wait(2)
 					replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
 				end
 				if replicator then
@@ -266,7 +266,7 @@ local function handlePossessedRider()
 								retryCount = retryCount + 1
 								if retryCount > maxRetries then
 									warn("Max retries reached, skipping ARKReplicator post-chest.")
-									break
+									return -- Exit the function if retries fail
 								end
 								warn("ARKReplicator or ClickDetector not found post-chest, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
 								task.wait(2)
