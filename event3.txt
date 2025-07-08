@@ -82,7 +82,7 @@ end
 -- === SUMMER QUEST ===
 local function startQuest()
 	tpTo(Vector3.new(-969, 26, -56))
-	task.wait(3)
+	task.wait(6)
 	fireclickdetector(Workspace.NPC.Sommic.ClickDetector)
 	task.wait(2)
 	local args = {[1]={["Choice"]="[ Event Quest ]"}}
@@ -94,7 +94,7 @@ end
 
 local function completeQuest()
 	tpTo(Vector3.new(-969, 26, -56))
-	task.wait(3)
+	task.wait(6)
 	fireclickdetector(Workspace.NPC.Sommic.ClickDetector)
 	task.wait(2)
 	local args = {[1]={["Choice"]="[ Event Quest ]"}}
@@ -178,7 +178,7 @@ local function handlePossessedRider()
 		local questText = desireQuestLabel()
 		if questText and questText:find("Quest Completed") then
 			tpTo(Vector3.new(-1555, 23, 824))
-			task.wait(2)
+			task.wait(6)
 			local replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
 			if replicator and replicator:FindFirstChild("ClickDetector") then
 				fireclickdetector(replicator.ClickDetector)
@@ -215,7 +215,7 @@ local function handlePossessedRider()
 				end
 			else
 				tpTo(Vector3.new(-1555, 23, 824))
-				task.wait(2)
+				task.wait(6)
 				local replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
 				if replicator and replicator:FindFirstChild("ClickDetector") then
 					fireclickdetector(replicator.ClickDetector)
