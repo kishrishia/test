@@ -127,7 +127,7 @@ end
 
 local function killTarget(npcName)
 	local npc = Workspace.Lives:FindFirstChild(npcName)
-	if npc and npc:FindFirstChild("HumanoidRootPart") then
+	if npc and npc:FindFirstChild("Humanoid") then
 		repeat
 			local behindPos = npc.HumanoidRootPart.Position - npc.HumanoidRootPart.CFrame.LookVector * 3
 			Character:MoveTo(behindPos + Vector3.new(0, 0, 0))
@@ -135,18 +135,24 @@ local function killTarget(npcName)
 			-- Face the enemy
 			HRP.CFrame = CFrame.new(HRP.Position, npc.HumanoidRootPart.Position)
 			
-			-- Prioritize skills over M1 attacks
-			useSkill2(npc.HumanoidRootPart.Position)
-			task.wait(0.3)
-			useSkill2(npc.HumanoidRootPart.Position)
-			task.wait(0.3)
-			m1Attack(npc.HumanoidRootPart.Position)
-			task.wait(0.5)
-			m1Attack(npc.HumanoidRootPart.Position)
-			task.wait(0.5)
-			-- Use M1 attack sparingly as a fallback
-			useSkill(npc.HumanoidRootPart.Position)
-			task.wait(0.5)
+			-- Prioritize skills over M1 attacks with safety check
+			local rootPart = npc:FindFirstChild("HumanoidRootPart")
+			if rootPart then
+				useSkill2(rootPart.Position)
+				task.wait(0.3)
+				useSkill2(rootPart.Position)
+				task.wait(0.3)
+				m1Attack(rootPart.Position)
+				task.wait(0.5)
+				m1Attack(rootPart.Position)
+				task.wait(0.5)
+				-- Use M1 attack sparingly as a fallback
+				useSkill(rootPart.Position)
+				task.wait(0.5)
+			else
+				-- Wait briefly if HumanoidRootPart is missing, possibly due to cutscene
+				task.wait(1)
+			end
 			
 		until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
 	end
