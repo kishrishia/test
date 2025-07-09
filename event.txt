@@ -71,12 +71,14 @@ local function checkAndCraft()
 	-- Step 1: open inventory UI via key navigation
 	pressKey(Enum.KeyCode.BackSlash)
 	task.wait(0.2)
-
-	for _ = 1, 4 do
-		pressKey(Enum.KeyCode.Down)
-		task.wait(0.1)
-	end
-
+	pressKey(Enum.KeyCode.Down)
+	task.wait(0.2)
+	pressKey(Enum.KeyCode.Down)
+	task.wait(0.2)
+	pressKey(Enum.KeyCode.Down)
+	task.wait(0.2)
+	pressKey(Enum.KeyCode.Down)
+	task.wait(0.2)
 	pressKey(Enum.KeyCode.Return)
 	task.wait(0.5)
 
@@ -122,8 +124,19 @@ local function checkAndCraft()
 		-- Step 6: navigate to exit crafting UI
 		pressKey(Enum.KeyCode.BackSlash)
 		task.wait(0.2)
-		for _ = 1, 2 do pressKey(Enum.KeyCode.Down) task.wait(0.1) end
-		for _ = 1, 5 do pressKey(Enum.KeyCode.Left) task.wait(0.1) end
+		pressKey(Enum.KeyCode.Down)
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Down)
+		pressKey(Enum.KeyCode.Left) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Left) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Left) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Left) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Left) 
+		task.wait(0.2)
 		pressKey(Enum.KeyCode.Return)
 		task.wait(0.3)
 		pressKey(Enum.KeyCode.BackSlash)
