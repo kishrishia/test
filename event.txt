@@ -119,6 +119,12 @@ local function checkAndCraft()
 			}
 			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
 			task.wait(0.25)
+			local args = {
+				"Event",
+				"Empowered Summer's Amber"
+			}
+			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
+			task.wait(0.25)
 		end
 
 		-- Step 6: navigate to exit crafting UI
