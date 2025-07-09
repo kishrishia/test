@@ -9,214 +9,193 @@ local HRP = Character:WaitForChild("HumanoidRootPart")
 local Handler = Character:WaitForChild("PlayerHandler"):WaitForChild("HandlerEvent")
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
--- Handle character respawn
-LocalPlayer.CharacterAdded:Connect(function(newCharacter)
-    Character = newCharacter
-    HRP = Character:WaitForChild("HumanoidRootPart")
-    Handler = Character:WaitForChild("PlayerHandler"):WaitForChild("HandlerEvent")
-end)
-
 -- === CONFIG ===
 local questName = "Summer's Eclipse"
 local questPath = function()
-    return PlayerGui.Main.QuestAlertFrame.QuestGUI:FindFirstChild(questName)
+	return PlayerGui.Main.QuestAlertFrame.QuestGUI:FindFirstChild(questName)
 end
 
 local targetQueue = {
-    {ui = "Water Specialist Lv.80", npc = "Water Specialist Lv.80"},
-    {ui = "Festive Soldier Lv.80", npc = "Festive Soldier Lv.80"},
-    {ui = "Festive Elite Lv.90", npc = "Festive Elite Lv.90"},
+	{ui = "Water Specialist Lv.80", npc = "Water Specialist Lv.80"},
+	{ui = "Festive Soldier Lv.80", npc = "Festive Soldier Lv.80"},
+	{ui = "Festive Elite Lv.90", npc = "Festive Elite Lv.90"},
 }
 
 -- === UTILITIES ===
 local function fireDialogue(choice)
-    local args = {{ Choice = choice }}
-    ReplicatedStorage.Remote.Event.Dialogue:FireServer(unpack(args))
+	local args = {{ Choice = choice }}
+	ReplicatedStorage.Remote.Event.Dialogue:FireServer(unpack(args))
 end
 
 local function m1Attack(pos)
-    local args = {{
-        CombatAction = true,
-        LightAttack = true,
-        MouseData = CFrame.new(pos)
-    }}
-    Handler:FireServer(unpack(args))
+	local args = {{
+		CombatAction = true,
+		LightAttack = true,
+		MouseData = CFrame.new(pos)
+	}}
+	Handler:FireServer(unpack(args))
 end
 
 local function useSkill(pos)
-    local args = {{
-        Skill = true,
-        AttackType = "Down",
-        Key = "E",
-        MouseData = CFrame.new(pos)
-    }}
-    Handler:FireServer(unpack(args))
+	local args = {{
+		Skill = true,
+		AttackType = "Down",
+		Key = "E",
+		MouseData = CFrame.new(pos)
+	}}
+	Handler:FireServer(unpack(args))
 end
 
 local function clickQuestButton()
-    local btn = PlayerGui:WaitForChild("Main"):WaitForChild("FunctionFrame"):WaitForChild("QuestButton")
-    if btn and btn.AbsolutePosition then
-        local pos = btn.AbsolutePosition + (btn.AbsoluteSize / 2)
-        VirtualInputManager:SendMouseButtonEvent(pos.X, pos.Y, 0, true, game, 0)
-        task.wait()
-        VirtualInputManager:SendMouseButtonEvent(pos.X, pos.Y, 0, false, game, 0)
-    end
+	local btn = PlayerGui:WaitForChild("Main"):WaitForChild("FunctionFrame"):WaitForChild("QuestButton")
+	if btn and btn.AbsolutePosition then
+		local pos = btn.AbsolutePosition + (btn.AbsoluteSize / 2)
+		VirtualInputManager:SendMouseButtonEvent(pos.X, pos.Y, 0, true, game, 0)
+		task.wait()
+		VirtualInputManager:SendMouseButtonEvent(pos.X, pos.Y, 0, false, game, 0)
+	end
 end
 
 local function tpTo(position)
-    LocalPlayer.Character:MoveTo(position)
+	LocalPlayer.Character:MoveTo(position)
 end
 
 -- === PRESS KEY FUNCTION ===
 local function pressKey(key)
-    VirtualInputManager:SendKeyEvent(true, key, false, game)
-    VirtualInputManager:SendKeyEvent(false, key, false, game)
+	VirtualInputManager:SendKeyEvent(true, key, false, game)
+	VirtualInputManager:SendKeyEvent(false, key, false, game)
 end
 
 -- === CRAFTING LOGIC ===
 local function checkAndCraft()
-    -- Step 1: open inventory UI via key navigation
-    pressKey(Enum.KeyCode.BackSlash)
-    task.wait(0.2)
+	-- Step 1: open inventory UI via key navigation
+	pressKey(Enum.KeyCode.BackSlash)
+	task.wait(0.2)
 
-    for _ = 1, 4 do
-        pressKey(Enum.KeyCode.Down)
-        task.wait(0.1)
-    end
+	for _ = 1, 4 do
+		pressKey(Enum.KeyCode.Down)
+		task.wait(0.1)
+	end
 
-    pressKey(Enum.KeyCode.Return)
-    task.wait(0.5)
+	pressKey(Enum.KeyCode.Return)
+	task.wait(0.5)
 
-    -- Step 2: wait longer before closing
-    task.wait(1.2)
+	-- Step 2: wait longer before closing
+	task.wait(1.2)
 
-    -- Read item safely
-    local inv = PlayerGui.Main.BackpackMainFrame.Inventory.ItemScroll
-    local ember = inv:FindFirstChild("Shattered Ember Stone")
+	-- Read item safely
+	local inv = PlayerGui.Main.BackpackMainFrame.Inventory.ItemScroll
+	local ember = inv:FindFirstChild("Shattered Ember Stone")
 
-    local rawText = ember and ember:FindFirstChild("Qty") and ember.Qty.Text or ""
-    local qty = tonumber(string.match(rawText, ">(%d+)<"))
+	local rawText = ember and ember:FindFirstChild("Qty") and ember.Qty.Text or ""
+	local qty = tonumber(string.match(rawText, ">(%d+)<"))
 
-    print("[CRAFT DEBUG] Parsed Qty:", qty)
+	print("[CRAFT DEBUG] Parsed Qty:", qty)
 
-    -- Close inventory
-    task.wait(0.5)
-    pressKey(Enum.KeyCode.Return)
-    task.wait(0.5)
-    pressKey(Enum.KeyCode.BackSlash)
-    task.wait(0.2)
+	-- Close inventory
+	task.wait(0.5)
+	pressKey(Enum.KeyCode.Return)
+	task.wait(0.5)
+	pressKey(Enum.KeyCode.BackSlash)
+	task.wait(0.2)
 
-    -- Proceed if enough quantity
-    if qty and qty > 24 then
-        -- Step 4: go to crafting NPC
-        tpTo(Vector3.new(-860, 26, -25))
-        task.wait(3)
-        fireclickdetector(Workspace.NPC.UniversalCrafting.ClickDetector)
-        task.wait(1)
-        fireDialogue("[ Craft ]")
-        task.wait(1)
+	-- Proceed if enough quantity
+	if qty and qty > 24 then
+		-- Step 4: go to crafting NPC
+		tpTo(Vector3.new(-860, 26, -25))
+		task.wait(3)
+		fireclickdetector(Workspace.NPC.UniversalCrafting.ClickDetector)
+		task.wait(1)
+		fireDialogue("[ Craft ]")
+		task.wait(1)
 
-        -- Step 5: craft 5x Summer's Amber
-        for i = 1, 10 do
-            local args = {
-                "Event",
-                "Summer's Amber"
-            }
-            ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
-            task.wait(0.25)
-        end
+		-- Step 5: craft 5x Summer's Amber
+		for i = 1, 10 do
+			local args = {
+				"Event",
+				"Summer's Amber"
+			}
+			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
+			task.wait(0.25)
+		end
 
-        -- Step 6: navigate to exit crafting UI
-        pressKey(Enum.KeyCode.BackSlash)
-        task.wait(0.2)
-        for _ = 1, 2 do pressKey(Enum.KeyCode.Down) task.wait(0.1) end
-        for _ = 1, 5 do pressKey(Enum.KeyCode.Left) task.wait(0.1) end
-        pressKey(Enum.KeyCode.Return)
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.BackSlash)
-    end
+		-- Step 6: navigate to exit crafting UI
+		pressKey(Enum.KeyCode.BackSlash)
+		task.wait(0.2)
+		for _ = 1, 2 do pressKey(Enum.KeyCode.Down) task.wait(0.1) end
+		for _ = 1, 5 do pressKey(Enum.KeyCode.Left) task.wait(0.1) end
+		pressKey(Enum.KeyCode.Return)
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.BackSlash)
+	end
 end
+
 
 -- === QUEST LOGIC ===
 local function startQuest()
-    tpTo(Vector3.new(-969, 26, -56))
-    task.wait(3)
-    fireclickdetector(Workspace.NPC.Sommic.ClickDetector)
-    task.wait(1)
-    fireDialogue("[ Event Quest ]")
-    task.wait(0.5)
-    fireDialogue("Exit = true")
+	tpTo(Vector3.new(-969, 26, -56))
+	task.wait(3)
+	fireclickdetector(Workspace.NPC.Sommic.ClickDetector)
+	task.wait(1)
+	fireDialogue("[ Event Quest ]")
+	task.wait(0.5)
+	fireDialogue("Exit = true")
 end
 
 local function completeQuest()
-    tpTo(Vector3.new(-969, 26, -56))
-    task.wait(3)
-    fireclickdetector(Workspace.NPC.Sommic.ClickDetector)
-    task.wait(1)
-    fireDialogue("[ Event Quest ]")
-    task.wait(0.5)
-    fireDialogue("Yep!")
-    task.wait(0.5)
-    fireDialogue("Exit = true")
+	tpTo(Vector3.new(-969, 26, -56))
+	task.wait(3)
+	fireclickdetector(Workspace.NPC.Sommic.ClickDetector)
+	task.wait(1)
+	fireDialogue("[ Event Quest ]")
+	task.wait(0.5)
+	fireDialogue("Yep!")
+	task.wait(0.5)
+	fireDialogue("Exit = true")
 end
 
 local function waitForQuestText()
-    clickQuestButton()
-    repeat task.wait(0.5)
-    until questPath() and questPath().Text:match("%(.-/.-%)") or questPath().Text:find("Quest Completed")
+	clickQuestButton()
+	repeat task.wait(0.5)
+	until questPath() and questPath().Text:match("%(.-/.-%)") or questPath().Text:find("Quest Completed")
 end
 
 local function isQuestComplete()
-    local q = questPath()
-    return q and q.Text and q.Text:find("Quest Completed")
+	local q = questPath()
+	return q and q.Text and q.Text:find("Quest Completed")
 end
 
--- Modified killTarget function
 local function killTarget(npcName)
-    local npc = Workspace.Lives:FindFirstChild(npcName)
-    if npc and npc:FindFirstChild("HumanoidRootPart") then
-        -- Store initial position
-        local initialPos = HRP.Position
-        local targetHRP = npc.HumanoidRootPart
-        local startTime = tick()
-        local combatDuration = 20 -- 20 seconds
-        local returnDuration = 3 -- 3 seconds
-        local hasReturned = false
-
-        repeat
-            -- Check if 20 seconds have passed
-            if tick() - startTime >= combatDuration and not hasReturned then
-                -- Teleport back to initial position for 3 seconds
-                tpTo(initialPos)
-                task.wait(returnDuration)
-                hasReturned = true
-                -- Teleport back to NPC
-                tpTo(targetHRP.Position + Vector3.new(1, 0, 0))
-            end
-            -- Move to NPC position and attack
-            Character:MoveTo(targetHRP.Position + Vector3.new(1, 0, 0))
-            m1Attack(targetHRP.Position)
-            useSkill(targetHRP.Position)
-            task.wait(0.25)
-        until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
-    end
+	local npc = Workspace.Lives:FindFirstChild(npcName)
+	if npc and npc:FindFirstChild("HumanoidRootPart") then
+		local targetHRP = npc.HumanoidRootPart
+		repeat
+			Character:MoveTo(targetHRP.Position + Vector3.new(1, 0, 0))
+			m1Attack(targetHRP.Position)
+			useSkill(targetHRP.Position)
+			task.wait(0.25)
+		until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
+	end
 end
 
 -- === MAIN LOOP ===
 while true do
-    checkAndCraft()
-    startQuest()
-    waitForQuestText()
-    local index = 1
-    while not isQuestComplete() do
-        local target = targetQueue[index]
-        if target then
-            killTarget(target.npc)
-            index = index + 1
-            if index > #targetQueue then index = 1 end
-        end
-        task.wait(0.5)
-        clickQuestButton()
-    end
-    completeQuest()
+	checkAndCraft()
+
+	startQuest()
+	waitForQuestText()
+
+	local index = 1
+	while not isQuestComplete() do
+		local target = targetQueue[index]
+		if target then
+			killTarget(target.npc)
+			index = index + 1
+			if index > #targetQueue then index = 1 end
+		end
+		task.wait(0.5)
+		clickQuestButton()
+	end
+
+	completeQuest()
 end
