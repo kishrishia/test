@@ -69,7 +69,7 @@ local function pressKey(key)
 	VirtualInputManager:SendKeyEvent(false, key, false, game)
 end
 
--- === CRAFTING LOGIC ===
+-- === CRAFTING AND SELLING LOGIC ===
 local function checkAndCraft()
 	pressKey(Enum.KeyCode.BackSlash)
 	task.wait(0.2)
@@ -85,11 +85,16 @@ local function checkAndCraft()
 
 	local inv = PlayerGui.Main.BackpackMainFrame.Inventory.ItemScroll
 	local ember = inv:FindFirstChild("Chunk of Ore")
+	local ancientStone = inv:FindFirstChild("Ancient Stone")
 
-	local rawText = ember and ember:FindFirstChild("Qty") and ember.Qty.Text or ""
-	local qty = tonumber(string.match(rawText, ">(%d+)<"))
+	local rawTextEmber = ember and ember:FindFirstChild("Qty") and ember.Qty.Text or ""
+	local qtyEmber = tonumber(string.match(rawTextEmber, ">(%d+)<"))
 
-	print("[CRAFT DEBUG] Parsed Qty:", qty)
+	local rawTextStone = ancientStone and ancientStone:FindFirstChild("Qty") and ancientStone.Qty.Text or ""
+	local qtyStone = tonumber(string.match(rawTextStone, ">(%d+)<"))
+
+	print("[CRAFT DEBUG] Parsed Qty Ember:", qtyEmber)
+	print("[SELL DEBUG] Parsed Qty Ancient Stone:", qtyStone)
 
 	task.wait(0.5)
 	pressKey(Enum.KeyCode.Return)
@@ -97,7 +102,7 @@ local function checkAndCraft()
 	pressKey(Enum.KeyCode.BackSlash)
 	task.wait(0.2)
 
-	if qty and qty > 60 then
+	if qtyEmber and qtyEmber > 60 then
 		tpTo(Vector3.new(-860, 26, -25), nil)
 		task.wait(3)
 		fireclickdetector(Workspace.NPC.UniversalCrafting.ClickDetector)
@@ -126,6 +131,17 @@ local function checkAndCraft()
 		pressKey(Enum.KeyCode.Return)
 		task.wait(0.3)
 		pressKey(Enum.KeyCode.BackSlash)
+	end
+
+	if qtyStone and qtyStone > 60 then
+		tpTo(Vector3.new(-1237, 2, -1500), nil) -- Assuming JunkBuyer is near LeeTheMiner, adjust if needed
+		task.wait(1)
+		fireclickdetector(Workspace.NPC.JunkBuyer.ClickDetector)
+		task.wait(1)
+		fireDialogue("[ Press Button ]")
+		task.wait(2)
+		local args = {{["Ancient Stone"] = 500}}
+		ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
 	end
 end
 
