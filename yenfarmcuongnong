@@ -1,0 +1,754 @@
+	local Players = game:GetService("Players")
+	local vu = game:GetService("VirtualUser")
+	Players.LocalPlayer.Idled:Connect(function()
+		vu:Button2Down(Vector2.new(0,0), Workspace.CurrentCamera.CFrame)
+		task.wait(1)
+		vu:Button2Up(Vector2.new(0,0), Workspace.CurrentCamera.CFrame)
+	end)
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local Workspace = game:GetService("Workspace")
+	local VirtualInputManager = game:GetService("VirtualInputManager")
+
+	local LocalPlayer = Players.LocalPlayer
+	local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+	local HRP = Character:WaitForChild("HumanoidRootPart")
+	local Handler = Character:WaitForChild("PlayerHandler"):WaitForChild("HandlerEvent")
+	local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+	-- ### Utility Functions
+	local function fireDialogue(choice)
+		local args = {{ Choice = choice }}
+		ReplicatedStorage.Remote.Event.Dialogue:FireServer(unpack(args))
+	end
+
+	local function m1Attack(pos)
+	local args = {{
+		CombatAction = true,
+		HeavyAttack = true,
+		MouseData = CFrame.new(pos)
+	}}
+
+	local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
+	local handler = character:FindFirstChild("PlayerHandler") and character.PlayerHandler:FindFirstChild("HandlerEvent")
+	if handler then
+		handler:FireServer(unpack(args))
+		print("[DEBUG] Fired m1Attack at", pos)
+	else
+		warn("[ERROR] Handler not found when using m1Attack")
+	end
+end
+
+local function useSkill(pos, key)
+	local args = {{
+		Skill = true,
+		AttackType = "Down",
+		Key = key or "R",
+		MouseData = CFrame.new(pos)
+	}}
+
+	local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
+	local handler = character:FindFirstChild("PlayerHandler") and character.PlayerHandler:FindFirstChild("HandlerEvent")
+	if handler then
+		handler:FireServer(unpack(args))
+		print("[DEBUG] Fired skill", key, "at", pos)
+	else
+		warn("[ERROR] Handler not found when using skill")
+	end
+end
+
+	local function clickQuestButton()
+		local btn = PlayerGui:WaitForChild("Main"):WaitForChild("FunctionFrame"):WaitForChild("QuestButton")
+		if btn and btn.AbsolutePosition then
+			local pos = btn.AbsolutePosition + (btn.AbsoluteSize / 2)
+			VirtualInputManager:SendMouseButtonEvent(pos.X, pos.Y, 0, true, game, 0)
+			task.wait()
+			VirtualInputManager:SendMouseButtonEvent(pos.X, pos.Y, 0, false, game, 0)
+		end
+	end
+
+	local function tpTo(position, lookAt)
+	local char = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
+	local hrp = char:FindFirstChild("HumanoidRootPart")
+	if not hrp then
+		warn("[TP DEBUG] Failed: no HRP")
+		return
+	end
+
+	if lookAt then
+		local dir = (lookAt - position).Unit
+		hrp.CFrame = CFrame.new(position, position + dir)
+	else
+		hrp.CFrame = CFrame.new(position)
+	end
+
+	print("[TP DEBUG] Teleported to:", position, "Looking at:", lookAt)
+end
+
+	local function pressKey(key)
+		VirtualInputManager:SendKeyEvent(true, key, false, game)
+		VirtualInputManager:SendKeyEvent(false, key, false, game)
+	end
+
+	local function checkPVPGui()
+		local pvpGui = Workspace.Lives:FindFirstChild("vaqunish"):FindFirstChild("NAME_GUI")
+		if pvpGui then
+			local pvpImage = pvpGui:FindFirstChild("PVP")
+			return pvpImage and pvpImage.Visible or false
+		end
+		return false
+	end
+
+	local function togglePVP(desiredState)
+		local args = {[1]="War"}
+		while checkPVPGui() ~= desiredState do
+			ReplicatedStorage.Remote.Event.RiderManager:FireServer(unpack(args))
+			task.wait(1)
+		end
+	end
+
+	-- ### Config
+	local refineQuestName = "Mummy Return?"
+	local refineQuestPath = function()
+		return PlayerGui.Main.QuestAlertFrame.QuestGUI:FindFirstChild(refineQuestName)
+	end
+
+	local refineTargetQueue = {
+		{ui = "Mummy Lv.40", npc = "Mummy Lv.40"},
+	}
+
+	local function desireQuestLabel()
+		local gui = PlayerGui.Main.QuestAlertFrame.QuestGUI:FindFirstChild("Desire Games")
+		return gui and gui.Text or nil
+	end
+
+	-- ### Crafting and Selling Logic
+	local function sellAncientStone()
+		tpTo(Vector3.new(-1237, 2, -1500), nil)
+		task.wait(1)
+		fireclickdetector(Workspace.NPC.JunkBuyer.ClickDetector)
+		task.wait(1)
+		fireDialogue("[ Press Button ]")
+		task.wait(2)
+			local args = {{["Green Fragment"] = 550}}
+			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
+			task.wait(0.5)
+			local args = {{["Ancient Stone"] = 500}}
+			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
+			task.wait(0.5)
+			local args = {{["Purple Fragment"] = 550}}
+			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
+			task.wait(0.5)
+			local args = {{["Essence's Gearbox"] = 2500}}
+			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
+			task.wait(0.5)
+			local args = {{["Cell Medal"] = 150}}
+			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
+			task.wait(0.5)
+			local args = {{["Lost Tablet"] = 150}}
+			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
+			task.wait(0.5)
+			for i = 1, 10 do
+			local args = {[1]="Progrise Cache"}
+			game:GetService("ReplicatedStorage").Remote.Function.InventoryFunction:InvokeServer(unpack(args))
+			task.wait(0.5)
+			end
+		task.wait(1)
+		pressKey(Enum.KeyCode.BackSlash)
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Down)
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Return)
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.BackSlash)
+	end
+
+	local function checkAndCraftRefine()
+	pressKey(Enum.KeyCode.BackSlash)
+	task.wait(0.2)
+	for _ = 1, 4 do
+		pressKey(Enum.KeyCode.Down)
+		task.wait(0.1)
+	end
+	pressKey(Enum.KeyCode.Return)
+	task.wait(1.2)
+
+	local inv = PlayerGui.Main.BackpackMainFrame.Inventory.ItemScroll
+	local ember = inv:FindFirstChild("Chunk of Ore")
+	local fragment = inv:FindFirstChild("Green Fragment") or inv:FindFirstChild("Purple Fragment")
+
+	local rawTextEmber = ember and ember:FindFirstChild("Qty") and ember.Qty.Text or ""
+	local qtyEmber = tonumber(string.match(rawTextEmber, ">(%d+)<"))
+
+	local rawTextFragment = fragment and fragment:FindFirstChild("Qty") and fragment.Qty.Text or ""
+	local qtyFragment = tonumber(string.match(rawTextFragment, ">(%d+)<"))
+
+	print("[CRAFT DEBUG] Parsed Qty Chunk of Ore:", qtyEmber)
+	print("[SELL DEBUG] Parsed Qty Fragment:", qtyFragment)
+
+	task.wait(0.5)
+	pressKey(Enum.KeyCode.Return)
+	task.wait(0.5)
+	pressKey(Enum.KeyCode.BackSlash)
+	task.wait(0.2)
+
+	if qtyEmber and qtyEmber > 52 then
+		tpTo(Vector3.new(-860, 26, -25), nil)
+		task.wait(3)
+		fireclickdetector(Workspace.NPC.UniversalCrafting.ClickDetector)
+		task.wait(1)
+		fireDialogue("[ Craft ]")
+		task.wait(1)
+		for i = 1, 10 do
+			local args = {"Special", "Blue Fragment"}
+			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
+			task.wait(0.25)
+			args = {"Special", "Blue Sappyre"}
+			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
+			task.wait(0.25)
+			args = {"Special", "Red Fragment"}
+			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
+			task.wait(0.25)
+			args = {"Special", "Red Emperor"}
+			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
+		end
+		task.wait(10)
+		pressKey(Enum.KeyCode.BackSlash)
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Down)
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Return)
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.BackSlash)
+	end
+
+	if qtyFragment and qtyFragment > 35 then
+		sellAncientStone()
+	end
+end
+
+
+
+	-- ### Quest Logic
+	local function startQuest()
+		tpTo(Vector3.new(-1141, 26, 242), nil)
+		task.wait(2)
+		fireclickdetector(Workspace.NPC.WindTourist.ClickDetector)
+		task.wait(2)
+		fireDialogue("Sure!")
+		task.wait(1.5)
+		fireDialogue("Mummy Return?")
+		task.wait(1.5)
+		fireDialogue("Start 'Mummy Return?'")
+	end
+
+	local function completeQuest()
+		tpTo(Vector3.new(-1141, 26, 242), nil)
+		task.wait(2)
+		fireclickdetector(Workspace.NPC.WindTourist.ClickDetector)
+		task.wait(2)
+		fireDialogue("Yes, I’ve completed it.")
+		task.wait(1.5)
+		fireDialogue("Maybe later")
+	end
+
+	local function waitForQuestText()
+		clickQuestButton()
+		repeat task.wait(0.5)
+		until refineQuestPath() and (refineQuestPath().Text:match("%(.-/.-%)") or refineQuestPath().Text:find("Quest Completed"))
+	end
+
+	local function isQuestComplete()
+		local q = refineQuestPath()
+		if q and q.Text then
+			clickQuestButton()
+			task.wait(0.3)
+			return q.Text:find("Quest Completed")
+		end
+		return false
+	end
+
+	-- ### Attack Functions
+	function refineAttack(pos)
+		m1Attack(pos)
+		m1Attack(pos)
+		useSkill(pos, "R")
+	end
+
+	function desireAttack(pos)
+		useSkill(pos, "V")
+		task.wait(0.1)
+		useSkill(pos, "V")
+		useSkill(pos, "R")
+		m1Attack(pos)
+	end
+
+	-- ### Kill Target Function
+	local function killTarget(npcName, attackFunc, checkFunc)
+		local npcs = {}
+		for _, npc in ipairs(Workspace.Lives:GetChildren()) do
+			if npc.Name == npcName and npc:FindFirstChild("HumanoidRootPart") and npc:FindFirstChild("Humanoid") and npc.Humanoid.Health > 0 then
+				table.insert(npcs, npc)
+			end
+		end
+		for _, npc in ipairs(npcs) do
+			if checkFunc and checkFunc() then
+				return true
+			end
+			local targetHRP = npc:FindFirstChild("HumanoidRootPart")
+			if targetHRP then
+				repeat
+					local npcPos = targetHRP.Position
+					local npcCFrame = targetHRP.CFrame
+					local behindPos = npcPos - (npcCFrame.LookVector * 3.5) + Vector3.new(0, 0, 0)
+					tpTo(behindPos, npcPos)
+					attackFunc(npcPos)
+					task.wait(0.1)
+				until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0 or not Workspace.Lives:FindFirstChild(npc.Name) or (checkFunc and checkFunc())
+				task.wait(0.1)
+				if checkFunc and checkFunc() then
+					return true
+				end
+			end
+		end
+		return false
+	end
+
+	local handlePossessedRider -- forward declaration to fix nil error
+	handlePossessedRider = function()
+		local maxRetries = 1
+		local retryCount = 0
+		repeat
+			local questText = desireQuestLabel()
+			if questText and questText:find("Quest Completed") then
+				tpTo(Vector3.new(-1555, 23, 824), nil)
+				task.wait(10)
+				local replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
+				if replicator and replicator:FindFirstChild("ClickDetector") then
+					fireclickdetector(replicator.ClickDetector)
+					task.wait(1)
+					fireDialogue("[ Desire Games ]")
+					task.wait(2)
+					fireDialogue("Completed it.")
+					task.wait(2)
+					fireDialogue("Exit = true")
+					return
+				end
+			end
+
+			local rider = Workspace.Lives:FindFirstChild("Possessed Rider Lv.90")
+			if not rider then
+				retryCount += 1
+				if retryCount <= maxRetries then
+					warn("Possessed Rider not found, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
+					task.wait(2)
+				else
+					warn("Max retries reached, skipping Possessed Rider.")
+					break
+				end
+			else
+				local rootPart = rider:FindFirstChild("HumanoidRootPart")
+				if not rootPart then
+					retryCount += 1
+					if retryCount <= maxRetries then
+						warn("HumanoidRootPart missing, retrying... Attempt " .. retryCount .. "/" .. maxRetries)
+						task.wait(2)
+					else
+						warn("Max retries reached, skipping Possessed Rider.")
+						break
+					end
+				else
+					tpTo(Vector3.new(-1555, 23, 824), nil)
+					task.wait(10)
+					local replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
+					if replicator and replicator:FindFirstChild("ClickDetector") then
+						fireclickdetector(replicator.ClickDetector)
+						task.wait(1)
+						fireDialogue("[ Desire Games ]")
+						task.wait(0.5)
+						fireDialogue("Exit = true")
+						task.wait(0.5)
+						print("[PVP DEBUG] Checking PVP before engaging Possessed Rider:", checkPVPGui())
+						if not checkPVPGui() then
+							togglePVP(true)
+						end
+						repeat task.wait(0.5) until desireQuestLabel()
+						killTarget("Possessed Rider Lv.90", desireAttack)
+						task.wait(8)
+						game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(workspace.EFX.InteractableChest.HumanoidRootPart.Position)
+						task.wait(1)
+						local chest = Workspace:FindFirstChild("EFX")	
+						if chest then
+							local claim = chest:FindFirstChild("InteractableChest") and chest.InteractableChest:FindFirstChild("ClaimChest")
+							if claim and claim:IsA("ProximityPrompt") then
+								fireproximityprompt(claim, 0)
+							end
+						end
+
+						task.wait(3)
+						for i = 1, 5 do
+							local args1 = {[1] = "Progrise Cache"}
+							ReplicatedStorage.Remote.Function.InventoryFunction:InvokeServer(unpack(args1))
+							local args2 = {[1] = "War's Box"}
+							ReplicatedStorage.Remote.Function.InventoryFunction:InvokeServer(unpack(args2))
+						end
+
+						print("[PVP DEBUG] Checking PVP after killing Possessed Rider:", checkPVPGui())
+						if checkPVPGui() then
+							togglePVP(false)
+						end
+
+						for _ = 1, 20 do
+							questText = desireQuestLabel()
+							if questText and questText:find("Quest Completed") then break end
+							task.wait(0.5)
+						end
+
+						tpTo(Vector3.new(-1555, 23, 824), nil)
+						task.wait(6)
+						fireclickdetector(replicator.ClickDetector)
+						task.wait(1)
+						fireDialogue("[ Desire Games ]")
+						task.wait(2)
+						fireDialogue("Completed it.")
+						task.wait(2)
+						fireDialogue("Exit = true")
+						return
+					end
+				end
+			end
+		until retryCount > maxRetries
+	end
+	
+	-- ### Lobotomy Farm Logic (Prioritized Task)
+local function handleLobotomyFarm()
+	local loboQuestName = "Omnipotence Before the Horizon"
+
+	local function isLoboQuestComplete()
+		local questGui = PlayerGui.Main.QuestAlertFrame.QuestGUI:FindFirstChild(loboQuestName)
+		return questGui and questGui.Text and questGui.Text:find("Quest Completed")
+	end
+
+	local function hasLobotomyQuestInProgress()
+		local questGui = PlayerGui.Main.QuestAlertFrame.QuestGUI:FindFirstChild(loboQuestName)
+		if questGui and questGui.Text then
+			return questGui.Text:match("%((%d+)/(%d+)%)") ~= nil
+		end
+		return false
+	end
+
+	local function checkForLobotomyRiftAndEnter()
+		tpTo(Vector3.new(-896, 26, -300))
+		task.wait(2)
+		local rift = Workspace.NPC:FindFirstChild("LobotomyRift")
+		if not rift then
+			tpTo(Vector3.new(-1494, 3, -698))
+			task.wait(2)
+			rift = Workspace.NPC:FindFirstChild("LobotomyRift")
+		end
+		if rift and rift:FindFirstChild("ClickDetector") then
+			fireclickdetector(rift.ClickDetector)
+			task.wait(1)
+			fireDialogue("[ Step through ]")
+			task.wait(10)
+			local args = {[1]={["Exit"]=true}}
+			game:GetService("ReplicatedStorage").Remote.Event.Dialogue:FireServer(unpack(args))
+			task.wait(2)
+			return true
+		end
+		return false
+	end
+
+	local function exitSpecialZone()
+		local loboExit = Workspace.NPC:FindFirstChild("LoboExit")
+		if loboExit and loboExit:FindFirstChild("ClickDetector") then
+			local base = loboExit:FindFirstChild("BasePart") or loboExit:FindFirstChildWhichIsA("BasePart")
+			if base then
+				tpTo(Vector3.new(1267, 61, 15021))
+				task.wait(1)
+			end
+			fireclickdetector(loboExit.ClickDetector)
+			task.wait(1)
+			fireDialogue("...")
+			task.wait(1)
+			fireDialogue("Yes")
+			task.wait(2)
+		end
+	end
+
+	local function waitForAbnormality()
+		local abnormality
+		while not abnormality do
+			abnormality = Workspace.NPC:FindFirstChild("Abnormality")
+			if not abnormality then task.wait(2) end
+		end
+		return abnormality
+	end
+
+	local function tpToAbnormality()
+		local abnormality = Workspace.NPC:FindFirstChild("Abnormality")
+		if abnormality and abnormality:FindFirstChild("HumanoidRootPart") then
+			tpTo(Vector3.new(1266, 61, 14971))
+		end
+	end
+
+	local function contractWithAbnormality(npc)
+		if npc and npc:FindFirstChild("ClickDetector") then
+			fireclickdetector(npc.ClickDetector)
+			task.wait(2)
+			fireDialogue("What are you exactly?")
+			task.wait(1.5)
+			fireDialogue("I wish for a deal")
+			task.wait(1.5)
+			fireDialogue("What kind of contract?")
+			task.wait(1.5)
+			fireDialogue("Which group of warriors are you talking about?")
+			task.wait(1.5)
+			fireDialogue("Fine..")
+			task.wait(2)
+			fireDialogue("Exit = true")
+			task.wait(1)
+		pressKey(Enum.KeyCode.BackSlash)
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Down) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Down) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Right) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Right) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Up) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Return) 
+		task.wait(0.2)
+pressKey(Enum.KeyCode.BackSlash)
+			task.wait(2)
+		end
+	end
+	task.wait(2)
+if isLoboQuestComplete() then
+	print("[TRIAL] Quest already complete. Trying to re-enter Rift...")
+	local reenter = checkForLobotomyRiftAndEnter()
+	if reenter then
+		local abnormality = waitForAbnormality()
+		repeat
+			tpToAbnormality()
+			task.wait(1)
+			contractWithAbnormality(abnormality)
+			task.wait(1.5)
+		until hasLobotomyQuestInProgress()
+		exitSpecialZone()
+	end
+	return
+end
+	local trialArgs = {[1] = "Trial of Greed"}
+			ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
+
+local function trialLoopUntilComplete()
+	local allTrialNPCs = {"Uva Lv.80", "Kazari Lv.80", "Gamel Lv.80"}
+
+	local function waitForAllTrialNPCs()
+		repeat
+			local count = 0
+			for _, npc in ipairs(Workspace.Lives:GetChildren()) do
+				if table.find(allTrialNPCs, npc.Name) then
+					count += 1
+				end
+			end
+			if count < 3 then
+				print("[TRIAL] Waiting for all 3 trial NPCs to spawn... Current:", count)
+				task.wait(1.5)
+			end
+		until count >= 3
+	end
+
+	while true do
+		waitForAllTrialNPCs()
+
+		-- Check for at least one TargetDisplay
+		local hasDisplay = false
+		for _, npc in ipairs(Workspace.Lives:GetChildren()) do
+			if table.find(allTrialNPCs, npc.Name)
+				and npc:FindFirstChild("HumanoidRootPart")
+				and npc:FindFirstChild("Humanoid")
+				and npc.Humanoid.Health > 0
+				and npc.HumanoidRootPart:FindFirstChild("TargetDisplay") then
+				hasDisplay = true
+				break
+			end
+		end
+
+		if not hasDisplay then
+			print("[TRIAL] No TargetDisplay found. Resetting trial with Henshin...")
+			local args = {[1] = {["Henshin"] = true}}
+			Workspace.Lives.vaqunish.PlayerHandler.HandlerEvent:FireServer(unpack(args))
+
+			-- Wait for death
+			local hum = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+			while hum and hum.Health > 0 do
+				task.wait(0.5)
+				hum = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+			end
+
+			print("[TRIAL] Waiting for respawn...")
+			repeat
+				task.wait(0.5)
+				hum = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+			until hum and hum.Health > 0
+			task.wait(2)
+			-- Re-Henshin & equip tool
+			local args = {[1] = {["Henshin"] = true}}
+			Workspace.Lives.vaqunish.PlayerHandler.HandlerEvent:FireServer(unpack(args))
+			pressKey(Enum.KeyCode.BackSlash)
+			task.wait(0.2)
+			pressKey(Enum.KeyCode.Down)
+			task.wait(0.2)
+			pressKey(Enum.KeyCode.Down)
+			task.wait(0.2)
+			pressKey(Enum.KeyCode.Right)
+			task.wait(0.2)
+			pressKey(Enum.KeyCode.Right)
+			task.wait(0.2)
+			pressKey(Enum.KeyCode.Return)
+			task.wait(0.2)
+			pressKey(Enum.KeyCode.BackSlash)
+		
+			if isLoboQuestComplete() then
+	print("[TRIAL] Quest already complete. Skipping trial.")
+	return
+end
+			task.wait(8)
+			local trialArgs = {[1] = "Trial of Greed"}
+			ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
+			task.wait(1.5)
+			continue
+		end
+
+		-- At least 1 TargetDisplay found → now kill all 3 trial NPCs
+		for _, npc in ipairs(Workspace.Lives:GetChildren()) do
+			if table.find(allTrialNPCs, npc.Name)
+				and npc:FindFirstChild("HumanoidRootPart")
+				and npc:FindFirstChild("Humanoid")
+				and npc.Humanoid.Health > 0 then
+
+				local pos = npc.HumanoidRootPart.Position
+				local behind = pos - (npc.HumanoidRootPart.CFrame.LookVector * 5)
+
+				repeat
+					tpTo(behind, pos)
+					task.wait(0.3)
+					useSkill(pos, "V")
+		task.wait(0.1)
+		useSkill(pos, "V")
+		useSkill(pos, "R")
+		m1Attack(pos)
+					task.wait(0.3)
+				until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
+
+				print("[TRIAL] Target", npc.Name, "defeated.")
+			end
+		end
+
+		-- All targets killed, check quest
+		local function isAllTargetsDead()
+	for _, npc in ipairs(Workspace.Lives:GetChildren()) do
+		if table.find(allTrialNPCs, npc.Name)
+			and npc:FindFirstChild("Humanoid")
+			and npc.Humanoid.Health > 0 then
+			return false
+		end
+	end
+	return true
+end
+
+-- === Wait until trial is truly finished
+repeat
+	task.wait(0.5)
+until isLoboQuestComplete() and isAllTargetsDead()
+
+print("[TRIAL] Trial completed. Checking for Rift...")
+return
+end
+end
+
+
+	-- === MAIN LOGIC FLOW ===
+
+	-- Case 1: Already have the quest → go directly to trial
+	if hasLobotomyQuestInProgress() then
+		local trialArgs = {[1] = "Trial of Greed"}
+			ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
+		trialLoopUntilComplete()
+
+		if isLoboQuestComplete() then
+			local reenter = checkForLobotomyRiftAndEnter()
+			if reenter then
+				local abnormality = waitForAbnormality()
+				repeat
+					tpToAbnormality()
+					task.wait(1)
+					contractWithAbnormality(abnormality)
+					task.wait(1.5)
+				until hasLobotomyQuestInProgress()
+				exitSpecialZone()
+			end
+		end
+		return
+	end
+
+	-- Case 2: Start fresh by entering Rift
+	local entered = checkForLobotomyRiftAndEnter()
+	if not entered then return end
+
+	local abnormality = waitForAbnormality()
+
+	repeat
+		tpToAbnormality()
+		task.wait(1)
+		contractWithAbnormality(abnormality)
+		task.wait(1.5)
+	until hasLobotomyQuestInProgress() or isLoboQuestComplete()
+
+	exitSpecialZone()
+
+	if hasLobotomyQuestInProgress() then
+		local trialArgs = {[1] = "Trial of Greed"}
+			ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
+		trialLoopUntilComplete()
+	end
+
+	if isLoboQuestComplete() then
+		local reenter = checkForLobotomyRiftAndEnter()
+		if reenter then
+			local abnormality2 = waitForAbnormality()
+			repeat
+				tpToAbnormality()
+				task.wait(1)
+				contractWithAbnormality(abnormality2)
+				task.wait(1.5)
+			until hasLobotomyQuestInProgress()
+			exitSpecialZone()
+		end
+	end
+end
+
+
+	-- ### Main Loop
+	while true do
+		handleLobotomyFarm()
+		startQuest()
+		checkAndCraftRefine()
+		waitForQuestText()
+		while not isQuestComplete() do
+			for _, target in ipairs(refineTargetQueue) do
+				if killTarget(target.npc, refineAttack, isQuestComplete) then
+					break
+				end
+				task.wait(0.3)
+				clickQuestButton()
+			end
+		end
+		completeQuest()
+		handlePossessedRider()
+		task.wait(0.3)
+	end
