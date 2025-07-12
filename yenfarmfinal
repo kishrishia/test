@@ -1,24 +1,27 @@
+local Players = game:GetService("Players") -- ✅ MUST COME FIRST
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local vu = game:GetService("VirtualUser")
+
+-- ✅ Now this function will work correctly
 local function getLiveCharacterAndHandler()
 	local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
 	local handler = character:FindFirstChild("PlayerHandler") and character.PlayerHandler:FindFirstChild("HandlerEvent")
 	return character, handler
 end
-local Players = game:GetService("Players")
-	local vu = game:GetService("VirtualUser")
-	Players.LocalPlayer.Idled:Connect(function()
-		vu:Button2Down(Vector2.new(0,0), Workspace.CurrentCamera.CFrame)
-		task.wait(1)
-		vu:Button2Up(Vector2.new(0,0), Workspace.CurrentCamera.CFrame)
-	end)
-	local ReplicatedStorage = game:GetService("ReplicatedStorage")
-	local Workspace = game:GetService("Workspace")
-	local VirtualInputManager = game:GetService("VirtualInputManager")
 
-	local LocalPlayer = Players.LocalPlayer
-	local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-	local HRP = Character:WaitForChild("HumanoidRootPart")
-	local Handler = Character:WaitForChild("PlayerHandler"):WaitForChild("HandlerEvent")
-	local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+Players.LocalPlayer.Idled:Connect(function()
+	vu:Button2Down(Vector2.new(0, 0), Workspace.CurrentCamera.CFrame)
+	task.wait(1)
+	vu:Button2Up(Vector2.new(0, 0), Workspace.CurrentCamera.CFrame)
+end)
+
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local HRP = Character:WaitForChild("HumanoidRootPart")
+local Handler = Character:WaitForChild("PlayerHandler"):WaitForChild("HandlerEvent")
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 	-- ### Utility Functions
 	
