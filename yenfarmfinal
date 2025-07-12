@@ -1,4 +1,9 @@
-	local Players = game:GetService("Players")
+local function getLiveCharacterAndHandler()
+	local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
+	local handler = character:FindFirstChild("PlayerHandler") and character.PlayerHandler:FindFirstChild("HandlerEvent")
+	return character, handler
+end
+local Players = game:GetService("Players")
 	local vu = game:GetService("VirtualUser")
 	Players.LocalPlayer.Idled:Connect(function()
 		vu:Button2Down(Vector2.new(0,0), Workspace.CurrentCamera.CFrame)
@@ -16,11 +21,7 @@
 	local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 	-- ### Utility Functions
-	local function getLiveCharacterAndHandler()
-	local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
-	local handler = character:FindFirstChild("PlayerHandler") and character.PlayerHandler:FindFirstChild("HandlerEvent")
-	return character, handler
-end
+	
 	
 	local function fireDialogue(choice)
 		local args = {{ Choice = choice }}
