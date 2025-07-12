@@ -532,7 +532,7 @@ pressKey(Enum.KeyCode.BackSlash)
 		end
 	end
 	task.wait(2)
-if isLoboQuestComplete() then
+) then
 	print("[TRIAL] Quest already complete. Trying to re-enter Rift...")
 	local reenter = checkForLobotomyRiftAndEnter()
 	if reenter then
@@ -690,13 +690,26 @@ return
 
 
 -- === Wait until trial is truly finished
-repeat
-	task.wait(0.5)
-until isLoboQuestComplete() and isAllTargetsDead()
+if isLoboQuestComplete() and isAllTargetsDead() then
+	repeat
+		task.wait(0.5)
+	until isLoboQuestComplete() and isAllTargetsDead()
 
-print("[TRIAL] Trial completed. Checking for Rift...")
-return
-end
+	print("[TRIAL] Trial completed. Checking for Rift...")
+
+	local reenter = checkForLobotomyRiftAndEnter()
+	if reenter then
+		local abnormality = waitForAbnormality()
+		repeat
+			tpToAbnormality()
+			task.wait(1)
+			contractWithAbnormality(abnormality)
+			task.wait(1.5)
+		until hasLobotomyQuestInProgress()
+		exitSpecialZone()
+	end
+
+	return
 end
 
 
