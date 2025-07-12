@@ -16,6 +16,12 @@
 	local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 	-- ### Utility Functions
+	local function getLiveCharacterAndHandler()
+	local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
+	local handler = character:FindFirstChild("PlayerHandler") and character.PlayerHandler:FindFirstChild("HandlerEvent")
+	return character, handler
+end
+	
 	local function fireDialogue(choice)
 		local args = {{ Choice = choice }}
 		ReplicatedStorage.Remote.Event.Dialogue:FireServer(unpack(args))
@@ -28,13 +34,11 @@
 		MouseData = CFrame.new(pos)
 	}}
 
-	local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
-	local handler = character:FindFirstChild("PlayerHandler") and character.PlayerHandler:FindFirstChild("HandlerEvent")
+	local _, handler = getLiveCharacterAndHandler()
 	if handler then
 		handler:FireServer(unpack(args))
-		print("[DEBUG] Fired m1Attack at", pos)
 	else
-		warn("[ERROR] Handler not found when using m1Attack")
+		warn("[ERROR] Handler not found during m1Attack")
 	end
 end
 
@@ -46,13 +50,11 @@ local function useSkill(pos, key)
 		MouseData = CFrame.new(pos)
 	}}
 
-	local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
-	local handler = character:FindFirstChild("PlayerHandler") and character.PlayerHandler:FindFirstChild("HandlerEvent")
+	local _, handler = getLiveCharacterAndHandler()
 	if handler then
 		handler:FireServer(unpack(args))
-		print("[DEBUG] Fired skill", key, "at", pos)
 	else
-		warn("[ERROR] Handler not found when using skill")
+		warn("[ERROR] Handler not found during useSkill for key", key)
 	end
 end
 
@@ -67,16 +69,16 @@ end
 	end
 
 	local function tpTo(position, lookAt)
-	local char = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
-	local hrp = char:FindFirstChild("HumanoidRootPart")
+	local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
+	local hrp = character:FindFirstChild("HumanoidRootPart")
 	if not hrp then
-		warn("[TP DEBUG] Failed: no HRP")
+		warn("[TP DEBUG] No HumanoidRootPart found.")
 		return
 	end
 
 	if lookAt then
-		local dir = (lookAt - position).Unit
-		hrp.CFrame = CFrame.new(position, position + dir)
+		local direction = (lookAt - position).Unit
+		hrp.CFrame = CFrame.new(position, position + direction)
 	else
 		hrp.CFrame = CFrame.new(position)
 	end
@@ -660,6 +662,28 @@ end
 	end
 	return true
 end
+
+repeat
+	task.wait(0.5)
+until isLoboQuestComplete() and isAllTargetsDead()
+
+print("[TRIAL] Trial complete. Checking Rift...")
+
+-- After completing the trial and quest, re-enter Rift and talk to Abnormality
+local reenter = checkForLobotomyRiftAndEnter()
+if reenter then
+	local abnormality = waitForAbnormality()
+	repeat
+		tpToAbnormality()
+		task.wait(1)
+		contractWithAbnormality(abnormality)
+		task.wait(1.5)
+	until hasLobotomyQuestInProgress()
+	exitSpecialZone()
+end
+
+return
+
 
 -- === Wait until trial is truly finished
 repeat
