@@ -123,7 +123,7 @@ end
 
 	-- ### Crafting and Selling Logic
 	local function sellAncientStone()
-		tpTo(Vector3.new(-1237, 2, -1500), nil)
+		tpTo(Vector3.new(-1237, 2, -100), nil)
 		task.wait(1)
 		fireclickdetector(Workspace.NPC.JunkBuyer.ClickDetector)
 		task.wait(1)
@@ -311,7 +311,7 @@ end
 				repeat
 					local npcPos = targetHRP.Position
 					local npcCFrame = targetHRP.CFrame
-					local behindPos = npcPos - (npcCFrame.LookVector * 3.5) + Vector3.new(0, 0, 0)
+					local behindPos = npcPos - (npcCFrame.LookVector * 1) + Vector3.new(0, 0, 0)
 					tpTo(behindPos, npcPos)
 					attackFunc(npcPos)
 					task.wait(0.1)
