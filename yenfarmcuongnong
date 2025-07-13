@@ -201,11 +201,7 @@ end
 	print("[CRAFT DEBUG] Parsed Qty Chunk of Ore:", qtyEmber)
 	print("[SELL DEBUG] Parsed Qty Fragment:", qtyFragment)
 
-	task.wait(0.5)
-	pressKey(Enum.KeyCode.Return)
-	task.wait(0.5)
-	pressKey(Enum.KeyCode.BackSlash)
-	task.wait(0.2)
+	task.wait(1)
 
 	if qtyEmber and qtyEmber > 52 then
 		tpTo(Vector3.new(-860, 26, -25), nil)
@@ -401,11 +397,10 @@ end
 						end
 
 						task.wait(3)
-						for i = 1, 5 do
+						for i = 1, 8 do
 							local args1 = {[1] = "Progrise Cache"}
 							ReplicatedStorage.Remote.Function.InventoryFunction:InvokeServer(unpack(args1))
-							local args2 = {[1] = "War's Box"}
-							ReplicatedStorage.Remote.Function.InventoryFunction:InvokeServer(unpack(args2))
+							task.wait(0.5)
 						end
 
 						print("[PVP DEBUG] Checking PVP after killing Possessed Rider:", checkPVPGui())
