@@ -665,7 +665,7 @@ if not hasDisplay then
     pressKey(Enum.KeyCode.Return)
     task.wait(0.2)
     pressKey(Enum.KeyCode.BackSlash)
-end
+
 
 		
 			if isLoboQuestComplete() then
