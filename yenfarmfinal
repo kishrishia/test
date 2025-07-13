@@ -1,31 +1,21 @@
-local Players = game:GetService("Players") -- ✅ MUST COME FIRST
-local Workspace = game:GetService("Workspace")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local vu = game:GetService("VirtualUser")
+	local Players = game:GetService("Players")
+	local vu = game:GetService("VirtualUser")
+	Players.LocalPlayer.Idled:Connect(function()
+		vu:Button2Down(Vector2.new(0,0), Workspace.CurrentCamera.CFrame)
+		task.wait(1)
+		vu:Button2Up(Vector2.new(0,0), Workspace.CurrentCamera.CFrame)
+	end)
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local Workspace = game:GetService("Workspace")
+	local VirtualInputManager = game:GetService("VirtualInputManager")
 
--- ✅ Now this function will work correctly
-local function getLiveCharacterAndHandler()
-	local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
-	local handler = character:FindFirstChild("PlayerHandler") and character.PlayerHandler:FindFirstChild("HandlerEvent")
-	return character, handler
-end
-
-Players.LocalPlayer.Idled:Connect(function()
-	vu:Button2Down(Vector2.new(0, 0), Workspace.CurrentCamera.CFrame)
-	task.wait(1)
-	vu:Button2Up(Vector2.new(0, 0), Workspace.CurrentCamera.CFrame)
-end)
-
-local LocalPlayer = Players.LocalPlayer
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local HRP = Character:WaitForChild("HumanoidRootPart")
-local Handler = Character:WaitForChild("PlayerHandler"):WaitForChild("HandlerEvent")
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+	local LocalPlayer = Players.LocalPlayer
+	local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+	local HRP = Character:WaitForChild("HumanoidRootPart")
+	local Handler = Character:WaitForChild("PlayerHandler"):WaitForChild("HandlerEvent")
+	local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 	-- ### Utility Functions
-	
-	
 	local function fireDialogue(choice)
 		local args = {{ Choice = choice }}
 		ReplicatedStorage.Remote.Event.Dialogue:FireServer(unpack(args))
@@ -38,11 +28,13 @@ local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 		MouseData = CFrame.new(pos)
 	}}
 
-	local _, handler = getLiveCharacterAndHandler()
+	local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
+	local handler = character:FindFirstChild("PlayerHandler") and character.PlayerHandler:FindFirstChild("HandlerEvent")
 	if handler then
 		handler:FireServer(unpack(args))
+		print("[DEBUG] Fired m1Attack at", pos)
 	else
-		warn("[ERROR] Handler not found during m1Attack")
+		warn("[ERROR] Handler not found when using m1Attack")
 	end
 end
 
@@ -54,11 +46,13 @@ local function useSkill(pos, key)
 		MouseData = CFrame.new(pos)
 	}}
 
-	local _, handler = getLiveCharacterAndHandler()
+	local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
+	local handler = character:FindFirstChild("PlayerHandler") and character.PlayerHandler:FindFirstChild("HandlerEvent")
 	if handler then
 		handler:FireServer(unpack(args))
+		print("[DEBUG] Fired skill", key, "at", pos)
 	else
-		warn("[ERROR] Handler not found during useSkill for key", key)
+		warn("[ERROR] Handler not found when using skill")
 	end
 end
 
@@ -73,16 +67,16 @@ end
 	end
 
 	local function tpTo(position, lookAt)
-	local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
-	local hrp = character:FindFirstChild("HumanoidRootPart")
+	local char = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
+	local hrp = char:FindFirstChild("HumanoidRootPart")
 	if not hrp then
-		warn("[TP DEBUG] No HumanoidRootPart found.")
+		warn("[TP DEBUG] Failed: no HRP")
 		return
 	end
 
 	if lookAt then
-		local direction = (lookAt - position).Unit
-		hrp.CFrame = CFrame.new(position, position + direction)
+		local dir = (lookAt - position).Unit
+		hrp.CFrame = CFrame.new(position, position + dir)
 	else
 		hrp.CFrame = CFrame.new(position)
 	end
@@ -443,26 +437,35 @@ local function handleLobotomyFarm()
 	end
 
 	local function checkForLobotomyRiftAndEnter()
-		tpTo(Vector3.new(-896, 26, -300))
+	local riftLocations = {
+		Vector3.new(-896, 26, -300),
+		Vector3.new(-1494, 3, -698)
+	}
+
+	for _, pos in ipairs(riftLocations) do
+		tpTo(pos)
 		task.wait(2)
+
 		local rift = Workspace.NPC:FindFirstChild("LobotomyRift")
-		if not rift then
-			tpTo(Vector3.new(-1494, 3, -698))
-			task.wait(2)
-			rift = Workspace.NPC:FindFirstChild("LobotomyRift")
-		end
 		if rift and rift:FindFirstChild("ClickDetector") then
+			print("[RIFT] Rift found. Entering...")
 			fireclickdetector(rift.ClickDetector)
 			task.wait(1)
 			fireDialogue("[ Step through ]")
 			task.wait(10)
-			local args = {[1]={["Exit"]=true}}
-			game:GetService("ReplicatedStorage").Remote.Event.Dialogue:FireServer(unpack(args))
+
+			local args = {[1] = {["Exit"] = true}}
+			ReplicatedStorage.Remote.Event.Dialogue:FireServer(unpack(args))
 			task.wait(2)
 			return true
+		else
+			print("[RIFT] No Rift at", pos)
 		end
-		return false
 	end
+
+	print("[RIFT] Rift not found in any location.")
+	return false
+end
 
 	local function exitSpecialZone()
 		local loboExit = Workspace.NPC:FindFirstChild("LoboExit")
@@ -473,11 +476,11 @@ local function handleLobotomyFarm()
 				task.wait(1)
 			end
 			fireclickdetector(loboExit.ClickDetector)
-			task.wait(1)
-			fireDialogue("...")
-			task.wait(1)
-			fireDialogue("Yes")
 			task.wait(2)
+			fireDialogue("...")
+			task.wait(2)
+			fireDialogue("Yes")
+			task.wait(0.5)
 		end
 	end
 
@@ -532,7 +535,7 @@ pressKey(Enum.KeyCode.BackSlash)
 		end
 	end
 	task.wait(2)
-) then
+if isLoboQuestComplete() then
 	print("[TRIAL] Quest already complete. Trying to re-enter Rift...")
 	local reenter = checkForLobotomyRiftAndEnter()
 	if reenter then
@@ -667,49 +670,15 @@ end
 	return true
 end
 
+-- === Wait until trial is truly finished
 repeat
 	task.wait(0.5)
 until isLoboQuestComplete() and isAllTargetsDead()
+task.wait(10) -- wait 10 seconds before continuing
 
-print("[TRIAL] Trial complete. Checking Rift...")
-
--- After completing the trial and quest, re-enter Rift and talk to Abnormality
-local reenter = checkForLobotomyRiftAndEnter()
-if reenter then
-	local abnormality = waitForAbnormality()
-	repeat
-		tpToAbnormality()
-		task.wait(1)
-		contractWithAbnormality(abnormality)
-		task.wait(1.5)
-	until hasLobotomyQuestInProgress()
-	exitSpecialZone()
-end
-
+print("[TRIAL] Trial completed. Checking for Rift...")
 return
-
-
--- === Wait until trial is truly finished
-if isLoboQuestComplete() and isAllTargetsDead() then
-	repeat
-		task.wait(0.5)
-	until isLoboQuestComplete() and isAllTargetsDead()
-
-	print("[TRIAL] Trial completed. Checking for Rift...")
-
-	local reenter = checkForLobotomyRiftAndEnter()
-	if reenter then
-		local abnormality = waitForAbnormality()
-		repeat
-			tpToAbnormality()
-			task.wait(1)
-			contractWithAbnormality(abnormality)
-			task.wait(1.5)
-		until hasLobotomyQuestInProgress()
-		exitSpecialZone()
-	end
-
-	return
+end
 end
 
 
@@ -728,7 +697,23 @@ end
 				repeat
 					tpToAbnormality()
 					task.wait(1)
-					contractWithAbnormality(abnormality)
+						fireclickdetector(npc.ClickDetector)
+				task.wait(2)
+				pressKey(Enum.KeyCode.BackSlash)
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Down) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Down) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Right) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Right) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Up) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Return) 
+		task.wait(0.2)
+pressKey(Enum.KeyCode.BackSlash)
 					task.wait(1.5)
 				until hasLobotomyQuestInProgress()
 				exitSpecialZone()
@@ -765,8 +750,23 @@ end
 			repeat
 				tpToAbnormality()
 				task.wait(1)
-				contractWithAbnormality(abnormality2)
-				task.wait(1.5)
+				fireclickdetector(npc.ClickDetector)
+				task.wait(2)
+				pressKey(Enum.KeyCode.BackSlash)
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Down) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Down) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Right) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Right) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Up) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Return) 
+		task.wait(0.2)
+pressKey(Enum.KeyCode.BackSlash)
 			until hasLobotomyQuestInProgress()
 			exitSpecialZone()
 		end
