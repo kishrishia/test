@@ -124,7 +124,7 @@ end
 	-- ### Crafting and Selling Logic
 	local function sellAncientStone()
 		tpTo(Vector3.new(-675, 27, -102), nil)
-		task.wait(3)
+		task.wait(2)
 		fireclickdetector(Workspace.NPC.JunkBuyer.ClickDetector)
 		task.wait(1)
 		fireDialogue("[ Press Button ]")
