@@ -187,7 +187,7 @@ end
 		pressKey(Enum.KeyCode.Return) 
 		task.wait(0.1)
 		pressKey(Enum.KeyCode.BackSlash)
-	task.wait(2)
+	task.wait(1.2)
 
 	local inv = PlayerGui.Main.BackpackMainFrame.Inventory.ItemScroll
 	local ember = inv:FindFirstChild("Chunk of Ore")
@@ -232,7 +232,7 @@ end
 		pressKey(Enum.KeyCode.BackSlash)
 	end
 
-	if qtyFragment and qtyFragment > 30 then
+	if qtyFragment and qtyFragment > 35 then
 		sellAncientStone()
 	end
 end
@@ -399,7 +399,8 @@ end
 						for i = 1, 5 do
 							local args1 = {[1] = "Progrise Cache"}
 							ReplicatedStorage.Remote.Function.InventoryFunction:InvokeServer(unpack(args1))
-							task.wait(0.5)
+							local args2 = {[1] = "War's Box"}
+							ReplicatedStorage.Remote.Function.InventoryFunction:InvokeServer(unpack(args2))
 						end
 
 						print("[PVP DEBUG] Checking PVP after killing Possessed Rider:", checkPVPGui())
