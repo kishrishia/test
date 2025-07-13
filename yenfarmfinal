@@ -496,13 +496,16 @@ end
 	end
 
 	local function waitForAbnormality()
-		local abnormality
-		while not abnormality do
-			abnormality = Workspace.NPC:FindFirstChild("Abnormality")
-			if not abnormality then task.wait(2) end
+	local abnormality
+	while true do
+		abnormality = Workspace.NPC:FindFirstChild("Abnormality")
+		if abnormality and abnormality:FindFirstChild("ClickDetector") then
+			break
 		end
-		return abnormality
+		task.wait(1)
 	end
+	return abnormality
+end
 
 	local function tpToAbnormality()
 		local abnormality = Workspace.NPC:FindFirstChild("Abnormality")
@@ -550,12 +553,15 @@ if isLoboQuestComplete() then
 	print("[TRIAL] Quest already complete. Trying to re-enter Rift...")
 	local reenter = checkForLobotomyRiftAndEnter()
 	if reenter then
-		local abnormality = waitForAbnormality()
-		repeat
-			tpToAbnormality()
-			task.wait(1)
-			contractWithAbnormality(abnormality)
-			task.wait(1.5)
+		local abnormality
+repeat
+	abnormality = waitForAbnormality()
+	if abnormality and abnormality:FindFirstChild("ClickDetector") then
+		tpToAbnormality()
+		task.wait(1)
+		contractWithAbnormality(abnormality)
+		task.wait(1.5)
+	end
 		until hasLobotomyQuestInProgress()
 		exitSpecialZone()
 	end
@@ -704,12 +710,15 @@ end
 		if isLoboQuestComplete() then
 			local reenter = checkForLobotomyRiftAndEnter()
 			if reenter then
-				local abnormality = waitForAbnormality()
-				repeat
-					tpToAbnormality()
-					task.wait(1)
-						fireclickdetector(npc.ClickDetector)
-				task.wait(2)
+				local abnormality
+repeat
+	abnormality = waitForAbnormality()
+	if abnormality and abnormality:FindFirstChild("ClickDetector") then
+		tpToAbnormality()
+		task.wait(1)
+		contractWithAbnormality(abnormality)
+		task.wait(1.5)
+	end
 				pressKey(Enum.KeyCode.BackSlash)
 		task.wait(0.2)
 		pressKey(Enum.KeyCode.Down) 
@@ -737,13 +746,15 @@ pressKey(Enum.KeyCode.BackSlash)
 	local entered = checkForLobotomyRiftAndEnter()
 	if not entered then return end
 
-	local abnormality = waitForAbnormality()
-
-	repeat
+	local abnormality
+repeat
+	abnormality = waitForAbnormality()
+	if abnormality and abnormality:FindFirstChild("ClickDetector") then
 		tpToAbnormality()
 		task.wait(1)
 		contractWithAbnormality(abnormality)
 		task.wait(1.5)
+	end
 	until hasLobotomyQuestInProgress() or isLoboQuestComplete()
 
 	exitSpecialZone()
