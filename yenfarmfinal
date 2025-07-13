@@ -588,56 +588,85 @@ local function trialLoopUntilComplete()
 		until count >= 3
 	end
 
-	while true do
-		waitForAllTrialNPCs()
+while true do
+	waitForAllTrialNPCs()
 
-		-- Check for at least one TargetDisplay
-		local hasDisplay = false
-		for _, npc in ipairs(Workspace.Lives:GetChildren()) do
-			if table.find(allTrialNPCs, npc.Name)
-				and npc:FindFirstChild("HumanoidRootPart")
-				and npc:FindFirstChild("Humanoid")
-				and npc.Humanoid.Health > 0
-				and npc.HumanoidRootPart:FindFirstChild("TargetDisplay") then
-				hasDisplay = true
-				break
-			end
-		end
-
-		if not hasDisplay then
-			print("[TRIAL] No TargetDisplay found. Resetting trial with Henshin...")
-			local args = {[1] = {["Henshin"] = true}}
-			Workspace.Lives.CaDoiChoiRoblox.PlayerHandler.HandlerEvent:FireServer(unpack(args))
-
-			-- Wait for death
-			local hum = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("Humanoid")
-			while hum and hum.Health > 0 do
-				task.wait(0.5)
-				hum = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("Humanoid")
-			end
-
-			print("[TRIAL] Waiting for respawn...")
-			repeat
-				task.wait(0.5)
-				hum = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("Humanoid")
-			until hum and hum.Health > 0
+	-- [🆕 INSERT DungeonTimer check here]
+	local dungeonTimer = PlayerGui:WaitForChild("Main"):FindFirstChild("DungeonTimer")
+	if dungeonTimer then
+		while not dungeonTimer.Visible do
+			warn("[TRIAL] DungeonTimer not visible. Firing Trial of Greed...")
+			local trialArgs = {[1] = "Trial of Greed"}
+			ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
 			task.wait(2)
-			-- Re-Henshin & equip tool
-			local args = {[1] = {["Henshin"] = true}}
-			Workspace.Lives.CaDoiChoiRoblox.PlayerHandler.HandlerEvent:FireServer(unpack(args))
-			pressKey(Enum.KeyCode.BackSlash)
-			task.wait(0.2)
-			pressKey(Enum.KeyCode.Down)
-			task.wait(0.2)
-			pressKey(Enum.KeyCode.Down)
-			task.wait(0.2)
-			pressKey(Enum.KeyCode.Right)
-			task.wait(0.2)
-			pressKey(Enum.KeyCode.Right)
-			task.wait(0.2)
-			pressKey(Enum.KeyCode.Return)
-			task.wait(0.2)
-			pressKey(Enum.KeyCode.BackSlash)
+		end
+	end
+
+	-- ✅ Then check for TargetDisplay
+	local hasDisplay = false
+	for _, npc in ipairs(Workspace.Lives:GetChildren()) do
+		if table.find(allTrialNPCs, npc.Name)
+			and npc:FindFirstChild("HumanoidRootPart")
+			and npc:FindFirstChild("Humanoid")
+			and npc.Humanoid.Health > 0
+			and npc.HumanoidRootPart:FindFirstChild("TargetDisplay") then
+			hasDisplay = true
+			break
+		end
+	end
+
+		-- Wait until DungeonTimer becomes visible before checking TargetDisplay
+local dungeonTimer = PlayerGui:WaitForChild("Main"):FindFirstChild("DungeonTimer")
+if dungeonTimer then
+    local maxTries = 30
+    local tryCount = 0
+    while not dungeonTimer.Visible and tryCount < maxTries do
+        warn("[TRIAL] DungeonTimer not visible. Starting Trial of Greed...")
+        local trialArgs = {[1] = "Trial of Greed"}
+        ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
+        tryCount += 1
+        task.wait(2)
+    end
+end
+
+-- Now proceed to check for TargetDisplay
+if not hasDisplay then
+    print("[TRIAL] No TargetDisplay found. Resetting trial with Henshin...")
+    local args = {[1] = {["Henshin"] = true}}
+    Workspace.Lives.CaDoiChoiRoblox.PlayerHandler.HandlerEvent:FireServer(unpack(args))
+
+    -- Wait for death
+    local hum = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+    while hum and hum.Health > 0 do
+        task.wait(0.5)
+        hum = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+    end
+
+    print("[TRIAL] Waiting for respawn...")
+    repeat
+        task.wait(0.5)
+        hum = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+    until hum and hum.Health > 0
+    task.wait(2)
+
+    -- Re-Henshin & equip tool
+    local args = {[1] = {["Henshin"] = true}}
+    Workspace.Lives.CaDoiChoiRoblox.PlayerHandler.HandlerEvent:FireServer(unpack(args))
+    pressKey(Enum.KeyCode.BackSlash)
+    task.wait(0.2)
+    pressKey(Enum.KeyCode.Down)
+    task.wait(0.2)
+    pressKey(Enum.KeyCode.Down)
+    task.wait(0.2)
+    pressKey(Enum.KeyCode.Right)
+    task.wait(0.2)
+    pressKey(Enum.KeyCode.Right)
+    task.wait(0.2)
+    pressKey(Enum.KeyCode.Return)
+    task.wait(0.2)
+    pressKey(Enum.KeyCode.BackSlash)
+end
+
 		
 			if isLoboQuestComplete() then
 	print("[TRIAL] Quest already complete. Skipping trial.")
