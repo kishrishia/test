@@ -147,10 +147,6 @@ end
 			local args = {{["Lost Tablet"] = 150}}
 			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
 			task.wait(0.5)
-			for i = 1, 10 do
-			local args = {[1]="Progrise Cache"}
-			game:GetService("ReplicatedStorage").Remote.Function.InventoryFunction:InvokeServer(unpack(args))
-			task.wait(0.5)
 			end
 		task.wait(1)
 		pressKey(Enum.KeyCode.BackSlash)
@@ -192,7 +188,7 @@ end
 		pressKey(Enum.KeyCode.Return) 
 		task.wait(0.1)
 		pressKey(Enum.KeyCode.BackSlash)
-	task.wait(1.2)
+	task.wait(2)
 
 	local inv = PlayerGui.Main.BackpackMainFrame.Inventory.ItemScroll
 	local ember = inv:FindFirstChild("Chunk of Ore")
