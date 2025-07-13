@@ -437,26 +437,35 @@ local function handleLobotomyFarm()
 	end
 
 	local function checkForLobotomyRiftAndEnter()
-		tpTo(Vector3.new(-896, 26, -300))
+	local riftLocations = {
+		Vector3.new(-896, 26, -300),
+		Vector3.new(-1494, 3, -698)
+	}
+
+	for _, pos in ipairs(riftLocations) do
+		tpTo(pos)
 		task.wait(2)
+
 		local rift = Workspace.NPC:FindFirstChild("LobotomyRift")
-		if not rift then
-			tpTo(Vector3.new(-1494, 3, -698))
-			task.wait(2)
-			rift = Workspace.NPC:FindFirstChild("LobotomyRift")
-		end
 		if rift and rift:FindFirstChild("ClickDetector") then
+			print("[RIFT] Rift found. Entering...")
 			fireclickdetector(rift.ClickDetector)
 			task.wait(1)
 			fireDialogue("[ Step through ]")
 			task.wait(10)
-			local args = {[1]={["Exit"]=true}}
-			game:GetService("ReplicatedStorage").Remote.Event.Dialogue:FireServer(unpack(args))
+
+			local args = {[1] = {["Exit"] = true}}
+			ReplicatedStorage.Remote.Event.Dialogue:FireServer(unpack(args))
 			task.wait(2)
 			return true
+		else
+			print("[RIFT] No Rift at", pos)
 		end
-		return false
 	end
+
+	print("[RIFT] Rift not found in any location.")
+	return false
+end
 
 	local function exitSpecialZone()
 		local loboExit = Workspace.NPC:FindFirstChild("LoboExit")
@@ -467,11 +476,11 @@ local function handleLobotomyFarm()
 				task.wait(1)
 			end
 			fireclickdetector(loboExit.ClickDetector)
-			task.wait(1)
-			fireDialogue("...")
-			task.wait(1)
-			fireDialogue("Yes")
 			task.wait(2)
+			fireDialogue("...")
+			task.wait(2)
+			fireDialogue("Yes")
+			task.wait(0.5)
 		end
 	end
 
@@ -665,6 +674,7 @@ end
 repeat
 	task.wait(0.5)
 until isLoboQuestComplete() and isAllTargetsDead()
+task.wait(10) -- wait 10 seconds before continuing
 
 print("[TRIAL] Trial completed. Checking for Rift...")
 return
@@ -687,7 +697,23 @@ end
 				repeat
 					tpToAbnormality()
 					task.wait(1)
-					contractWithAbnormality(abnormality)
+						fireclickdetector(npc.ClickDetector)
+				task.wait(2)
+				pressKey(Enum.KeyCode.BackSlash)
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Down) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Down) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Right) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Right) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Up) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Return) 
+		task.wait(0.2)
+pressKey(Enum.KeyCode.BackSlash)
 					task.wait(1.5)
 				until hasLobotomyQuestInProgress()
 				exitSpecialZone()
@@ -724,8 +750,23 @@ end
 			repeat
 				tpToAbnormality()
 				task.wait(1)
-				contractWithAbnormality(abnormality2)
-				task.wait(1.5)
+				fireclickdetector(npc.ClickDetector)
+				task.wait(2)
+				pressKey(Enum.KeyCode.BackSlash)
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Down) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Down) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Right) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Right) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Up) 
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Return) 
+		task.wait(0.2)
+pressKey(Enum.KeyCode.BackSlash)
 			until hasLobotomyQuestInProgress()
 			exitSpecialZone()
 		end
