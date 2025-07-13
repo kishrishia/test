@@ -397,7 +397,7 @@ end
 						end
 
 						task.wait(3)
-						for i = 1, 8 do
+						for i = 1, 2 do
 							local args1 = {[1] = "Progrise Cache"}
 							ReplicatedStorage.Remote.Function.InventoryFunction:InvokeServer(unpack(args1))
 							task.wait(0.5)
