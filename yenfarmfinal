@@ -400,8 +400,7 @@ end
 						for i = 1, 5 do
 							local args1 = {[1] = "Progrise Cache"}
 							ReplicatedStorage.Remote.Function.InventoryFunction:InvokeServer(unpack(args1))
-							local args2 = {[1] = "War's Box"}
-							ReplicatedStorage.Remote.Function.InventoryFunction:InvokeServer(unpack(args2))
+							task.wait(0.5)
 						end
 
 						print("[PVP DEBUG] Checking PVP after killing Possessed Rider:", checkPVPGui())
