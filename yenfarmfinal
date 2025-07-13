@@ -201,11 +201,7 @@ end
 	print("[CRAFT DEBUG] Parsed Qty Chunk of Ore:", qtyEmber)
 	print("[SELL DEBUG] Parsed Qty Fragment:", qtyFragment)
 
-	task.wait(0.5)
-	pressKey(Enum.KeyCode.Return)
-	task.wait(0.5)
-	pressKey(Enum.KeyCode.BackSlash)
-	task.wait(0.2)
+	task.wait(1)
 
 	if qtyEmber and qtyEmber > 52 then
 		tpTo(Vector3.new(-860, 26, -25), nil)
