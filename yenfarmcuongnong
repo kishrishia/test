@@ -147,7 +147,6 @@ end
 			local args = {{["Lost Tablet"] = 150}}
 			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
 			task.wait(0.5)
-			end
 		task.wait(1)
 		pressKey(Enum.KeyCode.BackSlash)
 		task.wait(0.2)
