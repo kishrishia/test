@@ -203,7 +203,7 @@ end
                     ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
                     task.wait(0.5)
                 end
-                task.wait(10) -- Wait for crafting to complete
+                task.wait(6) -- Wait for crafting to complete
                 print("[CRAFT DEBUG] Attempting to exit crafting menu...")
                 pressKey(Enum.KeyCode.BackSlash)
                 task.wait(0.5)
