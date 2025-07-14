@@ -56,15 +56,6 @@ local function useSkill(pos, key)
 	end
 end
 
-	local function clickQuestButton()
-		local btn = PlayerGui:WaitForChild("Main"):WaitForChild("FunctionFrame"):WaitForChild("QuestButton")
-		if btn and btn.AbsolutePosition then
-			local pos = btn.AbsolutePosition + (btn.AbsoluteSize / 2)
-			VirtualInputManager:SendMouseButtonEvent(pos.X, pos.Y, 0, true, game, 0)
-			task.wait()
-			VirtualInputManager:SendMouseButtonEvent(pos.X, pos.Y, 0, false, game, 0)
-		end
-	end
 
 	local function tpTo(position, lookAt)
 	local char = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
@@ -263,8 +254,7 @@ end
 		fireDialogue("Maybe later")
 	end
 
-	local function waitForQuestText()
-		clickQuestButton()
+	local function waitForQuestText()	
 		repeat task.wait(0.5)
 		until refineQuestPath() and (refineQuestPath().Text:match("%(.-/.-%)") or refineQuestPath().Text:find("Quest Completed"))
 	end
@@ -272,7 +262,6 @@ end
 	local function isQuestComplete()
 		local q = refineQuestPath()
 		if q and q.Text then
-			clickQuestButton()
 			task.wait(0.3)
 			return q.Text:find("Quest Completed")
 		end
@@ -834,7 +823,6 @@ end
 					break
 				end
 				task.wait(0.3)
-				clickQuestButton()
 			end
 		end
 		completeQuest()
