@@ -450,7 +450,7 @@ local function handleLobotomyFarm()
 				fireclickdetector(rift.ClickDetector)
 				task.wait(1)
 				fireDialogue("[ Step through ]")
-				task.wait(10)
+				task.wait(6)
 
 				local args = {[1] = {["Exit"] = true}}
 				ReplicatedStorage.Remote.Event.Dialogue:FireServer(unpack(args))
