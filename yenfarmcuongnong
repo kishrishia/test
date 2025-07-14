@@ -717,29 +717,42 @@ end
 	-- === MAIN LOGIC FLOW ===
 
 	-- Case 1: Already have the quest → go directly to trial
-	if hasLobotomyQuestInProgress() then
-		local trialArgs = {[1] = "Trial of Greed"}
-			ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
-		trialLoopUntilComplete()
+	if hasLobotomyQuestInProgress() or not isLoboQuestComplete() then
+	local entered = checkForLobotomyRiftAndEnter()
+	if not entered then return end
 
-		if isLoboQuestComplete() then
-			local reenter = checkForLobotomyRiftAndEnter()
-			if reenter then
-				local abnormality
-repeat
-	abnormality = waitForAbnormality()
-	if abnormality and abnormality:FindFirstChild("ClickDetector") then
-		tpToAbnormality()
-		task.wait(1)
-		contractWithAbnormality(abnormality)
-		task.wait(1.5)
-	end
-					task.wait(1.5)
-				until hasLobotomyQuestInProgress()
-				exitSpecialZone()
-			end
+	local abnormality
+	repeat
+		abnormality = waitForAbnormality()
+		if abnormality and abnormality:FindFirstChild("ClickDetector") then
+			tpToAbnormality()
+			task.wait(1)
+			contractWithAbnormality(abnormality)
+			task.wait(1.5)
 		end
-		return
+	until hasLobotomyQuestInProgress()
+
+	exitSpecialZone()
+
+	while hasLobotomyQuestInProgress() and not isLoboQuestComplete() do
+		local trialArgs = {[1] = "Trial of Greed"}
+		ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
+		trialLoopUntilComplete()
+		task.wait(1)
+	end
+
+	if isLoboQuestComplete() then
+		local reenter = checkForLobotomyRiftAndEnter()
+		if reenter then
+			local abnormality = waitForAbnormality()
+			repeat
+				tpToAbnormality()
+				task.wait(1)
+				contractWithAbnormality(abnormality)
+				task.wait(1.5)
+			until hasLobotomyQuestInProgress()
+			exitSpecialZone()
+		end
 	end
 
 	-- Case 2: Start fresh by entering Rift
