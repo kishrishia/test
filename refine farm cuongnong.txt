@@ -818,6 +818,6 @@ while true do
 
     if not success then
         warn("[MAIN LOOP ERROR] An error occurred:", err)
-        task.wait(5) -- Wait before retrying to avoid spamming
+        task.wait(2) -- Wait before retrying to avoid spamming
     end
 end
