@@ -81,7 +81,7 @@ end
 	end
 
 	local function checkPVPGui()
-		local pvpGui = Workspace.Lives:FindFirstChild("CaDoiChoiRoblox"):FindFirstChild("NAME_GUI")
+		local pvpGui = Workspace.Lives:FindFirstChild("vaqunish"):FindFirstChild("NAME_GUI")
 		if pvpGui then
 			local pvpImage = pvpGui:FindFirstChild("PVP")
 			return pvpImage and pvpImage.Visible or false
@@ -592,7 +592,7 @@ while true do
 	if not hasDisplay then
 		print("[TRIAL] No TargetDisplay found. Resetting trial with Henshin...")
 		local args = {[1] = {["Henshin"] = true}}
-		Workspace.Lives.CaDoiChoiRoblox.PlayerHandler.HandlerEvent:FireServer(unpack(args))
+		Workspace.Lives.vaqunish.PlayerHandler.HandlerEvent:FireServer(unpack(args))
 
 		-- Wait for death
 		local hum = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("Humanoid")
@@ -610,7 +610,7 @@ while true do
 
 		-- Re-Henshin & equip tool
 		local args = {[1] = {["Henshin"] = true}}
-		Workspace.Lives.CaDoiChoiRoblox.PlayerHandler.HandlerEvent:FireServer(unpack(args))
+		Workspace.Lives.vaqunish.PlayerHandler.HandlerEvent:FireServer(unpack(args))
 		pressKey(Enum.KeyCode.BackSlash)
 		task.wait(0.2)
 		pressKey(Enum.KeyCode.Down)
@@ -765,19 +765,26 @@ end
 
 	-- ### Main Loop
 	while true do
-		handleLobotomyFarm()
-		startQuest()
-		checkAndCraftRefine()
-		waitForQuestText()
-		while not isQuestComplete() do
-			for _, target in ipairs(refineTargetQueue) do
-				if killTarget(target.npc, refineAttack, isQuestComplete) then
-					break
-				end
-				task.wait(0.3)
-			end
-		end
-		completeQuest()
-		handlePossessedRider()
-		task.wait(0.3)
-	end
+    local success, err = pcall(function()
+        handleLobotomyFarm()
+        startQuest()
+        checkAndCraftRefine()
+        waitForQuestText()
+        while not isQuestComplete() do
+            for _, target in ipairs(refineTargetQueue) do
+                if killTarget(target.npc, refineAttack, isQuestComplete) then
+                    break
+                end
+                task.wait(0.3)
+            end
+        end
+        completeQuest()
+        handlePossessedRider()
+        task.wait(0.3)
+    end)
+
+    if not success then
+        warn("[MAIN LOOP ERROR] An error occurred:", err)
+        task.wait(5) -- Wait before retrying to avoid spamming
+    end
+end
