@@ -583,7 +583,7 @@ while true do
     -- Wait until DungeonTimer becomes visible before checking TargetDisplay
     local dungeonTimer = PlayerGui:WaitForChild("Main"):FindFirstChild("DungeonTimer")
     if dungeonTimer then
-        local maxTries = 100
+        local maxTries = 30
         local tryCount = 0
         while dungeonTimer.Visible == false and tryCount < maxTries do
             warn("[TRIAL] DungeonTimer not visible. Starting Trial of Greed...")
@@ -717,45 +717,30 @@ end
 	-- === MAIN LOGIC FLOW ===
 
 	-- Case 1: Already have the quest → go directly to trial
-	if hasLobotomyQuestInProgress() or not isLoboQuestComplete() then
-	local entered = checkForLobotomyRiftAndEnter()
-	if not entered then return end
-
-	local abnormality
-	repeat
-		abnormality = waitForAbnormality()
-		if abnormality and abnormality:FindFirstChild("ClickDetector") then
-			tpToAbnormality()
-			task.wait(1)
-			contractWithAbnormality(abnormality)
-			task.wait(1.5)
-		end
-	until hasLobotomyQuestInProgress()
-
-	exitSpecialZone()
-
-	while hasLobotomyQuestInProgress() and not isLoboQuestComplete() do
+	if hasLobotomyQuestInProgress() then
 		local trialArgs = {[1] = "Trial of Greed"}
-		ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
+			ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
 		trialLoopUntilComplete()
+
+		if isLoboQuestComplete() then
+			local reenter = checkForLobotomyRiftAndEnter()
+			if reenter then
+				local abnormality
+repeat
+	abnormality = waitForAbnormality()
+	if abnormality and abnormality:FindFirstChild("ClickDetector") then
+		tpToAbnormality()
 		task.wait(1)
+		contractWithAbnormality(abnormality)
+		task.wait(1.5)
 	end
-
-	if isLoboQuestComplete() then
-		local reenter = checkForLobotomyRiftAndEnter()
-		if reenter then
-			local abnormality = waitForAbnormality()
-			repeat
-				tpToAbnormality()
-				task.wait(1)
-				contractWithAbnormality(abnormality)
-				task.wait(1.5)
-			until hasLobotomyQuestInProgress()
-			exitSpecialZone()
+					task.wait(1.5)
+				until hasLobotomyQuestInProgress()
+				exitSpecialZone()
+			end
 		end
+		return
 	end
-	end
-
 
 	-- Case 2: Start fresh by entering Rift
 	local entered = checkForLobotomyRiftAndEnter()
