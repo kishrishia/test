@@ -113,116 +113,87 @@ end
 	end
 
 	-- ### Crafting and Selling Logic
+local function sellAncientStone()
+		tpTo(Vector3.new(-1237, 2, -1500), nil)
+		task.wait(1)
+		fireclickdetector(Workspace.NPC.JunkBuyer.ClickDetector)
+		task.wait(1)
+		fireDialogue("[ Press Button ]")
+		task.wait(2)
+		local args = {{["Ancient Stone"] = 500}}
+		ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
+		task.wait(3)
+		pressKey(Enum.KeyCode.BackSlash)
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Down)
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Return)
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.BackSlash)
+	end
+
 	local function checkAndCraftRefine()
-    local success, err = pcall(function()
-        pressKey(Enum.KeyCode.BackSlash)
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Down) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Down) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Down) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Down) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Return) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Up) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Right) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Return) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Left) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Left) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Down) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Down) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Return) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.BackSlash)
-        task.wait(1.2)
+	pressKey(Enum.KeyCode.BackSlash)
+	task.wait(0.2)
+	for _ = 1, 4 do
+		pressKey(Enum.KeyCode.Down)
+		task.wait(0.1)
+	end
+	pressKey(Enum.KeyCode.Return)
+	task.wait(1.2)
 
-        local inv = PlayerGui.Main.BackpackMainFrame.Inventory.ItemScroll
-        local ember = inv:FindFirstChild("Chunk of Ore")
-        local fragment = inv:FindFirstChild("Ancient Stone") or inv:FindFirstChild("Purple Fragment")
+	local inv = PlayerGui.Main.BackpackMainFrame.Inventory.ItemScroll
+	local ember = inv:FindFirstChild("Chunk of Ore")
+	local fragment = inv:FindFirstChild("Ancient Stone") or inv:FindFirstChild("Purple Fragment")
 
-        local rawTextEmber = ember and ember:FindFirstChild("Qty") and ember.Qty.Text or ""
-        local qtyEmber = tonumber(string.match(rawTextEmber, ">(%d+)<"))
+	local rawTextEmber = ember and ember:FindFirstChild("Qty") and ember.Qty.Text or ""
+	local qtyEmber = tonumber(string.match(rawTextEmber, ">(%d+)<"))
 
-        local rawTextFragment = fragment and fragment:FindFirstChild("Qty") and fragment.Qty.Text or ""
-        local qtyFragment = tonumber(string.match(rawTextFragment, ">(%d+)<"))
+	local rawTextFragment = fragment and fragment:FindFirstChild("Qty") and fragment.Qty.Text or ""
+	local qtyFragment = tonumber(string.match(rawTextFragment, ">(%d+)<"))
 
-        print("[CRAFT DEBUG] Parsed Qty Chunk of Ore:", qtyEmber)
-        print("[SELL DEBUG] Parsed Qty Fragment:", qtyFragment)
+	print("[CRAFT DEBUG] Parsed Qty Chunk of Ore:", qtyEmber)
+	print("[SELL DEBUG] Parsed Qty Fragment:", qtyFragment)
 
-        task.wait(1)
+	task.wait(0.5)
+	pressKey(Enum.KeyCode.Return)
+	task.wait(0.5)
+	pressKey(Enum.KeyCode.BackSlash)
+	task.wait(0.2)
 
-        if qtyEmber and qtyEmber > 52 then
-            tpTo(Vector3.new(-860, 26, -25), nil)
-            task.wait(3)
-            local craftingNPC = Workspace.NPC:FindFirstChild("UniversalCrafting")
-            if craftingNPC and craftingNPC:FindFirstChild("ClickDetector") then
-                fireclickdetector(craftingNPC.ClickDetector)
-                task.wait(1)
-                fireDialogue("[ Craft ]")
-                task.wait(1)
-                for i = 1, 10 do
-                    local args = {"Special", "Blue Fragment"}
-                    ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
-                    task.wait(0.25)
-                    args = {"Special", "Blue Sappyre"}
-                    ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
-                    task.wait(0.25)
-                    args = {"Special", "Red Fragment"}
-                    ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
-                    task.wait(0.25)
-                    args = {"Special", "Red Emperor"}
-                    ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
-                end
-                task.wait(10) -- Wait for crafting to complete
+	if qtyEmber and qtyEmber > 52 then
+		tpTo(Vector3.new(-860, 26, -25), nil)
+		task.wait(3)
+		fireclickdetector(Workspace.NPC.UniversalCrafting.ClickDetector)
+		task.wait(1)
+		fireDialogue("[ Craft ]")
+		task.wait(1)
+		for i = 1, 10 do
+			local args = {"Special", "Blue Fragment"}
+			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
+			task.wait(0.25)
+			args = {"Special", "Blue Sappyre"}
+			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
+			task.wait(0.25)
+			args = {"Special", "Red Fragment"}
+			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
+			task.wait(0.25)
+			args = {"Special", "Red Emperor"}
+			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
+		end
+		task.wait(10)
+		pressKey(Enum.KeyCode.BackSlash)
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Down)
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Return)
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.BackSlash)
+	end
 
-                print("[CRAFT DEBUG] Attempting to close crafting menu...")
-                local closeAttempts = 0
-                local maxAttempts = 2
-                while PlayerGui:FindFirstChild("CraftingGUI") and closeAttempts < maxAttempts do
-                    pressKey(Enum.KeyCode.BackSlash)
-                    task.wait(0.5)
-                    pressKey(Enum.KeyCode.Down)
-                    task.wait(0.5)
-                    pressKey(Enum.KeyCode.Return)
-                    task.wait(0.5)
-                    pressKey(Enum.KeyCode.BackSlash)
-                    task.wait(1)
-                    closeAttempts += 1
-                    print("[CRAFT DEBUG] Close attempt", closeAttempts, "of", maxAttempts)
-                end
-
-                if PlayerGui:FindFirstChild("CraftingGUI") then
-                    warn("[CRAFT ERROR] Failed to close CraftingGUI after", maxAttempts, "attempts, forcing movement...")
-                    tpTo(Vector3.new(-1237, 2, -1500), nil) -- Move to next step's position
-                    task.wait(2)
-                else
-                    print("[CRAFT DEBUG] CraftingGUI closed successfully.")
-                end
-                print("[CRAFT DEBUG] Exited crafting menu, moving to next step...")
-            else
-                warn("[CRAFT ERROR] UniversalCrafting NPC or ClickDetector not found!")
-            end
-        end
-
-        if qtyFragment and qtyFragment > 66 then
-            sellAncientStone()
-        end
-    end)
-
-    if not success then
-        warn("[CRAFT ERROR] An error occurred in checkAndCraftRefine():", err)
-        task.wait(2)
-    end
+	if qtyFragment and qtyFragment > 64 then
+		sellAncientStone()
+	end
 end
 
 	-- ### Quest Logic
