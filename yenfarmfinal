@@ -437,35 +437,35 @@ local function handleLobotomyFarm()
 	end
 
 	local function checkForLobotomyRiftAndEnter()
-	local riftLocations = {
-		Vector3.new(-896, 26, -300),
-		Vector3.new(-1494, 3, -698)
-	}
+		local riftLocations = {
+			Vector3.new(-896, 26, -300),
+			Vector3.new(-1494, 3, -698)
+		}
 
-	for _, pos in ipairs(riftLocations) do
-		tpTo(pos)
-		task.wait(2)
-
-		local rift = Workspace.NPC:FindFirstChild("LobotomyRift")
-		if rift and rift:FindFirstChild("ClickDetector") then
-			print("[RIFT] Rift found. Entering...")
-			fireclickdetector(rift.ClickDetector)
-			task.wait(1)
-			fireDialogue("[ Step through ]")
-			task.wait(10)
-
-			local args = {[1] = {["Exit"] = true}}
-			ReplicatedStorage.Remote.Event.Dialogue:FireServer(unpack(args))
+		for _, pos in ipairs(riftLocations) do
+			tpTo(pos)
 			task.wait(2)
-			return true
-		else
-			print("[RIFT] No Rift at", pos)
-		end
-	end
 
-	print("[RIFT] Rift not found in any location.")
-	return false
-end
+			local rift = Workspace.NPC:FindFirstChild("LobotomyRift")
+			if rift and rift:FindFirstChild("ClickDetector") then
+				print("[RIFT] Rift found. Entering...")
+				fireclickdetector(rift.ClickDetector)
+				task.wait(1)
+				fireDialogue("[ Step through ]")
+				task.wait(10)
+
+				local args = {[1] = {["Exit"] = true}}
+				ReplicatedStorage.Remote.Event.Dialogue:FireServer(unpack(args))
+				task.wait(2)
+				return true
+			else
+				print("[RIFT] No Rift at", pos)
+			end
+		end
+
+		print("[RIFT] Rift not found in any location.")
+		return false
+	end
 
 	local function exitSpecialZone()
 		local loboExit = Workspace.NPC:FindFirstChild("LoboExit")
@@ -485,16 +485,16 @@ end
 	end
 
 	local function waitForAbnormality()
-	local abnormality
-	while true do
-		abnormality = Workspace.NPC:FindFirstChild("Abnormality")
-		if abnormality and abnormality:FindFirstChild("ClickDetector") then
-			break
+		local abnormality
+		while true do
+			abnormality = Workspace.NPC:FindFirstChild("Abnormality")
+			if abnormality and abnormality:FindFirstChild("ClickDetector") then
+				break
+			end
+			task.wait(1)
 		end
-		task.wait(1)
+		return abnormality
 	end
-	return abnormality
-end
 
 	local function tpToAbnormality()
 		local abnormality = Workspace.NPC:FindFirstChild("Abnormality")
@@ -519,263 +519,280 @@ end
 			task.wait(2)
 			fireDialogue("Exit = true")
 			task.wait(1)
-		pressKey(Enum.KeyCode.BackSlash)
-		task.wait(0.2)
-		pressKey(Enum.KeyCode.Down) 
-		task.wait(0.2)
-		pressKey(Enum.KeyCode.Down) 
-		task.wait(0.2)
-		pressKey(Enum.KeyCode.Right) 
-		task.wait(0.2)
-		pressKey(Enum.KeyCode.Right) 
-		task.wait(0.2)
-		pressKey(Enum.KeyCode.Up) 
-		task.wait(0.2)
-		pressKey(Enum.KeyCode.Return) 
-		task.wait(0.2)
-pressKey(Enum.KeyCode.BackSlash)
+			pressKey(Enum.KeyCode.BackSlash)
+			task.wait(0.2)
+			pressKey(Enum.KeyCode.Down) 
+			task.wait(0.2)
+			pressKey(Enum.KeyCode.Down) 
+			task.wait(0.2)
+			pressKey(Enum.KeyCode.Right) 
+			task.wait(0.2)
+			pressKey(Enum.KeyCode.Right) 
+			task.wait(0.2)
+			pressKey(Enum.KeyCode.Up) 
+			task.wait(0.2)
+			pressKey(Enum.KeyCode.Return) 
+			task.wait(0.2)
+			pressKey(Enum.KeyCode.BackSlash)
 			task.wait(2)
 		end
 	end
-	task.wait(2)
-if isLoboQuestComplete() then
-	print("[TRIAL] Quest already complete. Trying to re-enter Rift...")
-	local reenter = checkForLobotomyRiftAndEnter()
-	if reenter then
-		local abnormality
-repeat
-	abnormality = waitForAbnormality()
-	if abnormality and abnormality:FindFirstChild("ClickDetector") then
-		tpToAbnormality()
-		task.wait(1)
-		contractWithAbnormality(abnormality)
-		task.wait(1.5)
-	end
-		until hasLobotomyQuestInProgress()
-		exitSpecialZone()
-	end
-	return
-end
-	local trialArgs = {[1] = "Trial of Greed"}
-			ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
 
-local function trialLoopUntilComplete()
-	local allTrialNPCs = {"Uva Lv.80", "Kazari Lv.80", "Gamel Lv.80"}
+	local function trialLoopUntilComplete()
+		local allTrialNPCs = {"Uva Lv.80", "Kazari Lv.80", "Gamel Lv.80"}
 
-	local function waitForAllTrialNPCs()
-		repeat
-			local count = 0
-			for _, npc in ipairs(Workspace.Lives:GetChildren()) do
-				if table.find(allTrialNPCs, npc.Name) then
-					count += 1
+		local function waitForAllTrialNPCs()
+			repeat
+				local count = 0
+				for _, npc in ipairs(Workspace.Lives:GetChildren()) do
+					if table.find(allTrialNPCs, npc.Name) then
+						count += 1
+					end
+				end
+				if count < 3 then
+					print("[TRIAL] Waiting for all 3 trial NPCs to spawn... Current:", count)
+					task.wait(1.5)
+				end
+			until count >= 3
+		end
+
+		while true do
+			waitForAllTrialNPCs()
+
+			-- Wait until DungeonTimer becomes visible before checking TargetDisplay
+			local dungeonTimer = PlayerGui:WaitForChild("Main"):FindFirstChild("DungeonTimer")
+			if dungeonTimer then
+				local maxTries = 30
+				local tryCount = 0
+				while dungeonTimer.Visible == false and tryCount < maxTries do
+					warn("[TRIAL] DungeonTimer not visible. Starting Trial of Greed...")
+					local trialArgs = {[1] = "Trial of Greed"}
+					ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
+					tryCount += 1
+					task.wait(2)
 				end
 			end
-			if count < 3 then
-				print("[TRIAL] Waiting for all 3 trial NPCs to spawn... Current:", count)
-				task.wait(1.5)
+
+			-- Check for at least one TargetDisplay
+			local hasDisplay = false
+			for _, npc in ipairs(Workspace.Lives:GetChildren()) do
+				if table.find(allTrialNPCs, npc.Name)
+					and npc:FindFirstChild("HumanoidRootPart")
+					and npc:FindFirstChild("Humanoid")
+					and npc.Humanoid.Health > 0
+					and npc.HumanoidRootPart:FindFirstChild("TargetDisplay") then
+					hasDisplay = true
+					break
+				end
 			end
-		until count >= 3
-	end
 
-while true do
-    waitForAllTrialNPCs()
+			if not hasDisplay then
+				print("[TRIAL] No TargetDisplay found. Resetting trial with Henshin...")
+				local args = {[1] = {["Henshin"] = true}}
+				Workspace.Lives.CaDoiChoiRoblox.PlayerHandler.HandlerEvent:FireServer(unpack(args))
 
-    -- Wait until DungeonTimer becomes visible before checking TargetDisplay
-    local dungeonTimer = PlayerGui:WaitForChild("Main"):FindFirstChild("DungeonTimer")
-    if dungeonTimer then
-        local maxTries = 30
-        local tryCount = 0
-        while dungeonTimer.Visible == false and tryCount < maxTries do
-            warn("[TRIAL] DungeonTimer not visible. Starting Trial of Greed...")
-            local trialArgs = {[1] = "Trial of Greed"}
-            ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
-            tryCount += 1
-            task.wait(2)
-        end
-    end
+				-- Wait for death
+				local hum = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+				while hum and hum.Health > 0 do
+					task.wait(0.5)
+					hum = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+				end
 
-	-- Now check for at least one TargetDisplay
-	local hasDisplay = false
-	for _, npc in ipairs(Workspace.Lives:GetChildren()) do
-		if table.find(allTrialNPCs, npc.Name)
-			and npc:FindFirstChild("HumanoidRootPart")
-			and npc:FindFirstChild("Humanoid")
-			and npc.Humanoid.Health > 0
-			and npc.HumanoidRootPart:FindFirstChild("TargetDisplay") then
-			hasDisplay = true
-			break
-		end
-	end
+				print("[TRIAL] Waiting for respawn...")
+				repeat
+					task.wait(0.5)
+					hum = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+				until hum and hum.Health > 0
+				task.wait(2)
 
-	if not hasDisplay then
-		print("[TRIAL] No TargetDisplay found. Resetting trial with Henshin...")
-		local args = {[1] = {["Henshin"] = true}}
-		Workspace.Lives.CaDoiChoiRoblox.PlayerHandler.HandlerEvent:FireServer(unpack(args))
+				-- Re-Henshin & equip tool
+				local args = {[1] = {["Henshin"] = true}}
+				Workspace.Lives.CaDoiChoiRoblox.PlayerHandler.HandlerEvent:FireServer(unpack(args))
+				pressKey(Enum.KeyCode.BackSlash)
+				task.wait(0.2)
+				pressKey(Enum.KeyCode.Down)
+				task.wait(0.2)
+				pressKey(Enum.KeyCode.Down)
+				task.wait(0.2)
+				pressKey(Enum.KeyCode.Right)
+				task.wait(0.2)
+				pressKey(Enum.KeyCode.Right)
+				task.wait(0.2)
+				pressKey(Enum.KeyCode.Return)
+				task.wait(0.2)
+				pressKey(Enum.KeyCode.BackSlash)
 
-		-- Wait for death
-		local hum = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("Humanoid")
-		while hum and hum.Health > 0 do
-			task.wait(0.5)
-			hum = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("Humanoid")
-		end
+				if isLoboQuestComplete() then
+					print("[TRIAL] Quest already complete. Skipping trial.")
+					return
+				end
 
-		print("[TRIAL] Waiting for respawn...")
-		repeat
-			task.wait(0.5)
-			hum = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("Humanoid")
-		until hum and hum.Health > 0
-		task.wait(2)
+				task.wait(8)
+				local trialArgs = {[1] = "Trial of Greed"}
+				ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
+				task.wait(1.5)
+				continue
+			end
 
-		-- Re-Henshin & equip tool
-		local args = {[1] = {["Henshin"] = true}}
-		Workspace.Lives.CaDoiChoiRoblox.PlayerHandler.HandlerEvent:FireServer(unpack(args))
-		pressKey(Enum.KeyCode.BackSlash)
-		task.wait(0.2)
-		pressKey(Enum.KeyCode.Down)
-		task.wait(0.2)
-		pressKey(Enum.KeyCode.Down)
-		task.wait(0.2)
-		pressKey(Enum.KeyCode.Right)
-		task.wait(0.2)
-		pressKey(Enum.KeyCode.Right)
-		task.wait(0.2)
-		pressKey(Enum.KeyCode.Return)
-		task.wait(0.2)
-		pressKey(Enum.KeyCode.BackSlash)
+			-- At least 1 TargetDisplay found → now kill all 3 trial NPCs
+			for _, npc in ipairs(Workspace.Lives:GetChildren()) do
+				if table.find(allTrialNPCs, npc.Name)
+					and npc:FindFirstChild("HumanoidRootPart")
+					and npc:FindFirstChild("Humanoid")
+					and npc.Humanoid.Health > 0 then
 
-		if isLoboQuestComplete() then
-			print("[TRIAL] Quest already complete. Skipping trial.")
+					local pos = npc.HumanoidRootPart.Position
+					local behind = pos - (npc.HumanoidRootPart.CFrame.LookVector * 5)
+
+					repeat
+						tpTo(behind, pos)
+						task.wait(0.3)
+						useSkill(pos, "V")
+						task.wait(0.1)
+						useSkill(pos, "V")
+						useSkill(pos, "R")
+						m1Attack(pos)
+						task.wait(0.3)
+					until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
+
+					print("[TRIAL] Target", npc.Name, "defeated.")
+				end
+			end
+
+			-- All targets killed, check quest
+			local function isAllTargetsDead()
+				for _, npc in ipairs(Workspace.Lives:GetChildren()) do
+					if table.find(allTrialNPCs, npc.Name)
+						and npc:FindFirstChild("Humanoid")
+						and npc.Humanoid.Health > 0 then
+						return false
+					end
+				end
+				return true
+			end
+
+			-- Wait until trial is truly finished
+			repeat
+				task.wait(0.5)
+			until isLoboQuestComplete() and isAllTargetsDead()
+			task.wait(10) -- wait 10 seconds before continuing
+
+			print("[TRIAL] Trial completed.")
 			return
 		end
-
-		task.wait(8)
-		local trialArgs = {[1] = "Trial of Greed"}
-		ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
-		task.wait(1.5)
-
-		
-			if isLoboQuestComplete() then
-	print("[TRIAL] Quest already complete. Skipping trial.")
-	return
-end
-			task.wait(8)
-			local trialArgs = {[1] = "Trial of Greed"}
-			ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
-			task.wait(1.5)
-			continue
-		end
-
-		-- At least 1 TargetDisplay found → now kill all 3 trial NPCs
-		for _, npc in ipairs(Workspace.Lives:GetChildren()) do
-			if table.find(allTrialNPCs, npc.Name)
-				and npc:FindFirstChild("HumanoidRootPart")
-				and npc:FindFirstChild("Humanoid")
-				and npc.Humanoid.Health > 0 then
-
-				local pos = npc.HumanoidRootPart.Position
-				local behind = pos - (npc.HumanoidRootPart.CFrame.LookVector * 5)
-
-				repeat
-					tpTo(behind, pos)
-					task.wait(0.3)
-					useSkill(pos, "V")
-		task.wait(0.1)
-		useSkill(pos, "V")
-		useSkill(pos, "R")
-		m1Attack(pos)
-					task.wait(0.3)
-				until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
-
-				print("[TRIAL] Target", npc.Name, "defeated.")
-			end
-		end
-
-		-- All targets killed, check quest
-		local function isAllTargetsDead()
-	for _, npc in ipairs(Workspace.Lives:GetChildren()) do
-		if table.find(allTrialNPCs, npc.Name)
-			and npc:FindFirstChild("Humanoid")
-			and npc.Humanoid.Health > 0 then
-			return false
-		end
 	end
-	return true
-end
-
--- === Wait until trial is truly finished
-repeat
-	task.wait(0.5)
-until isLoboQuestComplete() and isAllTargetsDead()
-task.wait(10) -- wait 10 seconds before continuing
-
-print("[TRIAL] Trial completed. Checking for Rift...")
-return
-end
-end
-
 
 	-- === MAIN LOGIC FLOW ===
-
-	-- Case 1: Already have the quest → go directly to trial
-	if hasLobotomyQuestInProgress() then
-		local trialArgs = {[1] = "Trial of Greed"}
-			ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
-		trialLoopUntilComplete()
-
+	while true do
+		-- Case 1: Quest is already completed
 		if isLoboQuestComplete() then
-			local reenter = checkForLobotomyRiftAndEnter()
-			if reenter then
-				local abnormality
-repeat
-	abnormality = waitForAbnormality()
-	if abnormality and abnormality:FindFirstChild("ClickDetector") then
-		tpToAbnormality()
-		task.wait(1)
-		contractWithAbnormality(abnormality)
-		task.wait(1.5)
-	end
+			print("[TRIAL] Quest already complete. Attempting to get a new quest...")
+			local entered = checkForLobotomyRiftAndEnter()
+			if not entered then
+				-- Move to next step if Rift entry fails
+				startQuest()
+				checkAndCraftRefine()
+				waitForQuestText()
+				while not isQuestComplete() do
+					for _, target in ipairs(refineTargetQueue) do
+						if killTarget(target.npc, refineAttack, isQuestComplete) then
+							break
+						end
+						task.wait(0.3)
+					end
+				end
+				completeQuest()
+				handlePossessedRider()
+				task.wait(0.3)
+				continue
+			end
+			if entered then
+				local abnormality = waitForAbnormality()
+				if abnormality and abnormality:FindFirstChild("ClickDetector") then
+					tpToAbnormality()
+					task.wait(1)
+					contractWithAbnormality(abnormality)
 					task.wait(1.5)
-				until hasLobotomyQuestInProgress()
+				end
 				exitSpecialZone()
 			end
 		end
-		return
-	end
 
-	-- Case 2: Start fresh by entering Rift
-	local entered = checkForLobotomyRiftAndEnter()
-	if not entered then return end
-
-	local abnormality
-repeat
-	abnormality = waitForAbnormality()
-	if abnormality and abnormality:FindFirstChild("ClickDetector") then
-		tpToAbnormality()
-		task.wait(1)
-		contractWithAbnormality(abnormality)
-		task.wait(1.5)
-	end
-	until hasLobotomyQuestInProgress() or isLoboQuestComplete()
-
-	exitSpecialZone()
-
-	if hasLobotomyQuestInProgress() then
-		local trialArgs = {[1] = "Trial of Greed"}
-			ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
-		trialLoopUntilComplete()
-	end
-
-	if isLoboQuestComplete() then
-		local reenter = checkForLobotomyRiftAndEnter()
-		if reenter then
-			local abnormality2 = waitForAbnormality()
-			repeat
-				tpToAbnormality()
-				task.wait(1)
-				fireclickdetector(npc.ClickDetector)
+		-- Case 2: Already have the quest → try joining trial up to 100 times
+		if hasLobotomyQuestInProgress() then
+			local maxTries = 100
+			local tryCount = 0
+			local trialStarted = false
+			while tryCount < maxTries and not trialStarted do
+				print("[TRIAL] Attempting to join Trial of Greed... Try:", tryCount + 1)
+				local trialArgs = {[1] = "Trial of Greed"}
+				ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
 				task.wait(2)
-			until hasLobotomyQuestInProgress()
-			exitSpecialZone()
+
+				-- Check if DungeonTimer is visible to confirm trial start
+				local dungeonTimer = PlayerGui:WaitForChild("Main"):FindFirstChild("DungeonTimer")
+				if dungeonTimer and dungeonTimer.Visible then
+					trialStarted = true
+					print("[TRIAL] Trial joined successfully.")
+				else
+					tryCount += 1
+				end
+			end
+
+			if trialStarted then
+				trialLoopUntilComplete()
+			else
+				print("[TRIAL] Failed to join trial after 100 attempts. Retrying...")
+				task.wait(5)
+				continue
+			end
+		end
+
+		-- Case 3: Start fresh by entering Rift to get the quest
+		local entered = checkForLobotomyRiftAndEnter()
+		if not entered then
+			print("[ERROR] Failed to enter Rift. Retrying...")
+			task.wait(5)
+			continue
+		end
+
+		local abnormality = waitForAbnormality()
+		if abnormality and abnormality:FindFirstChild("ClickDetector") then
+			tpToAbnormality()
+			task.wait(1)
+			contractWithAbnormality(abnormality)
+			task.wait(1.5)
+		end
+
+		exitSpecialZone()
+
+		if hasLobotomyQuestInProgress() then
+			local maxTries = 100
+			local tryCount = 0
+			local trialStarted = false
+			while tryCount < maxTries and not trialStarted do
+				print("[TRIAL] Attempting to join Trial of Greed... Try:", tryCount + 1)
+				local trialArgs = {[1] = "Trial of Greed"}
+				ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
+				task.wait(2)
+
+				-- Check if DungeonTimer is visible to confirm trial start
+				local dungeonTimer = PlayerGui:WaitForChild("Main"):FindFirstChild("DungeonTimer")
+				if dungeonTimer and dungeonTimer.Visible then
+					trialStarted = true
+					print("[TRIAL] Trial joined successfully.")
+				else
+					tryCount += 1
+				end
+			end
+
+			if trialStarted then
+				trialLoopUntilComplete()
+			else
+				print("[TRIAL] Failed to join trial after 100 attempts. Retrying...")
+				task.wait(5)
+				continue
+			end
 		end
 	end
 end
