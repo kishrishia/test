@@ -115,21 +115,6 @@ end
 	-- ### Crafting and Selling Logic
 	local function checkAndCraftRefine()
     local success, err = pcall(function()
-        local function isCharacterAlive()
-            local char = Players.LocalPlayer.Character
-            local hum = char and char:FindFirstChild("Humanoid")
-            return hum and hum.Health > 0
-        end
-
-        local function waitForRespawn()
-            print("[CRAFT DEBUG] Waiting for respawn...")
-            repeat
-                task.wait(0.5)
-            until isCharacterAlive()
-            task.wait(2) -- Allow character to stabilize
-            print("[CRAFT DEBUG] Respawned, resuming...")
-        end
-
         pressKey(Enum.KeyCode.BackSlash)
         task.wait(0.3)
         pressKey(Enum.KeyCode.Down) 
@@ -182,46 +167,47 @@ end
             local craftingNPC = Workspace.NPC:FindFirstChild("UniversalCrafting")
             if craftingNPC and craftingNPC:FindFirstChild("ClickDetector") then
                 fireclickdetector(craftingNPC.ClickDetector)
-                task.wait(2) -- Wait for potential menu to start opening
+                task.wait(1)
                 fireDialogue("[ Craft ]")
-                task.wait(2) -- Wait for crafting menu to fully open
-
-                local craftingGui = PlayerGui:FindFirstChild("CraftingGUI")
-                if not craftingGui then
-                    warn("[CRAFT ERROR] CraftingGUI not found after opening craft menu!")
-                    return
-                end
-                print("[CRAFT DEBUG] CraftingGUI detected, proceeding with crafting...")
-
+                task.wait(1)
                 for i = 1, 10 do
-                    if not isCharacterAlive() then waitForRespawn() end
                     local args = {"Special", "Blue Fragment"}
                     ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
-                    task.wait(0.1)
+                    task.wait(0.25)
                     args = {"Special", "Blue Sappyre"}
                     ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
-                    task.wait(0.1)
+                    task.wait(0.25)
                     args = {"Special", "Red Fragment"}
                     ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
-                    task.wait(0.1)
+                    task.wait(0.25)
                     args = {"Special", "Red Emperor"}
                     ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
-                    task.wait(0.1)
                 end
-                task.wait(2) -- Wait for crafting to complete
+                task.wait(10) -- Wait for crafting to complete
 
-                -- Wait for 6 seconds after CraftingGUI is open, then close it
-                print("[CRAFT DEBUG] Waiting 6 seconds with CraftingGUI open...")
-                task.wait(6)
-                print("[CRAFT DEBUG] Closing CraftingGUI and exiting menu...")
-                pressKey(Enum.KeyCode.BackSlash)
-                task.wait(0.5)
-                pressKey(Enum.KeyCode.Down)
-                task.wait(0.5)
-                pressKey(Enum.KeyCode.Return)
-                task.wait(0.5)
-                pressKey(Enum.KeyCode.BackSlash)
-                task.wait(1) -- Ensure menu is fully closed
+                print("[CRAFT DEBUG] Attempting to close crafting menu...")
+                local closeAttempts = 0
+                local maxAttempts = 2
+                while PlayerGui:FindFirstChild("CraftingGUI") and closeAttempts < maxAttempts do
+                    pressKey(Enum.KeyCode.BackSlash)
+                    task.wait(0.5)
+                    pressKey(Enum.KeyCode.Down)
+                    task.wait(0.5)
+                    pressKey(Enum.KeyCode.Return)
+                    task.wait(0.5)
+                    pressKey(Enum.KeyCode.BackSlash)
+                    task.wait(1)
+                    closeAttempts += 1
+                    print("[CRAFT DEBUG] Close attempt", closeAttempts, "of", maxAttempts)
+                end
+
+                if PlayerGui:FindFirstChild("CraftingGUI") then
+                    warn("[CRAFT ERROR] Failed to close CraftingGUI after", maxAttempts, "attempts, forcing movement...")
+                    tpTo(Vector3.new(-1237, 2, -1500), nil) -- Move to next step's position
+                    task.wait(2)
+                else
+                    print("[CRAFT DEBUG] CraftingGUI closed successfully.")
+                end
                 print("[CRAFT DEBUG] Exited crafting menu, moving to next step...")
             else
                 warn("[CRAFT ERROR] UniversalCrafting NPC or ClickDetector not found!")
@@ -229,17 +215,15 @@ end
         end
 
         if qtyFragment and qtyFragment > 66 then
-            if not isCharacterAlive() then waitForRespawn() end
             sellAncientStone()
         end
     end)
 
     if not success then
         warn("[CRAFT ERROR] An error occurred in checkAndCraftRefine():", err)
-        task.wait(2) -- Pause briefly to avoid spamming
+        task.wait(2)
     end
 end
-
 
 	-- ### Quest Logic
 	local function startQuest()
@@ -808,26 +792,19 @@ end
 
 -- ### Main Loop
 while true do
-    local success, err = pcall(function()
-        handleLobotomyFarm()
-        startQuest()
-        checkAndCraftRefine()
-        waitForQuestText()
-        while not isQuestComplete() do
-            for _, target in ipairs(refineTargetQueue) do
-                if killTarget(target.npc, refineAttack, isQuestComplete) then
-                    break
-                end
-                task.wait(0.3)
+    handleLobotomyFarm()
+    startQuest()
+    checkAndCraftRefine()
+    waitForQuestText()
+    while not isQuestComplete() do
+        for _, target in ipairs(refineTargetQueue) do
+            if killTarget(target.npc, refineAttack, isQuestComplete) then
+                break
             end
+            task.wait(0.3)
         end
-        completeQuest()
-        handlePossessedRider()
-        task.wait(0.3)
-    end)
-
-    if not success then
-        warn("[MAIN LOOP ERROR] An error occurred:", err)
-        task.wait(5) -- Wait before retrying to avoid spamming
     end
+    completeQuest()
+    handlePossessedRider()
+    task.wait(0.3)
 end
