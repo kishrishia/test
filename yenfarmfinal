@@ -754,6 +754,7 @@ end
 			exitSpecialZone()
 		end
 	end
+end
 
 	-- Case 2: Start fresh by entering Rift
 	local entered = checkForLobotomyRiftAndEnter()
