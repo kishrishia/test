@@ -720,7 +720,7 @@ local function handleLobotomyFarm()
 
 		-- Case 2: Already have the quest → try joining trial up to 100 times
 		if hasLobotomyQuestInProgress() then
-			local maxTries = 100
+			local maxTries = 300
 			local tryCount = 0
 			local trialStarted = false
 			while tryCount < maxTries and not trialStarted do
@@ -767,7 +767,7 @@ local function handleLobotomyFarm()
 		exitSpecialZone()
 
 		if hasLobotomyQuestInProgress() then
-			local maxTries = 100
+			local maxTries = 300
 			local tryCount = 0
 			local trialStarted = false
 			while tryCount < maxTries and not trialStarted do
