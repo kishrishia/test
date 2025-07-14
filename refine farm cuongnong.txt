@@ -134,6 +134,21 @@ end
 
 	local function checkAndCraftRefine()
     local success, err = pcall(function()
+        local function isCharacterAlive()
+            local char = Players.LocalPlayer.Character
+            local hum = char and char:FindFirstChild("Humanoid")
+            return hum and hum.Health > 0
+        end
+
+        local function waitForRespawn()
+            print("[CRAFT DEBUG] Waiting for respawn...")
+            repeat
+                task.wait(0.5)
+            until isCharacterAlive()
+            task.wait(2) -- Allow character to stabilize
+            print("[CRAFT DEBUG] Respawned, resuming...")
+        end
+
         pressKey(Enum.KeyCode.BackSlash)
         task.wait(0.3)
         pressKey(Enum.KeyCode.Down) 
@@ -186,10 +201,19 @@ end
             local craftingNPC = Workspace.NPC:FindFirstChild("UniversalCrafting")
             if craftingNPC and craftingNPC:FindFirstChild("ClickDetector") then
                 fireclickdetector(craftingNPC.ClickDetector)
-                task.wait(2) -- Increased delay to ensure menu opens
+                task.wait(2)
                 fireDialogue("[ Craft ]")
-                task.wait(2) -- Wait for menu to stabilize
+                task.wait(2)
+
+                local craftingGui = PlayerGui:FindFirstChild("CraftingGUI")
+                if not craftingGui then
+                    warn("[CRAFT ERROR] CraftingGUI not found after opening craft menu!")
+                    return
+                end
+                print("[CRAFT DEBUG] CraftingGUI detected, proceeding with crafting...")
+
                 for i = 1, 10 do
+                    if not isCharacterAlive() then waitForRespawn() end
                     local args = {"Special", "Blue Fragment"}
                     ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
                     task.wait(0.1)
@@ -203,8 +227,14 @@ end
                     ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
                     task.wait(0.1)
                 end
-                task.wait(6) -- Wait for crafting to complete
-                print("[CRAFT DEBUG] Attempting to exit crafting menu...")
+                task.wait(6)
+
+                repeat
+                    if not isCharacterAlive() then waitForRespawn() end
+                    task.wait(0.5)
+                    craftingGui = PlayerGui:FindFirstChild("CraftingGUI")
+                until not craftingGui
+                print("[CRAFT DEBUG] CraftingGUI closed, attempting to exit menu...")
                 pressKey(Enum.KeyCode.BackSlash)
                 task.wait(0.5)
                 pressKey(Enum.KeyCode.Down)
@@ -212,20 +242,22 @@ end
                 pressKey(Enum.KeyCode.Return)
                 task.wait(0.5)
                 pressKey(Enum.KeyCode.BackSlash)
-                task.wait(1) -- Ensure menu is fully closed
+                task.wait(1)
+                print("[CRAFT DEBUG] Exited crafting menu, moving to next step...")
             else
                 warn("[CRAFT ERROR] UniversalCrafting NPC or ClickDetector not found!")
             end
         end
 
         if qtyFragment and qtyFragment > 66 then
+            if not isCharacterAlive() then waitForRespawn() end
             sellAncientStone()
         end
     end)
 
     if not success then
         warn("[CRAFT ERROR] An error occurred in checkAndCraftRefine():", err)
-        task.wait(2) -- Pause briefly to avoid spamming
+        task.wait(2)
     end
 end
 
