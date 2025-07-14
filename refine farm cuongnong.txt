@@ -113,25 +113,6 @@ end
 	end
 
 	-- ### Crafting and Selling Logic
-	local function sellAncientStone()
-		tpTo(Vector3.new(-675, 27, -102), nil)
-		task.wait(2)
-		fireclickdetector(Workspace.NPC.JunkBuyer.ClickDetector)
-		task.wait(1)
-		fireDialogue("[ Press Button ]")
-		task.wait(2)
-			local args = {{["Ancient Stone"] = 500}}
-			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
-		task.wait(6)
-		pressKey(Enum.KeyCode.BackSlash)
-		task.wait(0.3)
-		pressKey(Enum.KeyCode.Down)
-		task.wait(0.3)
-		pressKey(Enum.KeyCode.Return)
-		task.wait(0.3)
-		pressKey(Enum.KeyCode.BackSlash)
-	end
-
 	local function checkAndCraftRefine()
     local success, err = pcall(function()
         local function isCharacterAlive()
@@ -201,9 +182,9 @@ end
             local craftingNPC = Workspace.NPC:FindFirstChild("UniversalCrafting")
             if craftingNPC and craftingNPC:FindFirstChild("ClickDetector") then
                 fireclickdetector(craftingNPC.ClickDetector)
-                task.wait(2)
+                task.wait(2) -- Wait for potential menu to start opening
                 fireDialogue("[ Craft ]")
-                task.wait(2)
+                task.wait(2) -- Wait for crafting menu to fully open
 
                 local craftingGui = PlayerGui:FindFirstChild("CraftingGUI")
                 if not craftingGui then
@@ -227,14 +208,12 @@ end
                     ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
                     task.wait(0.1)
                 end
-                task.wait(6)
+                task.wait(2) -- Wait for crafting to complete
 
-                repeat
-                    if not isCharacterAlive() then waitForRespawn() end
-                    task.wait(0.5)
-                    craftingGui = PlayerGui:FindFirstChild("CraftingGUI")
-                until not craftingGui
-                print("[CRAFT DEBUG] CraftingGUI closed, attempting to exit menu...")
+                -- Wait for 6 seconds after CraftingGUI is open, then close it
+                print("[CRAFT DEBUG] Waiting 6 seconds with CraftingGUI open...")
+                task.wait(6)
+                print("[CRAFT DEBUG] Closing CraftingGUI and exiting menu...")
                 pressKey(Enum.KeyCode.BackSlash)
                 task.wait(0.5)
                 pressKey(Enum.KeyCode.Down)
@@ -242,7 +221,7 @@ end
                 pressKey(Enum.KeyCode.Return)
                 task.wait(0.5)
                 pressKey(Enum.KeyCode.BackSlash)
-                task.wait(1)
+                task.wait(1) -- Ensure menu is fully closed
                 print("[CRAFT DEBUG] Exited crafting menu, moving to next step...")
             else
                 warn("[CRAFT ERROR] UniversalCrafting NPC or ClickDetector not found!")
@@ -257,10 +236,9 @@ end
 
     if not success then
         warn("[CRAFT ERROR] An error occurred in checkAndCraftRefine():", err)
-        task.wait(2)
+        task.wait(2) -- Pause briefly to avoid spamming
     end
 end
-
 
 
 	-- ### Quest Logic
@@ -850,6 +828,6 @@ while true do
 
     if not success then
         warn("[MAIN LOOP ERROR] An error occurred:", err)
-        task.wait(2) -- Wait before retrying to avoid spamming
+        task.wait(5) -- Wait before retrying to avoid spamming
     end
 end
