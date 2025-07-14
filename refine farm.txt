@@ -765,19 +765,26 @@ end
 
 	-- ### Main Loop
 	while true do
-		handleLobotomyFarm()
-		startQuest()
-		checkAndCraftRefine()
-		waitForQuestText()
-		while not isQuestComplete() do
-			for _, target in ipairs(refineTargetQueue) do
-				if killTarget(target.npc, refineAttack, isQuestComplete) then
-					break
-				end
-				task.wait(0.3)
-			end
-		end
-		completeQuest()
-		handlePossessedRider()
-		task.wait(0.3)
-	end
+    local success, err = pcall(function()
+        handleLobotomyFarm()
+        startQuest()
+        checkAndCraftRefine()
+        waitForQuestText()
+        while not isQuestComplete() do
+            for _, target in ipairs(refineTargetQueue) do
+                if killTarget(target.npc, refineAttack, isQuestComplete) then
+                    break
+                end
+                task.wait(0.3)
+            end
+        end
+        completeQuest()
+        handlePossessedRider()
+        task.wait(0.3)
+    end)
+
+    if not success then
+        warn("[MAIN LOOP ERROR] An error occurred:", err)
+        task.wait(5) -- Wait before retrying to avoid spamming
+    end
+end
