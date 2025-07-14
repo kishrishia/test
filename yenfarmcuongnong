@@ -194,7 +194,7 @@ end
 
 	task.wait(1)
 
-	if qtyEmber and qtyEmber > 52 then
+	if qtyEmber and qtyEmber > 66 then
 		tpTo(Vector3.new(-860, 26, -25), nil)
 		task.wait(3)
 		fireclickdetector(Workspace.NPC.UniversalCrafting.ClickDetector)
