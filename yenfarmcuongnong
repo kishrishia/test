@@ -583,7 +583,7 @@ while true do
     -- Wait until DungeonTimer becomes visible before checking TargetDisplay
     local dungeonTimer = PlayerGui:WaitForChild("Main"):FindFirstChild("DungeonTimer")
     if dungeonTimer then
-        local maxTries = 30
+        local maxTries = 100
         local tryCount = 0
         while dungeonTimer.Visible == false and tryCount < maxTries do
             warn("[TRIAL] DungeonTimer not visible. Starting Trial of Greed...")
