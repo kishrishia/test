@@ -112,7 +112,36 @@ end
 		return gui and gui.Text or nil
 	end
 
-	-- ### Crafting and Selling Logic
+	-- ### Crafting and Selling Logic	
+	local function craftMaterial()
+		tpTo(Vector3.new(-860, 26, -25), nil)
+		task.wait(3)
+		fireclickdetector(Workspace.NPC.UniversalCrafting.ClickDetector)
+		task.wait(1)
+		fireDialogue("[ Craft ]")
+		task.wait(1)
+		for i = 1, 10 do
+			local args = {"Special", "Blue Fragment"}
+			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
+			task.wait(0.1)
+			args = {"Special", "Blue Sappyre"}
+			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
+			task.wait(0.1)
+			args = {"Special", "Red Fragment"}
+			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
+			task.wait(0.1)
+			args = {"Special", "Red Emperor"}
+			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
+		end
+		task.wait(6)
+		pressKey(Enum.KeyCode.BackSlash)
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Down)
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Return)
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.BackSlash)
+	end
 	local function sellAncientStone()
 		tpTo(Vector3.new(-675, 27, -102), nil)
 		task.wait(2)
@@ -120,7 +149,22 @@ end
 		task.wait(1)
 		fireDialogue("[ Press Button ]")
 		task.wait(2)
+			local args = {{["Green Fragment"] = 550}}
+			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
+			task.wait(0.5)
 			local args = {{["Ancient Stone"] = 500}}
+			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
+			task.wait(0.5)
+			local args = {{["Purple Fragment"] = 550}}
+			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
+			task.wait(0.5)
+			local args = {{["Essence's Gearbox"] = 2500}}
+			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
+			task.wait(0.5)
+			local args = {{["Cell Medal"] = 150}}
+			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
+			task.wait(0.5)
+			local args = {{["Lost Tablet"] = 150}}
 			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
 		task.wait(6)
 		pressKey(Enum.KeyCode.BackSlash)
@@ -133,144 +177,71 @@ end
 	end
 
 	local function checkAndCraftRefine()
-    local success, err = pcall(function()
-        local function isCharacterAlive()
-            local char = Players.LocalPlayer.Character
-            local hum = char and char:FindFirstChild("Humanoid")
-            return hum and hum.Health > 0
-        end
+	pressKey(Enum.KeyCode.BackSlash)
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.Down) 
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.Down) 
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.Down) 
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.Down) 
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.Return) 
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.Up) 
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.Right) 
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.Return) 
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.Left) 
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.Left) 
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.Down) 
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.Down) 
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.Return) 
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.BackSlash)
+	task.wait(1.2)
 
-        local function waitForRespawn()
-            print("[CRAFT DEBUG] Waiting for respawn...")
-            repeat
-                task.wait(0.5)
-            until isCharacterAlive()
-            task.wait(2) -- Allow character to stabilize
-            print("[CRAFT DEBUG] Respawned, resuming...")
-        end
+	local inv = PlayerGui.Main.BackpackMainFrame.Inventory.ItemScroll
+	local ember = inv:FindFirstChild("Chunk of Ore")
+	local fragment = inv:FindFirstChild("Green Fragment") or inv:FindFirstChild("Purple Fragment")
 
-        pressKey(Enum.KeyCode.BackSlash)
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Down) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Down) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Down) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Down) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Return) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Up) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Right) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Return) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Left) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Left) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Down) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Down) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.Return) 
-        task.wait(0.3)
-        pressKey(Enum.KeyCode.BackSlash)
-        task.wait(1.2)
+	local rawTextEmber = ember and ember:FindFirstChild("Qty") and ember.Qty.Text or ""
+	local qtyEmber = tonumber(string.match(rawTextEmber, ">(%d+)<"))
 
-        local inv = PlayerGui.Main.BackpackMainFrame.Inventory.ItemScroll
-        local ember = inv:FindFirstChild("Chunk of Ore")
-        local fragment = inv:FindFirstChild("Ancient Stone") or inv:FindFirstChild("Purple Fragment")
+	local rawTextFragment = fragment and fragment:FindFirstChild("Qty") and fragment.Qty.Text or ""
+	local qtyFragment = tonumber(string.match(rawTextFragment, ">(%d+)<"))
 
-        local rawTextEmber = ember and ember:FindFirstChild("Qty") and ember.Qty.Text or ""
-        local qtyEmber = tonumber(string.match(rawTextEmber, ">(%d+)<"))
+	print("[CRAFT DEBUG] Parsed Qty Chunk of Ore:", qtyEmber)
+	print("[SELL DEBUG] Parsed Qty Fragment:", qtyFragment)
 
-        local rawTextFragment = fragment and fragment:FindFirstChild("Qty") and fragment.Qty.Text or ""
-        local qtyFragment = tonumber(string.match(rawTextFragment, ">(%d+)<"))
+	task.wait(1)
 
-        print("[CRAFT DEBUG] Parsed Qty Chunk of Ore:", qtyEmber)
-        print("[SELL DEBUG] Parsed Qty Fragment:", qtyFragment)
+	if qtyEmber and qtyEmber > 54 then
+		craftMaterial()
+	end
 
-        task.wait(1)
-
-        if qtyEmber and qtyEmber > 52 then
-            tpTo(Vector3.new(-860, 26, -25), nil)
-            task.wait(3)
-            local craftingNPC = Workspace.NPC:FindFirstChild("UniversalCrafting")
-            if craftingNPC and craftingNPC:FindFirstChild("ClickDetector") then
-                fireclickdetector(craftingNPC.ClickDetector)
-                task.wait(2)
-                fireDialogue("[ Craft ]")
-                task.wait(2)
-
-                local craftingGui = PlayerGui:FindFirstChild("CraftingGUI")
-                if not craftingGui then
-                    warn("[CRAFT ERROR] CraftingGUI not found after opening craft menu!")
-                    return
-                end
-                print("[CRAFT DEBUG] CraftingGUI detected, proceeding with crafting...")
-
-                for i = 1, 10 do
-                    if not isCharacterAlive() then waitForRespawn() end
-                    local args = {"Special", "Blue Fragment"}
-                    ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
-                    task.wait(0.1)
-                    args = {"Special", "Blue Sappyre"}
-                    ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
-                    task.wait(0.1)
-                    args = {"Special", "Red Fragment"}
-                    ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
-                    task.wait(0.1)
-                    args = {"Special", "Red Emperor"}
-                    ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
-                    task.wait(0.1)
-                end
-                task.wait(6)
-
-                repeat
-                    if not isCharacterAlive() then waitForRespawn() end
-                    task.wait(0.5)
-                    craftingGui = PlayerGui:FindFirstChild("CraftingGUI")
-                until not craftingGui
-                print("[CRAFT DEBUG] CraftingGUI closed, attempting to exit menu...")
-                pressKey(Enum.KeyCode.BackSlash)
-                task.wait(0.5)
-                pressKey(Enum.KeyCode.Down)
-                task.wait(0.5)
-                pressKey(Enum.KeyCode.Return)
-                task.wait(0.5)
-                pressKey(Enum.KeyCode.BackSlash)
-                task.wait(1)
-                print("[CRAFT DEBUG] Exited crafting menu, moving to next step...")
-            else
-                warn("[CRAFT ERROR] UniversalCrafting NPC or ClickDetector not found!")
-            end
-        end
-
-        if qtyFragment and qtyFragment > 66 then
-            if not isCharacterAlive() then waitForRespawn() end
-            sellAncientStone()
-        end
-    end)
-
-    if not success then
-        warn("[CRAFT ERROR] An error occurred in checkAndCraftRefine():", err)
-        task.wait(2)
-    end
+	if qtyFragment and qtyFragment > 35 then
+		sellAncientStone()
+	end
 end
 
 
 
 	-- ### Quest Logic
 	local function startQuest()
-		tpTo(Vector3.new(-1237, 2, -1500), nil)
+	tpTo(Vector3.new(-1237, 2, -1500), nil)
 		task.wait(2)
 		fireclickdetector(Workspace.NPC.LeeTheMiner.ClickDetector)
-		task.wait(1)
+		task.wait(2)
 		fireDialogue("[ Accept Quest ]")
-		task.wait(1)
+		task.wait(2)
 		fireDialogue("Exit = true")
 	end
 
@@ -278,9 +249,9 @@ end
 		tpTo(Vector3.new(-1237, 2, -1500), nil)
 		task.wait(2)
 		fireclickdetector(Workspace.NPC.LeeTheMiner.ClickDetector)
-		task.wait(1)
+		task.wait(2)
 		fireDialogue("Yes, I've done it.")
-		task.wait(1)
+		task.wait(2)
 		fireDialogue("Exit = true")
 	end
 
@@ -721,7 +692,6 @@ local function handleLobotomyFarm()
 			if not entered then
 				-- Move to next step if Rift entry fails
 				startQuest()
-				checkAndCraftRefine()
 				waitForQuestText()
 				while not isQuestComplete() do
 					for _, target in ipairs(refineTargetQueue) do
@@ -828,28 +798,21 @@ local function handleLobotomyFarm()
 end
 
 
--- ### Main Loop
-while true do
-    local success, err = pcall(function()
-        handleLobotomyFarm()
-        startQuest()
-        checkAndCraftRefine()
-        waitForQuestText()
-        while not isQuestComplete() do
-            for _, target in ipairs(refineTargetQueue) do
-                if killTarget(target.npc, refineAttack, isQuestComplete) then
-                    break
-                end
-                task.wait(0.3)
-            end
-        end
-        completeQuest()
-        handlePossessedRider()
-        task.wait(0.3)
-    end)
-
-    if not success then
-        warn("[MAIN LOOP ERROR] An error occurred:", err)
-        task.wait(2) -- Wait before retrying to avoid spamming
-    end
-end
+	-- ### Main Loop
+	while true do
+		handleLobotomyFarm()
+		startQuest()
+		checkAndCraftRefine()
+		waitForQuestText()
+		while not isQuestComplete() do
+			for _, target in ipairs(refineTargetQueue) do
+				if killTarget(target.npc, refineAttack, isQuestComplete) then
+					break
+				end
+				task.wait(0.3)
+			end
+		end
+		completeQuest()
+		handlePossessedRider()
+		task.wait(0.3)
+	end
