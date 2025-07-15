@@ -744,7 +744,7 @@ local function handleLobotomyFarm()
 				trialLoopUntilComplete()
 			else
 				print("[TRIAL] Failed to join trial after 100 attempts. Retrying...")
-				task.wait(5)
+				task.wait(1)
 				continue
 			end
 		end
