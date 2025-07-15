@@ -691,6 +691,7 @@ local function handleLobotomyFarm()
 			local entered = checkForLobotomyRiftAndEnter()
 			if not entered then
 				-- Move to next step if Rift entry fails
+				checkAndCraftRefine()
 				startQuest()
 				waitForQuestText()
 				while not isQuestComplete() do
