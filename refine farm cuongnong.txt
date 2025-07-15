@@ -24,7 +24,7 @@
 	local function m1Attack(pos)
 	local args = {{
 		CombatAction = true,
-		LightAttack = true,
+		HeavyAttack = true,
 		MouseData = CFrame.new(pos)
 	}}
 
@@ -273,13 +273,16 @@ end
 	function refineAttack(pos)
 		m1Attack(pos)
 		m1Attack(pos)
-		useSkill(pos, "R")
+		useSkill(pos, "E")
 	end
 
 	function desireAttack(pos)
 		useSkill(pos, "X")
+		task.wait(0.1)
+		useSkill(pos, "X")
 		useSkill(pos, "V")
-		useSkill(pos, "R")
+		task.wait(0.1)
+		useSkill(pos, "E")
 		m1Attack(pos)
 	end
 
