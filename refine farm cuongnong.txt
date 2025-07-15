@@ -223,7 +223,7 @@ end
 
 	task.wait(1)
 
-	if qtyEmber and qtyEmber > 66 then
+	if qtyEmber and qtyEmber > 54 then
 		craftMaterial()
 	end
 
@@ -239,9 +239,9 @@ end
 	tpTo(Vector3.new(-1237, 2, -1500), nil)
 		task.wait(2)
 		fireclickdetector(Workspace.NPC.LeeTheMiner.ClickDetector)
-		task.wait(1)
+		task.wait(2)
 		fireDialogue("[ Accept Quest ]")
-		task.wait(1)
+		task.wait(2)
 		fireDialogue("Exit = true")
 	end
 
@@ -249,9 +249,9 @@ end
 		tpTo(Vector3.new(-1237, 2, -1500), nil)
 		task.wait(2)
 		fireclickdetector(Workspace.NPC.LeeTheMiner.ClickDetector)
-		task.wait(1)
+		task.wait(2)
 		fireDialogue("Yes, I've done it.")
-		task.wait(1)
+		task.wait(2)
 		fireDialogue("Exit = true")
 	end
 
