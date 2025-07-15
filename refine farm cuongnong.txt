@@ -21,27 +21,10 @@
 		ReplicatedStorage.Remote.Event.Dialogue:FireServer(unpack(args))
 	end
 
-local function m2Attack(pos)
-	local args = {{
-		CombatAction = true,
-		HeavyAttack = true,
-		MouseData = CFrame.new(pos)
-	}}
-
-	local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
-	local handler = character:FindFirstChild("PlayerHandler") and character.PlayerHandler:FindFirstChild("HandlerEvent")
-	if handler then
-		handler:FireServer(unpack(args))
-		print("[DEBUG] Fired m1Attack at", pos)
-	else
-		warn("[ERROR] Handler not found when using m1Attack")
-	end
-end
-
 	local function m1Attack(pos)
 	local args = {{
 		CombatAction = true,
-		LightAttack = true,
+		HeavyAttack = true,
 		MouseData = CFrame.new(pos)
 	}}
 
@@ -290,15 +273,13 @@ end
 	function refineAttack(pos)
 		m1Attack(pos)
 		m1Attack(pos)
-		useSkill(pos, "E")
+		useSkill(pos, "R")
 	end
 
 	function desireAttack(pos)
-		useSkill(pos, "X")
+		useSkill(pos, "E")
 		task.wait(0.1)
-		useSkill(pos, "X")
-		useSkill(pos, "V")
-		task.wait(0.1)
+		useSkill(pos, "E")
 		useSkill(pos, "R")
 		m1Attack(pos)
 	end
@@ -667,11 +648,9 @@ local function handleLobotomyFarm()
 					repeat
 						tpTo(behind, pos)
 						task.wait(0.3)
-						useSkill(pos, "X")
+						useSkill(pos, "E")
 						task.wait(0.1)
-						useSkill(pos, "X")
-						useSkill(pos, "V")
-						task.wait(0.1)
+						useSkill(pos, "E")
 						useSkill(pos, "R")
 						m1Attack(pos)
 						task.wait(0.3)
@@ -765,7 +744,7 @@ local function handleLobotomyFarm()
 				trialLoopUntilComplete()
 			else
 				print("[TRIAL] Failed to join trial after 100 attempts. Retrying...")
-				task.wait(1)
+				task.wait(5)
 				continue
 			end
 		end
@@ -774,7 +753,7 @@ local function handleLobotomyFarm()
 		local entered = checkForLobotomyRiftAndEnter()
 		if not entered then
 			print("[ERROR] Failed to enter Rift. Retrying...")
-			task.wait(5)
+			task.wait(1)
 			continue
 		end
 
