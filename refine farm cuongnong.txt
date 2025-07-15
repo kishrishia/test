@@ -692,7 +692,6 @@ local function handleLobotomyFarm()
 			if not entered then
 				-- Move to next step if Rift entry fails
 				startQuest()
-				checkAndCraftRefine()
 				waitForQuestText()
 				while not isQuestComplete() do
 					for _, target in ipairs(refineTargetQueue) do
