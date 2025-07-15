@@ -692,6 +692,7 @@ local function handleLobotomyFarm()
 			if not entered then
 				-- Move to next step if Rift entry fails
 				checkAndCraftRefine()
+				handlePossessedRider()
 				startQuest()
 				waitForQuestText()
 				while not isQuestComplete() do
@@ -703,7 +704,6 @@ local function handleLobotomyFarm()
 					end
 				end
 				completeQuest()
-				handlePossessedRider()
 				task.wait(0.3)
 				continue
 			end
