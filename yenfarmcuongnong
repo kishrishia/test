@@ -21,10 +21,27 @@
 		ReplicatedStorage.Remote.Event.Dialogue:FireServer(unpack(args))
 	end
 
-	local function m1Attack(pos)
+local function m2Attack(pos)
 	local args = {{
 		CombatAction = true,
 		HeavyAttack = true,
+		MouseData = CFrame.new(pos)
+	}}
+
+	local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
+	local handler = character:FindFirstChild("PlayerHandler") and character.PlayerHandler:FindFirstChild("HandlerEvent")
+	if handler then
+		handler:FireServer(unpack(args))
+		print("[DEBUG] Fired m1Attack at", pos)
+	else
+		warn("[ERROR] Handler not found when using m1Attack")
+	end
+end
+
+	local function m1Attack(pos)
+	local args = {{
+		CombatAction = true,
+		LightAttack = true,
 		MouseData = CFrame.new(pos)
 	}}
 
@@ -281,7 +298,7 @@ function refineAttack(pos)
 		useSkill(pos, "X")
 		useSkill(pos, "V")
 		task.wait(0.1)
-		useSkill(pos, "E")
+		useSkill(pos, "R")
 		m1Attack(pos)
 	end
 
@@ -654,7 +671,7 @@ local function handleLobotomyFarm()
 						useSkill(pos, "X")
 						useSkill(pos, "V")
 						task.wait(0.1)
-						useSkill(pos, "E")
+						useSkill(pos, "R")
 						m1Attack(pos)
 						task.wait(0.3)
 					until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
