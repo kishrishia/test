@@ -227,7 +227,7 @@ end
 		craftMaterial()
 	end
 
-	if qtyFragment and qtyFragment > 35 then
+	if qtyFragment and qtyFragment > 65 then
 		sellAncientStone()
 	end
 end
