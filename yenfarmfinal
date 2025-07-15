@@ -194,7 +194,7 @@ end
 
 	task.wait(1)
 
-	if qtyEmber and qtyEmber > 66 then
+	if qtyEmber and qtyEmber > 64 then
 		tpTo(Vector3.new(-860, 26, -25), nil)
 		task.wait(3)
 		fireclickdetector(Workspace.NPC.UniversalCrafting.ClickDetector)
@@ -690,8 +690,9 @@ local function handleLobotomyFarm()
 			local entered = checkForLobotomyRiftAndEnter()
 			if not entered then
 				-- Move to next step if Rift entry fails
-				startQuest()
 				checkAndCraftRefine()
+				handlePossessedRider()
+				startQuest()
 				waitForQuestText()
 				while not isQuestComplete() do
 					for _, target in ipairs(refineTargetQueue) do
@@ -702,7 +703,6 @@ local function handleLobotomyFarm()
 					end
 				end
 				completeQuest()
-				handlePossessedRider()
 				task.wait(0.3)
 				continue
 			end
