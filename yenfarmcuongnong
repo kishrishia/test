@@ -272,6 +272,9 @@ end
 	function refineAttack(pos)
 		m1Attack(pos)
 		useSkill(pos, "C")
+		task.wait(0.1)
+		useSkill(pos, "C")
+		task.wait(0.1)
 		useSkill(pos, "X")
 		task.wait(0.1)
 		useSkill(pos, "X")
@@ -282,8 +285,10 @@ end
 		useSkill(pos, "X")
 		task.wait(0.1)
 		useSkill(pos, "X")
-		useSkill(pos, "C")
+		task.wait(0.1)
 		useSkill(pos, "V")
+		task.wait(0.1)
+		useSkill(pos, "C")
 	end
 
 	-- ### Kill Target Function
@@ -652,8 +657,10 @@ local function handleLobotomyFarm()
 						useSkill(pos, "X")
 						task.wait(0.1)
 						useSkill(pos, "X")
-						useSkill(pos, "C")
+						task.wait(0.1)
 						useSkill(pos, "V")
+						task.wait(0.1)
+						useSkill(pos, "C")
 						task.wait(0.1)
 					until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
 
