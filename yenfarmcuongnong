@@ -271,18 +271,16 @@ end
 	-- ### Attack Functions
 	function refineAttack(pos)
 		m1Attack(pos)
-		useSkill(pos, "X")
-		task.wait(0.1)
-		useSkill(pos, "X")
+		m1Attack(pos)
+		useSkill(pos, "R")
 	end
 
 	function desireAttack(pos)
+		useSkill(pos, "E")
+		task.wait(0.1)
+		useSkill(pos, "E")
+		useSkill(pos, "R")
 		m1Attack(pos)
-		useSkill(pos, "X")
-		task.wait(0.1)
-		useSkill(pos, "X")
-		task.wait(0.1)
-		useSkill(pos, "V")
 	end
 
 	-- ### Kill Target Function
@@ -647,13 +645,12 @@ local function handleLobotomyFarm()
 					repeat
 						tpTo(behind, pos)
 						task.wait(0.3)
+						useSkill(pos, "E")
+						task.wait(0.1)
+						useSkill(pos, "E")
+						useSkill(pos, "R")
 						m1Attack(pos)
-						useSkill(pos, "X")
-						task.wait(0.1)
-						useSkill(pos, "X")
-						task.wait(0.1)
-						useSkill(pos, "V")
-						task.wait(0.1)
+						task.wait(0.3)
 					until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
 
 					print("[TRIAL] Target", npc.Name, "defeated.")
