@@ -753,7 +753,7 @@ local function handleLobotomyFarm()
 		local entered = checkForLobotomyRiftAndEnter()
 		if not entered then
 			print("[ERROR] Failed to enter Rift. Retrying...")
-			task.wait(5)
+			task.wait(1)
 			continue
 		end
 
