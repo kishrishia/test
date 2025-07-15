@@ -272,6 +272,9 @@ end
 	function refineAttack(pos)
 		m1Attack(pos)
 		useSkill(pos, "C")
+		useSkill(pos, "X")
+		task.wait(0.1)
+		useSkill(pos, "X")
 	end
 
 	function desireAttack(pos)
