@@ -695,6 +695,7 @@ else
 	continue
 end
 end
+end
 	-- === MAIN LOGIC FLOW ===
 	while true do
 		-- Case 1: Quest is already completed
