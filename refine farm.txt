@@ -277,9 +277,9 @@ end
 	end
 
 	function desireAttack(pos)
-		useSkill(pos, "E")
+		useSkill(pos, "V")
 		task.wait(0.1)
-		useSkill(pos, "E")
+		useSkill(pos, "V")
 		useSkill(pos, "R")
 		m1Attack(pos)
 	end
@@ -301,7 +301,7 @@ end
 				repeat
 					local npcPos = targetHRP.Position
 					local npcCFrame = targetHRP.CFrame
-					local behindPos = npcPos - (npcCFrame.LookVector * 5) + Vector3.new(0, 0, 0)
+					local behindPos = npcPos - (npcCFrame.LookVector * 1) + Vector3.new(0, 0, 0)
 					tpTo(behindPos, npcPos)
 					attackFunc(npcPos)
 					task.wait(0.1)
@@ -518,6 +518,8 @@ local function handleLobotomyFarm()
 			task.wait(1.5)
 			fireDialogue("Fine..")
 			task.wait(2)
+			fireDialogue("Exit = true")
+			task.wait(1)
 			pressKey(Enum.KeyCode.BackSlash)
 			task.wait(0.2)
 			pressKey(Enum.KeyCode.Down) 
@@ -646,9 +648,9 @@ local function handleLobotomyFarm()
 					repeat
 						tpTo(behind, pos)
 						task.wait(0.3)
-						useSkill(pos, "E")
+						useSkill(pos, "V")
 						task.wait(0.1)
-						useSkill(pos, "E")
+						useSkill(pos, "V")
 						useSkill(pos, "R")
 						m1Attack(pos)
 						task.wait(0.3)
