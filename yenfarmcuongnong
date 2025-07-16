@@ -748,13 +748,21 @@ local function handleLobotomyFarm()
 				task.wait(2)
 
 				-- Check if DungeonTimer is visible to confirm trial start
-				local dungeonTimer = PlayerGui:WaitForChild("Main"):FindFirstChild("DungeonTimer")
-				if dungeonTimer and dungeonTimer.Visible then
-					trialStarted = true
-					print("[TRIAL] Trial joined successfully.")
-				else
-					tryCount += 1
-				end
+				local mainGui = PlayerGui:FindFirstChild("Main")
+if not mainGui then
+	repeat
+		task.wait(0.5)
+		mainGui = PlayerGui:FindFirstChild("Main")
+	until mainGui
+end
+
+local dungeonTimer = mainGui:FindFirstChild("DungeonTimer")
+if dungeonTimer and dungeonTimer.Visible then
+	trialStarted = true
+	print("[TRIAL] Trial joined successfully.")
+else
+	tryCount += 1
+end
 			end
 
 			if trialStarted then
