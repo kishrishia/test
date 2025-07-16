@@ -272,18 +272,16 @@ end
 	-- ### Attack Functions
 	function refineAttack(pos)
 		m1Attack(pos)
-		useSkill(pos, "X")
-		task.wait(0.1)
-		useSkill(pos, "X")
+		m1Attack(pos)
+		useSkill(pos, "R")
 	end
 
 	function desireAttack(pos)
-		m1Attack(pos)
-		useSkill(pos, "X")
-		task.wait(0.1)
-		useSkill(pos, "X")
+		useSkill(pos, "V")
 		task.wait(0.1)
 		useSkill(pos, "V")
+		useSkill(pos, "R")
+		m1Attack(pos)
 	end
 
 	-- ### Kill Target Function
@@ -303,7 +301,7 @@ end
 				repeat
 					local npcPos = targetHRP.Position
 					local npcCFrame = targetHRP.CFrame
-					local behindPos = npcPos - (npcCFrame.LookVector * 5) + Vector3.new(0, 0, 0)
+					local behindPos = npcPos - (npcCFrame.LookVector * 1) + Vector3.new(0, 0, 0)
 					tpTo(behindPos, npcPos)
 					attackFunc(npcPos)
 					task.wait(0.1)
@@ -520,6 +518,8 @@ local function handleLobotomyFarm()
 			task.wait(1.5)
 			fireDialogue("Fine..")
 			task.wait(2)
+			fireDialogue("Exit = true")
+			task.wait(1)
 			pressKey(Enum.KeyCode.BackSlash)
 			task.wait(0.2)
 			pressKey(Enum.KeyCode.Down) 
@@ -648,13 +648,12 @@ local function handleLobotomyFarm()
 					repeat
 						tpTo(behind, pos)
 						task.wait(0.3)
-						m1Attack(pos)
-						useSkill(pos, "X")
-						task.wait(0.1)
-						useSkill(pos, "X")
-						task.wait(0.1)
 						useSkill(pos, "V")
 						task.wait(0.1)
+						useSkill(pos, "V")
+						useSkill(pos, "R")
+						m1Attack(pos)
+						task.wait(0.3)
 					until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
 
 					print("[TRIAL] Target", npc.Name, "defeated.")
