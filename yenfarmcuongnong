@@ -365,7 +365,7 @@ end
 					end
 				else
 					tpTo(Vector3.new(-1555, 23, 824), nil)
-					task.wait(6)
+					task.wait(8)
 					local replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
 					if replicator and replicator:FindFirstChild("ClickDetector") then
 						fireclickdetector(replicator.ClickDetector)
