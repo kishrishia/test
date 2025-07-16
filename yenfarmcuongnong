@@ -800,19 +800,35 @@ end
 
 	-- ### Main Loop
 	while true do
-		handleLobotomyFarm()
-		startQuest()
-		checkAndCraftRefine()
-		waitForQuestText()
-		while not isQuestComplete() do
-			for _, target in ipairs(refineTargetQueue) do
-				if killTarget(target.npc, refineAttack, isQuestComplete) then
-					break
-				end
-				task.wait(0.3)
-			end
+	handleLobotomyFarm()
+	startQuest()
+	checkAndCraftRefine()
+	waitForQuestText()
+
+	while not isQuestComplete() do
+		-- Check if Possessed Rider spawns → pause mummy quest and handle boss
+		local rider = Workspace.Lives:FindFirstChild("Possessed Rider Lv.90")
+		if rider and rider:FindFirstChild("HumanoidRootPart") then
+			print("[INTERRUPT] Possessed Rider found! Pausing Mummy quest to handle boss...")
+			handlePossessedRider()
+			-- After done, continue mummy quest from where it left off
+			waitForQuestText()
 		end
-		completeQuest()
-		handlePossessedRider()
-		task.wait(0.3)
+
+		for _, target in ipairs(refineTargetQueue) do
+			if killTarget(target.npc, refineAttack, isQuestComplete) then
+				break
+			end
+			task.wait(0.3)
+		end
 	end
+
+	-- Complete mummy quest if finished
+	if isQuestComplete() then
+		completeQuest()
+	end
+
+	-- Check if another Possessed Rider appears after mummy quest
+	handlePossessedRider()
+	task.wait(0.3)
+end
