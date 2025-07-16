@@ -138,10 +138,10 @@ end
 			local args = {{["Cell Medal"] = 150}}
 			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
 			task.wait(0.5)
-			local args = {{["Lost Tablet"] = 150}}
+			local args = {{["Wind Essence"] = 2000}}
 			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
 			task.wait(0.5)
-			local args = {{["Wind Essence"] = 2000}}
+			local args = {{["Lost Tablet"] = 150}}
 			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
 		task.wait(6)
 		pressKey(Enum.KeyCode.BackSlash)
@@ -278,6 +278,7 @@ end
 	function refineAttack(pos)
 		m1Attack(pos)
 		m1Attack(pos)
+		useSkill(pos, "E")
 		useSkill(pos, "R")
 	end
 
@@ -679,14 +680,20 @@ local function handleLobotomyFarm()
 
 			-- Wait until trial is truly finished
 			repeat
-				task.wait(0.5)
-			until isLoboQuestComplete() and isAllTargetsDead()
-			task.wait(10) -- wait 10 seconds before continuing
+	task.wait(0.5)
+until isAllTargetsDead()
+task.wait(12)
 
-			print("[TRIAL] Trial completed.")
-			return
-		end
-	end
+if isLoboQuestComplete() then
+	print("[TRIAL] Trial completed and quest marked complete.")
+	return
+else
+	print("[TRIAL] All targets dead but quest NOT complete. Restarting trial...")
+	local trialArgs = {[1] = "Trial of Greed"}
+	ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
+	task.wait(3)
+	continue
+end
 
 	-- === MAIN LOGIC FLOW ===
 	while true do
