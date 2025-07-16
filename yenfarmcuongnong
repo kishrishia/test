@@ -694,6 +694,7 @@ else
 	task.wait(3)
 	continue
 end
+end
 
 	-- === MAIN LOGIC FLOW ===
 	while true do
