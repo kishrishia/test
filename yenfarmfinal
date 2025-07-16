@@ -275,6 +275,7 @@ end
 	function refineAttack(pos)
 		m1Attack(pos)
 		m1Attack(pos)
+		useSkill(pos, "E")
 		useSkill(pos, "R")
 	end
 
