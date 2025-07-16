@@ -276,9 +276,9 @@ end
 	end
 
 	function desireAttack(pos)
-		useSkill(pos, "E")
+		useSkill(pos, "V")
 		task.wait(0.1)
-		useSkill(pos, "E")
+		useSkill(pos, "V")
 		useSkill(pos, "R")
 		m1Attack(pos)
 	end
@@ -517,6 +517,8 @@ local function handleLobotomyFarm()
 			task.wait(1.5)
 			fireDialogue("Fine..")
 			task.wait(2)
+			fireDialogue("Exit = true")
+			task.wait(1)
 			pressKey(Enum.KeyCode.BackSlash)
 			task.wait(0.2)
 			pressKey(Enum.KeyCode.Down) 
@@ -645,9 +647,9 @@ local function handleLobotomyFarm()
 					repeat
 						tpTo(behind, pos)
 						task.wait(0.3)
-						useSkill(pos, "E")
+						useSkill(pos, "V")
 						task.wait(0.1)
-						useSkill(pos, "E")
+						useSkill(pos, "V")
 						useSkill(pos, "R")
 						m1Attack(pos)
 						task.wait(0.3)
@@ -750,7 +752,7 @@ local function handleLobotomyFarm()
 		local entered = checkForLobotomyRiftAndEnter()
 		if not entered then
 			print("[ERROR] Failed to enter Rift. Retrying...")
-			task.wait(1)
+			task.wait(5)
 			continue
 		end
 
