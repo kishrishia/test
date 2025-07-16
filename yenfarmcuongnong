@@ -129,6 +129,9 @@ end
 			local args = {{["Purple Fragment"] = 550}}
 			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
 			task.wait(0.5)
+			local args = {{["Primal Fragment"] = 550}}
+			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
+			task.wait(0.5)
 			local args = {{["Essence's Gearbox"] = 2500}}
 			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
 			task.wait(0.5)
