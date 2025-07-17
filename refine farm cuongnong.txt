@@ -280,6 +280,7 @@ end
 	end
 
 	function desireAttack(pos)
+		useSkill(pos, "E")
 		useSkill(pos, "R")
 		m1Attack(pos)
 		m1Attack(pos)
@@ -649,6 +650,7 @@ local function handleLobotomyFarm()
 					repeat
 						tpTo(behind, pos)
 						task.wait(0.3)
+						useSkill(pos, "E")
 						useSkill(pos, "R")
 						m1Attack(pos)
 						m1Attack(pos)
