@@ -112,7 +112,36 @@ end
 		return gui and gui.Text or nil
 	end
 
-	-- ### Crafting and Selling Logic
+	-- ### Crafting and Selling Logic	
+	local function craftMaterial()
+		tpTo(Vector3.new(-860, 26, -25), nil)
+		task.wait(3)
+		fireclickdetector(Workspace.NPC.UniversalCrafting.ClickDetector)
+		task.wait(1)
+		fireDialogue("[ Craft ]")
+		task.wait(1)
+		for i = 1, 10 do
+			local args = {"Special", "Blue Fragment"}
+			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
+			task.wait(0.1)
+			args = {"Special", "Blue Sappyre"}
+			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
+			task.wait(0.1)
+			args = {"Special", "Red Fragment"}
+			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
+			task.wait(0.1)
+			args = {"Special", "Red Emperor"}
+			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
+		end
+		task.wait(6)
+		pressKey(Enum.KeyCode.BackSlash)
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Down)
+		task.wait(0.2)
+		pressKey(Enum.KeyCode.Return)
+		task.wait(0.3)
+		pressKey(Enum.KeyCode.BackSlash)
+	end
 	local function sellAncientStone()
 		tpTo(Vector3.new(-675, 27, -102), nil)
 		task.wait(2)
@@ -129,16 +158,10 @@ end
 			local args = {{["Purple Fragment"] = 550}}
 			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
 			task.wait(0.5)
-			local args = {{["Primal Fragment"] = 550}}
-			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
-			task.wait(0.5)
 			local args = {{["Essence's Gearbox"] = 2500}}
 			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
 			task.wait(0.5)
 			local args = {{["Cell Medal"] = 150}}
-			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
-			task.wait(0.5)
-			local args = {{["Wind Essence"] = 2000}}
 			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
 			task.wait(0.5)
 			local args = {{["Lost Tablet"] = 150}}
@@ -200,34 +223,8 @@ end
 
 	task.wait(1)
 
-	if qtyEmber and qtyEmber > 52 then
-		tpTo(Vector3.new(-860, 26, -25), nil)
-		task.wait(3)
-		fireclickdetector(Workspace.NPC.UniversalCrafting.ClickDetector)
-		task.wait(1)
-		fireDialogue("[ Craft ]")
-		task.wait(1)
-		for i = 1, 10 do
-			local args = {"Special", "Blue Fragment"}
-			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
-			task.wait(0.1)
-			args = {"Special", "Blue Sappyre"}
-			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
-			task.wait(0.1)
-			args = {"Special", "Red Fragment"}
-			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
-			task.wait(0.1)
-			args = {"Special", "Red Emperor"}
-			ReplicatedStorage.Remote.Event.CraftingRemote:FireServer(unpack(args))
-		end
-		task.wait(6)
-		pressKey(Enum.KeyCode.BackSlash)
-		task.wait(0.2)
-		pressKey(Enum.KeyCode.Down)
-		task.wait(0.2)
-		pressKey(Enum.KeyCode.Return)
-		task.wait(0.3)
-		pressKey(Enum.KeyCode.BackSlash)
+	if qtyEmber and qtyEmber > 54 then
+		craftMaterial()
 	end
 
 	if qtyFragment and qtyFragment > 65 then
@@ -277,6 +274,7 @@ end
 		m1Attack(pos)
 		m1Attack(pos)
 		useSkill(pos, "E")
+		useSkill(pos, "R")
 	end
 
 	function desireAttack(pos)
@@ -325,7 +323,7 @@ end
 			local questText = desireQuestLabel()
 			if questText and questText:find("Quest Completed") then
 				tpTo(Vector3.new(-1555, 23, 824), nil)
-				task.wait(8)
+				task.wait(6)
 				local replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
 				if replicator and replicator:FindFirstChild("ClickDetector") then
 					fireclickdetector(replicator.ClickDetector)
@@ -362,7 +360,7 @@ end
 					end
 				else
 					tpTo(Vector3.new(-1555, 23, 824), nil)
-					task.wait(8)
+					task.wait(6)
 					local replicator = Workspace.NPC:FindFirstChild("ARKReplicator")
 					if replicator and replicator:FindFirstChild("ClickDetector") then
 						fireclickdetector(replicator.ClickDetector)
@@ -645,15 +643,15 @@ local function handleLobotomyFarm()
 					and npc.Humanoid.Health > 0 then
 
 					local pos = npc.HumanoidRootPart.Position
-					local behind = pos - (npc.HumanoidRootPart.CFrame.LookVector * 1)
+					local behind = pos - (npc.HumanoidRootPart.CFrame.LookVector * 5)
 
 					repeat
 						tpTo(behind, pos)
 						task.wait(0.3)
 						useSkill(pos, "E")
-						useSkill(pos, "R")
-						m1Attack(pos)
-						m1Attack(pos)
+		useSkill(pos, "R")
+		m1Attack(pos)
+		m1Attack(pos)
 						task.wait(0.3)
 					until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
 
@@ -692,35 +690,20 @@ local function handleLobotomyFarm()
 			local entered = checkForLobotomyRiftAndEnter()
 			if not entered then
 				-- Move to next step if Rift entry fails
-					checkAndCraftRefine()
-	handlePossessedRider()
-	startQuest()
-	waitForQuestText()
-
-	while not isQuestComplete() do
-		-- Check if Possessed Rider spawns → pause mummy quest and handle boss
-		local rider = Workspace.Lives:FindFirstChild("Possessed Rider Lv.90")
-		if rider and rider:FindFirstChild("HumanoidRootPart") then
-			print("[INTERRUPT] Possessed Rider found! Pausing Mummy quest to handle boss...")
-			handlePossessedRider()
-			-- After done, continue mummy quest from where it left off
-			waitForQuestText()
-		end
-
-		for _, target in ipairs(refineTargetQueue) do
-			if killTarget(target.npc, refineAttack, isQuestComplete) then
-				break
-			end
-			task.wait(0.3)
-		end
-	end
-
-	-- Complete mummy quest if finished
-	if isQuestComplete() then
-		completeQuest()
-	end
-
-	task.wait(0.3)
+				checkAndCraftRefine()
+				handlePossessedRider()
+				startQuest()
+				waitForQuestText()
+				while not isQuestComplete() do
+					for _, target in ipairs(refineTargetQueue) do
+						if killTarget(target.npc, refineAttack, isQuestComplete) then
+							break
+						end
+						task.wait(0.3)
+					end
+				end
+				completeQuest()
+				task.wait(0.3)
 				continue
 			end
 			if entered then
@@ -747,21 +730,13 @@ local function handleLobotomyFarm()
 				task.wait(2)
 
 				-- Check if DungeonTimer is visible to confirm trial start
-				local mainGui = PlayerGui:FindFirstChild("Main")
-if not mainGui then
-	repeat
-		task.wait(0.5)
-		mainGui = PlayerGui:FindFirstChild("Main")
-	until mainGui
-end
-
-local dungeonTimer = mainGui:FindFirstChild("DungeonTimer")
-if dungeonTimer and dungeonTimer.Visible then
-	trialStarted = true
-	print("[TRIAL] Trial joined successfully.")
-else
-	tryCount += 1
-end
+				local dungeonTimer = PlayerGui:WaitForChild("Main"):FindFirstChild("DungeonTimer")
+				if dungeonTimer and dungeonTimer.Visible then
+					trialStarted = true
+					print("[TRIAL] Trial joined successfully.")
+				else
+					tryCount += 1
+				end
 			end
 
 			if trialStarted then
@@ -777,7 +752,7 @@ end
 		local entered = checkForLobotomyRiftAndEnter()
 		if not entered then
 			print("[ERROR] Failed to enter Rift. Retrying...")
-			task.wait(5)
+			task.wait(1)
 			continue
 		end
 
@@ -824,35 +799,20 @@ end
 
 
 	-- ### Main Loop
-while true do
-	handleLobotomyFarm()
-	checkAndCraftRefine()
-	handlePossessedRider()
-	startQuest()
-	waitForQuestText()
-
-	while not isQuestComplete() do
-		-- Check if Possessed Rider spawns → pause mummy quest and handle boss
-		local rider = Workspace.Lives:FindFirstChild("Possessed Rider Lv.90")
-		if rider and rider:FindFirstChild("HumanoidRootPart") then
-			print("[INTERRUPT] Possessed Rider found! Pausing Mummy quest to handle boss...")
-			handlePossessedRider()
-			-- After done, continue mummy quest from where it left off
-			waitForQuestText()
-		end
-
-		for _, target in ipairs(refineTargetQueue) do
-			if killTarget(target.npc, refineAttack, isQuestComplete) then
-				break
+	while true do
+		handleLobotomyFarm()
+		startQuest()
+		checkAndCraftRefine()
+		waitForQuestText()
+		while not isQuestComplete() do
+			for _, target in ipairs(refineTargetQueue) do
+				if killTarget(target.npc, refineAttack, isQuestComplete) then
+					break
+				end
+				task.wait(0.3)
 			end
-			task.wait(0.3)
 		end
-	end
-
-	-- Complete mummy quest if finished
-	if isQuestComplete() then
 		completeQuest()
+		handlePossessedRider()
+		task.wait(0.3)
 	end
-
-	task.wait(0.3)
-end
