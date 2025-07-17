@@ -200,7 +200,7 @@ end
 
 	task.wait(1)
 
-	if qtyEmber and qtyEmber > 64 then
+	if qtyEmber and qtyEmber > 52 then
 		tpTo(Vector3.new(-860, 26, -25), nil)
 		task.wait(3)
 		fireclickdetector(Workspace.NPC.UniversalCrafting.ClickDetector)
@@ -230,7 +230,7 @@ end
 		pressKey(Enum.KeyCode.BackSlash)
 	end
 
-	if qtyFragment and qtyFragment > 35 then
+	if qtyFragment and qtyFragment > 65 then
 		sellAncientStone()
 	end
 end
@@ -276,6 +276,7 @@ end
 	function refineAttack(pos)
 		m1Attack(pos)
 		m1Attack(pos)
+		useSkill(pos, "E")
 		useSkill(pos, "R")
 	end
 
@@ -649,9 +650,9 @@ local function handleLobotomyFarm()
 					repeat
 						tpTo(behind, pos)
 						task.wait(0.3)
-							useSkill(pos, "R")
-		m1Attack(pos)
-		m1Attack(pos)
+						useSkill(pos, "R")
+						m1Attack(pos)
+						m1Attack(pos)
 						task.wait(0.3)
 					until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
 
