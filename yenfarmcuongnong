@@ -566,18 +566,26 @@ local function handleLobotomyFarm()
 			waitForAllTrialNPCs()
 
 			-- Wait until DungeonTimer becomes visible before checking TargetDisplay
-			local dungeonTimer = PlayerGui:WaitForChild("Main"):FindFirstChild("DungeonTimer")
-			if dungeonTimer then
-				local maxTries = 300
-				local tryCount = 0
-				while dungeonTimer.Visible == false and tryCount < maxTries do
-					warn("[TRIAL] DungeonTimer not visible. Starting Trial of Greed...")
-					local trialArgs = {[1] = "Trial of Greed"}
-					ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
-					tryCount += 1
-					task.wait(2)
-				end
+			local mainGui = PlayerGui:FindFirstChild("Main")
+		if not mainGui then
+			repeat
+				task.wait(0.5)
+				mainGui = PlayerGui:FindFirstChild("Main")
+			until mainGui
+		end
+
+		local dungeonTimer = mainGui:FindFirstChild("DungeonTimer")
+		if dungeonTimer then
+			local maxTries = 300
+			local tryCount = 0
+			while not dungeonTimer.Visible and tryCount < maxTries do
+				warn("[TRIAL] DungeonTimer not visible. Starting Trial of Greed...")
+				local trialArgs = {[1] = "Trial of Greed"}
+				ReplicatedStorage.Remote.Event.RiderTrial:FireServer(unpack(trialArgs))
+				tryCount += 1
+				task.wait(2)
 			end
+		end
 
 			-- Check for at least one TargetDisplay
 			local hasDisplay = false
@@ -679,14 +687,21 @@ local function handleLobotomyFarm()
 
 			-- Wait until trial is truly finished
 			repeat
-				task.wait(0.5)
-			until isLoboQuestComplete() and isAllTargetsDead()
-			task.wait(10) -- wait 10 seconds before continuing
+			task.wait(0.5)
+		until isAllTargetsDead()
+		task.wait(2)
 
-			print("[TRIAL] Trial completed.")
+		if isLoboQuestComplete() then
+			print("[TRIAL] Trial completed and quest marked complete.")
 			return
+		else
+			print("[TRIAL] All targets defeated but quest NOT complete. Restarting Trial...")
+			task.wait(4)
+			continue
 		end
 	end
+end
+
 
 	-- === MAIN LOGIC FLOW ===
 	while true do
