@@ -122,26 +122,26 @@ end
 		task.wait(2)
 			local args = {{["Green Fragment"] = 5500}}
 			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
-			task.wait(0.3)
-			local args = {{["Ancient Stone"] = 5000}}
+			task.wait(0.5)
+			local args = {{["Ancient Stone"] = 500}}
 			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
-			task.wait(0.3)
-			local args = {{["Purple Fragment"] = 5500}}
+			task.wait(0.5)
+			local args = {{["Purple Fragment"] = 550}}
 			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
-			task.wait(0.3)
-			local args = {{["Essence's Gearbox"] = 25000}}
+			task.wait(0.5)
+			local args = {{["Essence's Gearbox"] = 2500}}
 			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
-			task.wait(0.3)
-			local args = {{["Cell Medal"] = 1500}}
+			task.wait(0.5)
+			local args = {{["Cell Medal"] = 150}}
 			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
-			task.wait(0.3)
-			local args = {{["Lost Tablet"] = 1500}}
+			task.wait(0.5)
+			local args = {{["Lost Tablet"] = 150}}
 			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
-			task.wait(0.3)
-			local args = {{["Primal Fragment"] = 5500}}
+			task.wait(0.5)
+			local args = {{["Primal Fragment"] = 550}}
 			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
-			task.wait(0.3)
-			local args = {{["Wind Essence"] = 20000}}
+			task.wait(0.5)
+			local args = {{["Wind Essence"] = 2000}}
 			ReplicatedStorage.Remote.Function.SellingRemoteFunction:InvokeServer(unpack(args))
 		task.wait(6)
 		pressKey(Enum.KeyCode.BackSlash)
