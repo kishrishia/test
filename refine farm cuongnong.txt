@@ -280,9 +280,10 @@ end
 	end
 
 	function desireAttack(pos)
-		useSkill(pos, "E")
+		useSkill(pos, "V")
+		task.wait(0.1)
+		useSkill(pos, "V")
 		useSkill(pos, "R")
-		m1Attack(pos)
 		m1Attack(pos)
 	end
 
@@ -650,10 +651,11 @@ local function handleLobotomyFarm()
 					repeat
 						tpTo(behind, pos)
 						task.wait(0.3)
-						useSkill(pos, "E")
-						useSkill(pos, "R")
-						m1Attack(pos)
-						m1Attack(pos)
+						useSkill(pos, "V")
+		task.wait(0.1)
+		useSkill(pos, "V")
+		useSkill(pos, "R")
+		m1Attack(pos)
 						task.wait(0.3)
 					until not npc:FindFirstChild("Humanoid") or npc.Humanoid.Health <= 0
 
