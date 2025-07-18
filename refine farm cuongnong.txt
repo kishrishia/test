@@ -645,7 +645,7 @@ local function handleLobotomyFarm()
 					and npc.Humanoid.Health > 0 then
 
 					local pos = npc.HumanoidRootPart.Position
-					local behind = pos - (npc.HumanoidRootPart.CFrame.LookVector * 1)
+					local behind = pos - (npc.HumanoidRootPart.CFrame.LookVector * 1) + Vector3.new(0, 0, 0)
 
 					repeat
 						tpTo(behind, pos)
