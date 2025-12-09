@@ -1,0 +1,538 @@
+-- AUTOPLAY SCRIPT + FINAL MONEY CHECK & DEPOSIT STEP
+-- (Full script with: job cycles, Missing Cat & Restocking flows, and final deposit when money>20000)
+
+-- ====== CONFIG / SETUP ======
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
+
+-- Platform config
+local PLATFORM_NAME = "UnderPlayerPlatform"
+local PLATFORM_SIZE = Vector3.new(5550, 5, 5550)
+local PLATFORM_OFFSET_Y = -13.5
+local PLATFORM_TRANSPARENCY = 0
+local PLATFORM_COLOR = BrickColor.new("Institutional white")
+
+-- Job board coords
+local JOB_BOARD_POS = Vector3.new(-1093, 15, -935)
+
+-- Bank coords (deposit step)
+local BANK_POS = Vector3.new(-234, 15, -776)
+
+-- Dust config
+local DUST_REGION_NAME = "DustRegion"
+local DUST_MODEL_PREFIX = "DustModel"
+local DUST_TP_OFFSET = -4
+local DUST_MOVE_WAIT = 0.15
+local DUST_AFTER_FIRE_WAIT = 0.3
+
+-- Maxwell / Missing Cat config
+local MAXWELL_TARGET_NAME = "MaxwellMat3oHunt3r2020"
+local MAXWELL_PROMPT_NAME = "CatPrompt"
+local MAXWELL_TP_OFFSET = -4
+local MAXWELL_MOVE_WAIT = 0.15
+local MAXWELL_AFTER_FIRE_WAIT = 0.3
+
+-- JobMarker teleport offset for Restocking stage
+local JOBMARKER_TP_OFFSET = -5
+
+-- Timing (fixed waits)
+local RESTOCK_WAIT_AFTER_ACCEPT = 50
+local MISSINGCAT_WAIT_AFTER_ACCEPT = 30
+local JOBBOARD_RETRY_WAIT = 10
+local BETWEEN_MARKER_WAIT = 5    -- wait 5s at each JobMarker
+local SHORT_WAIT = 0.15
+
+-- Money threshold
+local DEPOSIT_THRESHOLD = 140000
+
+-- ====== UTILITIES ======
+local function safeFirePrompt(prompt)
+    if not prompt then return false end
+    if type(fireproximityprompt) == "function" then
+        pcall(fireproximityprompt, prompt)
+        return true
+    end
+    for _, v in ipairs(prompt:GetDescendants()) do
+        if v:IsA("BindableEvent") then
+            pcall(function() v:Fire() end)
+        end
+    end
+    return true
+end
+
+local function refreshCharacter()
+    character = player.Character or player.CharacterAdded:Wait()
+    hrp = character:WaitForChild("HumanoidRootPart")
+end
+
+local function teleportToPosition(pos)
+    if not hrp or not hrp.Parent then refreshCharacter() end
+    pcall(function() hrp.CFrame = CFrame.new(pos) end)
+end
+
+local function teleportToCFrame(cf)
+    if not hrp or not hrp.Parent then refreshCharacter() end
+    pcall(function() hrp.CFrame = cf end)
+end
+
+local function findBasePart(inst)
+    if not inst then return nil end
+    local priorityNames = {"HumanoidRootPart","Torso","UpperTorso","LowerTorso","Head"}
+    for _, name in ipairs(priorityNames) do
+        local p = inst:FindFirstChild(name, true)
+        if p and p:IsA("BasePart") then return p end
+    end
+    for _, desc in ipairs(inst:GetDescendants()) do
+        if desc:IsA("BasePart") then return desc end
+    end
+    if inst:IsA("BasePart") then return inst end
+    return nil
+end
+
+local function createPlatformOnce()
+    if workspace:FindFirstChild(PLATFORM_NAME) then return end
+    local platform = Instance.new("Part")
+    platform.Name = PLATFORM_NAME
+    platform.Size = PLATFORM_SIZE
+    platform.Anchored = true
+    platform.CanCollide = true
+    platform.Transparency = PLATFORM_TRANSPARENCY
+    platform.BrickColor = PLATFORM_COLOR
+    platform.Material = Enum.Material.SmoothPlastic
+    platform.Parent = workspace
+    platform.Position = hrp.Position + Vector3.new(0, PLATFORM_OFFSET_Y, 0)
+    print("Platform created under player.")
+end
+
+-- ====== JOB BOARD PROMPT ======
+local function getJobBoardPrompt()
+    local jb = workspace:FindFirstChild("Job Board", true) or workspace:FindFirstChild("Job Board")
+    if not jb then return nil end
+    local hitbox = jb:FindFirstChild("Hitbox", true) or jb:FindFirstChild("Hitbox")
+    if not hitbox then return nil end
+    local prompt = hitbox:FindFirstChild("InteractPrompt", true) or hitbox:FindFirstChild("InteractPrompt")
+    return prompt
+end
+
+local function gotoJobBoardAndInteract()
+    teleportToPosition(JOB_BOARD_POS)
+    task.wait(0.2)
+    local prompt = getJobBoardPrompt()
+    if prompt then
+        pcall(function() safeFirePrompt(prompt) end)
+        task.wait(0.5)
+        print("Interacted with job board.")
+        return true
+    else
+        warn("Job board prompt not found.")
+        return false
+    end
+end
+
+-- ====== GUI HELPERS ======
+local function getJobGui()
+    local gui = player:FindFirstChild("PlayerGui")
+    if not gui then return nil end
+    local main = gui:FindFirstChild("Main")
+    if not main then return nil end
+    local globalFrame = main:FindFirstChild("GlobalFrame")
+    if not globalFrame then return nil end
+    local jobFrame = globalFrame:FindFirstChild("Job")
+    return jobFrame
+end
+
+local function currentQuestName()
+    local job = getJobGui()
+    if not job then return nil end
+    local jobText = job:FindFirstChild("Job", true) or job:FindFirstChild("Job")
+    if jobText and (jobText:IsA("TextLabel") or jobText:IsA("TextBox")) then
+        return tostring(jobText.Text or "")
+    end
+    return nil
+end
+
+local function isJobGuiVisible()
+    local job = getJobGui()
+    if not job then return false end
+    return job.Visible == true
+end
+
+-- ====== DUST AUTO FARM (re-usable) ======
+local function runDustOnce()
+    local region = workspace:FindFirstChild(DUST_REGION_NAME)
+    if not region then
+        warn("DustRegion not found.")
+        return false
+    end
+    for i = 1, 7 do
+        local model = region:FindFirstChild(DUST_MODEL_PREFIX..i)
+        if model then
+            local dust = model:FindFirstChild("Dust", true) or model:FindFirstChildWhichIsA("MeshPart")
+            local prompt = model:FindFirstChildWhichIsA("ProximityPrompt", true)
+            if dust and prompt then
+                local size = dust.Size
+                local ready = size.X >= 0.01 and size.Y >= 0.01 and size.Z >= 0.01
+                print(model.Name .. " → Size: " .. tostring(size) .. " → " .. (ready and "READY" or "COOLDOWN"))
+                if ready then
+                    teleportToCFrame(dust.CFrame * CFrame.new(0, -dust.Size.Y/2 - 4, 0))
+                    task.wait(DUST_MOVE_WAIT)
+                    safeFirePrompt(prompt)
+                    print("Collected " .. model.Name)
+                    task.wait(DUST_AFTER_FIRE_WAIT)
+                    return true
+                end
+            end
+        end
+    end
+    print("All dust on cooldown.")
+    return false
+end
+
+local function runDustUntilJobEnds()
+    print("Running Dust farm until Job GUI closes...")
+    while isJobGuiVisible() do
+        local ok, res = pcall(runDustOnce)
+        if not ok then
+            warn("Error running Dust once:", res)
+            task.wait(1)
+        else
+            if not res then task.wait(4) else task.wait(0.5) end
+        end
+    end
+    print("Dust job finished (Job GUI closed).")
+end
+
+-- ====== MAXWELL (MISSING CAT) TELEPORT+FIRE FLOW ======
+local function collectAndFireOnMaxwell(model)
+    if not model then return false end
+    local prompt = model:FindFirstChild(MAXWELL_PROMPT_NAME, true) or model:FindFirstChild(MAXWELL_PROMPT_NAME)
+    local base = findBasePart(model)
+    if not base then return false end
+    local downOffset = - (base.Size and base.Size.Y/2 or 2) + MAXWELL_TP_OFFSET
+    teleportToCFrame(base.CFrame * CFrame.new(0, downOffset, 0))
+    task.wait(MAXWELL_MOVE_WAIT)
+    if prompt then
+        pcall(function() safeFirePrompt(prompt) end)
+        print("Fired CatPrompt on "..tostring(model:GetFullName()))
+    else
+        print("No CatPrompt found on "..tostring(model:GetFullName()))
+    end
+    task.wait(MAXWELL_AFTER_FIRE_WAIT)
+    return true
+end
+
+local function getAllMaxwellModels()
+    local list = {}
+    for _, inst in ipairs(workspace:GetDescendants()) do
+        if inst:IsA("Model") and inst.Name == MAXWELL_TARGET_NAME then
+            table.insert(list, inst)
+        end
+    end
+    for _, inst in ipairs(workspace:GetChildren()) do
+        if inst:IsA("Model") and inst.Name == MAXWELL_TARGET_NAME then
+            local found = false
+            for _, v in ipairs(list) do if v == inst then found = true break end end
+            if not found then table.insert(list, inst) end
+        end
+    end
+    return list
+end
+
+-- Missing Cat flow: WAIT fixed 30s after accept, then TP+fire loop while job active
+local function handleMissingCat()
+    print("Missing Cat accepted. Waiting "..tostring(MISSINGCAT_WAIT_AFTER_ACCEPT).."s before starting.")
+    local waited = 0
+    while waited < MISSINGCAT_WAIT_AFTER_ACCEPT and isJobGuiVisible() do
+        task.wait(1)
+        waited = waited + 1
+    end
+    if not isJobGuiVisible() then
+        print("Job GUI closed during wait — skipping Missing Cat.")
+        return
+    end
+
+    print("Starting Missing Cat stage: teleport to Maxwell models and fire CatPrompt.")
+    local idx = 1
+    while isJobGuiVisible() do
+        local models = getAllMaxwellModels()
+        if #models == 0 then
+            task.wait(2)
+        else
+            local model = models[idx]
+            if model and model.Parent then
+                pcall(function() collectAndFireOnMaxwell(model) end)
+                task.wait(0.5)
+            end
+            idx = idx + 1
+            if idx > #models then
+                idx = 1
+                task.wait(0.5)
+            end
+        end
+    end
+    print("Missing Cat job ended (Job GUI closed).")
+end
+
+-- ====== JOBMARKER HELPERS & RESTOCKING TELEPORT-ONLY FLOW ======
+local function getAllJobMarkers()
+    local markers = {}
+    for _, inst in ipairs(workspace:GetDescendants()) do
+        if inst.Name == "JobMarker" then
+            table.insert(markers, inst)
+        end
+    end
+    for _, inst in ipairs(workspace:GetChildren()) do
+        if inst.Name == "JobMarker" then
+            local found = false
+            for _, v in ipairs(markers) do if v == inst then found = true break end end
+            if not found then table.insert(markers, inst) end
+        end
+    end
+    return markers
+end
+
+local function teleportUnderInstance(inst, offsetY)
+    offsetY = offsetY or JOBMARKER_TP_OFFSET
+    local base = findBasePart(inst)
+    if not base then return false end
+    local downOffset = - (base.Size and base.Size.Y/2 or 2) + offsetY
+    teleportToCFrame(base.CFrame * CFrame.new(0, downOffset, 0))
+    return true
+end
+
+-- Restocking Rampage flow: WAIT fixed 50s after accept, then teleport under each JobMarker (no dust), wait 5s at each, repeat while job active
+local function handleRestockingRampage()
+    print("Restocking Rampage accepted. Waiting "..tostring(RESTOCK_WAIT_AFTER_ACCEPT).."s before starting.")
+    local waited = 0
+    while waited < RESTOCK_WAIT_AFTER_ACCEPT and isJobGuiVisible() do
+        task.wait(1)
+        waited = waited + 1
+    end
+    if not isJobGuiVisible() then
+        print("Job GUI closed during wait — skipping Restocking Rampage.")
+        return
+    end
+
+    print("Starting Restocking stage: teleporting under JobMarkers (no dust), waiting "..tostring(BETWEEN_MARKER_WAIT).."s each.")
+    local idx = 1
+    while isJobGuiVisible() do
+        local markers = getAllJobMarkers()
+        if #markers == 0 then
+            warn("No JobMarker found; teleporting to jobboard and waiting for GUI to close.")
+            teleportToPosition(JOB_BOARD_POS)
+            while isJobGuiVisible() do task.wait(1) end
+            return
+        end
+
+        local marker = markers[idx]
+        if marker and marker.Parent then
+            pcall(function()
+                if teleportUnderInstance(marker, JOBMARKER_TP_OFFSET) then
+                    print("Teleported under JobMarker:", marker:GetFullName())
+                else
+                    warn("Couldn't teleport under JobMarker:", marker:GetFullName())
+                end
+            end)
+            local waited2 = 0
+            while waited2 < BETWEEN_MARKER_WAIT and isJobGuiVisible() do
+                task.wait(1)
+                waited2 = waited2 + 1
+            end
+        end
+
+        idx = idx + 1
+        if idx > #markers then
+            idx = 1
+            task.wait(0.5)
+        end
+    end
+    print("Restocking Rampage ended (Job GUI closed).")
+end
+
+-- ====== ACCEPT & HANDLE QUEST (dispatcher) ======
+local function acceptAndHandleQuest()
+    local interacted = gotoJobBoardAndInteract()
+    if not interacted then
+        task.wait(3)
+        return false
+    end
+
+    -- wait briefly for GUI to appear
+    local attempts = 0
+    while not isJobGuiVisible() and attempts < 12 do
+        task.wait(0.35)
+        attempts = attempts + 1
+    end
+
+    local quest = currentQuestName() or ""
+    print("Accepted quest:", quest)
+
+    local qlower = quest:lower()
+
+    -- Dedustification -> run dust immediately
+    if qlower:match("dedust") then
+        runDustUntilJobEnds()
+        return true
+    end
+
+    -- Restocking Rampage -> fixed wait then handleRestockingRampage
+    if quest == "Restocking Rampage" then
+        handleRestockingRampage()
+        return true
+    end
+
+    -- Missing Cat -> fixed wait then handleMissingCat
+    if qlower:match("missing") or qlower:match("cat") then
+        handleMissingCat()
+        return true
+    end
+
+    -- Unknown/unsupported quests: wait for GUI to close and do nothing
+    print("Quest not auto-handled:", quest, "- waiting for Job GUI to close.")
+    while isJobGuiVisible() do task.wait(1) end
+    return true
+end
+
+-- ====== MONEY CHECK & DEPOSIT STEP ======
+-- ====== MONEY PARSING & PLAYER MONEY (updated to use Wallet label) ======
+local function parseNumberFromString(s)
+    if not s then return nil end
+    local num = s:match("(%d[%d,]*)")
+    if not num then return nil end
+    num = num:gsub(",", "")
+    return tonumber(num)
+end
+
+local function getPlayerMoney()
+    -- 1) Primary: exact Wallet path (TextLabel or TextBox)
+    local ok, walletLabel = pcall(function()
+        return game:GetService("Players").LocalPlayer.PlayerGui
+            and game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Main", true)
+            and game:GetService("Players").LocalPlayer.PlayerGui.Main.GlobalFrame
+            and game:GetService("Players").LocalPlayer.PlayerGui.Main.GlobalFrame:FindFirstChild("Main", true)
+            and game:GetService("Players").LocalPlayer.PlayerGui.Main.GlobalFrame.Main:FindFirstChild("Wallet", true)
+    end)
+    if ok and walletLabel and (walletLabel:IsA("TextLabel") or walletLabel:IsA("TextBox")) then
+        local parsed = parseNumberFromString(tostring(walletLabel.Text))
+        if parsed then return parsed end
+    end
+
+    -- 2) Fallback: leaderstats (common)
+    local player = game:GetService("Players").LocalPlayer
+    if player and player:FindFirstChild("leaderstats") then
+        for _, v in ipairs(player.leaderstats:GetChildren()) do
+            local name = tostring(v.Name):lower()
+            if name:find("money") or name:find("cash") or name:find("coins") or name:find("bal") then
+                if type(v.Value) == "number" then return v.Value end
+                local parsed = tonumber(v.Value)
+                if parsed then return parsed end
+            end
+        end
+    end
+
+    -- 3) Fallback: Bank GUI label
+    local ok2, bankGui = pcall(function()
+        return player.PlayerGui and player.PlayerGui:FindFirstChild("Bank", true) and player.PlayerGui.Bank.GlobalFrame.Bank
+    end)
+    if ok2 and bankGui then
+        local moneyLabel = bankGui:FindFirstChild("Money", true) or bankGui:FindFirstChild("Money")
+        if moneyLabel and (moneyLabel:IsA("TextLabel") or moneyLabel:IsA("TextBox")) then
+            local parsed = parseNumberFromString(tostring(moneyLabel.Text))
+            if parsed then return parsed end
+        end
+    end
+
+    -- nothing found
+    return nil
+end
+
+
+local function tryDepositAll()
+    local money = getPlayerMoney()
+    if not money then
+        warn("Couldn't detect player money; skipping deposit step.")
+        return
+    end
+    print("Detected money:", money)
+    if money <= DEPOSIT_THRESHOLD then
+        return
+    end
+
+    -- 1) teleport to bank and interact
+    teleportToPosition(BANK_POS)
+    task.wait(0.3)
+
+    local bankPrompt = workspace:FindFirstChild("Bank") and workspace.Bank:FindFirstChild("ProximityPrompt")
+    if bankPrompt then
+        pcall(function() safeFirePrompt(bankPrompt) end)
+        task.wait(0.4)
+    else
+        warn("Bank proximity prompt not found in workspace.Bank.")
+    end
+
+    -- 2) attempt to fire DepositAll signals on UI
+    local depositButton = nil
+    local ok, bankGui = pcall(function() return player.PlayerGui and player.PlayerGui:FindFirstChild("Bank", true) and player.PlayerGui.Bank.GlobalFrame.Bank end)
+    if ok and bankGui then
+        depositButton = bankGui:FindFirstChild("DepositAll", true) or bankGui:FindFirstChild("DepositAll")
+    end
+
+    if not depositButton then
+        warn("DepositAll UI element not found; skipping UI deposit.")
+        return
+    end
+
+    local Signals = {"Activated", "MouseButton1Down", "MouseButton2Down", "MouseButton1Click", "MouseButton2Click"}
+    for _, Signal in ipairs(Signals) do
+        local ev = depositButton[Signal]
+        if ev then
+            pcall(function()
+                if type(firesignal) == "function" then
+                    -- try firesignal (common in executors)
+                    firesignal(ev)
+                else
+                    -- fallback: attempt to call :Fire() if available (BindableEvent)
+                    if ev.Fire and type(ev.Fire) == "function" then
+                        ev:Fire()
+                    end
+                end
+            end)
+            task.wait(0.08)
+        end
+    end
+
+    print("DepositAll attempted.")
+end
+
+-- ====== MAIN ORCHESTRATOR ======
+local function mainLoop()
+    createPlatformOnce()
+    while true do
+        teleportToPosition(JOB_BOARD_POS)
+        task.wait(0.2)
+        local ok, err = pcall(acceptAndHandleQuest)
+        if not ok then
+            warn("Error in acceptAndHandleQuest:", err)
+            task.wait(5)
+        end
+
+        -- After finishing quest cycle, do final money check & deposit step if needed
+        pcall(tryDepositAll)
+
+        -- return to jobboard then wait before next cycle
+        teleportToPosition(JOB_BOARD_POS)
+        print("Cycle complete. Waiting "..tostring(JOBBOARD_RETRY_WAIT).."s before next accept.")
+        task.wait(JOBBOARD_RETRY_WAIT)
+    end
+end
+
+-- ====== START ======
+if not getJobBoardPrompt() then
+    warn("Job board prompt not detected at script start. Script will still loop and try each cycle.")
+end
+
+spawn(function()
+    pcall(mainLoop)
+end)
