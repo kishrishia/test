@@ -28,7 +28,8 @@ local DUST_MOVE_WAIT = 0.15
 local DUST_AFTER_FIRE_WAIT = 0.3
 
 -- Maxwell / Missing Cat config
-local MAXWELL_TARGET_NAME = "MaxwellMat3oHunt3r2020"
+local Players = game:GetService("Players")
+local MAXWELL_TARGET_NAME = "Maxwell" .. Players.LocalPlayer.Name
 local MAXWELL_PROMPT_NAME = "CatPrompt"
 local MAXWELL_TP_OFFSET = -4
 local MAXWELL_MOVE_WAIT = 0.15
