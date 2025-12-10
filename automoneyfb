@@ -9,7 +9,7 @@ local hrp = character:WaitForChild("HumanoidRootPart")
 
 -- Platform config
 local PLATFORM_NAME = "UnderPlayerPlatform"
-local PLATFORM_SIZE = Vector3.new(5550, 5, 5550)
+local PLATFORM_SIZE = Vector3.new(55550, 5, 55550)
 local PLATFORM_OFFSET_Y = -13.5
 local PLATFORM_TRANSPARENCY = 0
 local PLATFORM_COLOR = BrickColor.new("Institutional white")
