@@ -211,7 +211,7 @@ local function anyDustReady()
     return false
 end
 
-local function runDustOnce()
+local function runDustUntilJobEnds()
     print("Running Dust farm until Job GUI closes...")
     while isJobGuiVisible() do
         local ok, res = pcall(runDustOnce)
@@ -414,7 +414,7 @@ local function acceptAndHandleQuest()
 
     -- Dedustification -> run dust immediately
     if qlower:match("dedust") then
-        runDustOnce()
+        runDustUntilJobEnds()
         return true
     end
 
