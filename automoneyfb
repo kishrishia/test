@@ -28,8 +28,7 @@ local DUST_MOVE_WAIT = 0.15
 local DUST_AFTER_FIRE_WAIT = 0.3
 
 -- Maxwell / Missing Cat config
-local Players = game:GetService("Players")
-local MAXWELL_TARGET_NAME = "Maxwell" .. Players.LocalPlayer.Name
+local MAXWELL_TARGET_NAME = "MaxwellMat3oHunt3r2020"
 local MAXWELL_PROMPT_NAME = "CatPrompt"
 local MAXWELL_TP_OFFSET = -4
 local MAXWELL_MOVE_WAIT = 0.15
@@ -191,19 +190,59 @@ local function runDustOnce()
     return false
 end
 
-local function runDustUntilJobEnds()
+-- ====== DUST: check-ready helper + improved runDustUntilJobEnds ======
+local function anyDustReady()
+    local region = workspace:FindFirstChild(DUST_REGION_NAME)
+    if not region then return false end
+    for i = 1, 7 do
+        local model = region:FindFirstChild(DUST_MODEL_PREFIX..i)
+        if model then
+            local dust = model:FindFirstChild("Dust", true) or model:FindFirstChildWhichIsA("MeshPart")
+            if dust then
+                local size = dust.Size
+                local ready = size.X >= 0.01 and size.Y >= 0.01 and size.Z >= 0.01
+                if ready then
+                    return true
+                end
+            end
+        end
+    end
+    return false
+end
+
+local function runDustOnce()
     print("Running Dust farm until Job GUI closes...")
     while isJobGuiVisible() do
         local ok, res = pcall(runDustOnce)
         if not ok then
-            warn("Error running Dust once:", res)
+            warn("Error running runDustOnce:", res)
             task.wait(1)
         else
-            if not res then task.wait(4) else task.wait(0.5) end
+            if res then
+                -- successfully collected one dust, short pause then continue
+                task.wait(0.5)
+            else
+                -- all dust on cooldown -> teleport to jobboard and wait there until any dust is ready or job GUI closes
+                print("All dust on cooldown. Teleporting to job board and waiting for dust to recharge...")
+                teleportToPosition(JOB_BOARD_POS)
+                -- poll for readiness while job GUI still visible
+                while isJobGuiVisible() and not anyDustReady() do
+                    task.wait(2) -- check every 2 seconds (tweak if you want)
+                end
+                -- if GUI closed, loop will exit naturally; otherwise dust is ready and we continue collecting
+                if not isJobGuiVisible() then
+                    print("Job GUI closed while waiting for dust. Exiting Dust routine.")
+                    break
+                else
+                    print("Detected dust ready — resuming dust collection.")
+                    task.wait(0.3)
+                end
+            end
         end
     end
     print("Dust job finished (Job GUI closed).")
 end
+
 
 -- ====== MAXWELL (MISSING CAT) TELEPORT+FIRE FLOW ======
 local function collectAndFireOnMaxwell(model)
@@ -374,7 +413,7 @@ local function acceptAndHandleQuest()
 
     -- Dedustification -> run dust immediately
     if qlower:match("dedust") then
-        runDustUntilJobEnds()
+        runDustOnce()
         return true
     end
 
