@@ -174,7 +174,7 @@ local function runDustOnce()
             local prompt = model:FindFirstChildWhichIsA("ProximityPrompt", true)
             if dust and prompt then
                 local size = dust.Size
-                local ready = size.X >= 0.01 and size.Y >= 0.01 and size.Z >= 0.01
+                local ready = size.X >= 0.1 and size.Y >= 0.1 and size.Z >= 0.1
                 print(model.Name .. " → Size: " .. tostring(size) .. " → " .. (ready and "READY" or "COOLDOWN"))
                 if ready then
                     teleportToCFrame(dust.CFrame * CFrame.new(0, -dust.Size.Y/2 - 4, 0))
