@@ -23,9 +23,9 @@ local BANK_POS = Vector3.new(-234, 15, -776)
 -- Dust config
 local DUST_REGION_NAME = "DustRegion"
 local DUST_MODEL_PREFIX = "DustModel"
-local DUST_TP_OFFSET = -3.5
+local DUST_TP_OFFSET = -3
 local DUST_MOVE_WAIT = 0.15
-local DUST_AFTER_FIRE_WAIT = 0.3
+local DUST_AFTER_FIRE_WAIT = 0.15
 
 -- Maxwell / Missing Cat config
 local Players = game:GetService("Players")
