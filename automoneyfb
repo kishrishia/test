@@ -211,8 +211,23 @@ local function anyDustReady()
     return false
 end
 
+-- ====== DUST: initial 10s cooldown + improved runDustUntilJobEnds (drop-in replacement) ======
 local function runDustUntilJobEnds()
-    print("Running Dust farm until Job GUI closes...")
+    -- initial cooldown before starting dust collection
+    local COOLDOWN_BEFORE_START = 10
+    print("Dust job accepted — waiting " .. tostring(COOLDOWN_BEFORE_START) .. "s cooldown before starting.")
+    local waited = 0
+    while waited < COOLDOWN_BEFORE_START and isJobGuiVisible() do
+        task.wait(1)
+        waited = waited + 1
+    end
+    if not isJobGuiVisible() then
+        print("Job GUI closed during initial cooldown — skipping Dust.")
+        return
+    end
+
+    -- main dust loop (existing behavior)
+    print("Starting Dust farm (post-cooldown).")
     while isJobGuiVisible() do
         local ok, res = pcall(runDustOnce)
         if not ok then
@@ -228,7 +243,7 @@ local function runDustUntilJobEnds()
                 teleportToPosition(JOB_BOARD_POS)
                 -- poll for readiness while job GUI still visible
                 while isJobGuiVisible() and not anyDustReady() do
-                    task.wait(2) -- check every 2 seconds (tweak if you want)
+                    task.wait(2) -- check every 2 seconds
                 end
                 -- if GUI closed, loop will exit naturally; otherwise dust is ready and we continue collecting
                 if not isJobGuiVisible() then
