@@ -10,7 +10,7 @@ local hrp = character:WaitForChild("HumanoidRootPart")
 -- Platform config
 local PLATFORM_NAME = "UnderPlayerPlatform"
 local PLATFORM_SIZE = Vector3.new(55550, 5, 55550)
-local PLATFORM_OFFSET_Y = -13.5
+local PLATFORM_OFFSET_Y = -13
 local PLATFORM_TRANSPARENCY = 0
 local PLATFORM_COLOR = BrickColor.new("Institutional white")
 
@@ -23,7 +23,7 @@ local BANK_POS = Vector3.new(-234, 15, -776)
 -- Dust config
 local DUST_REGION_NAME = "DustRegion"
 local DUST_MODEL_PREFIX = "DustModel"
-local DUST_TP_OFFSET = -3
+local DUST_TP_OFFSET = -4
 local DUST_MOVE_WAIT = 0.15
 local DUST_AFTER_FIRE_WAIT = 0.15
 
@@ -31,7 +31,7 @@ local DUST_AFTER_FIRE_WAIT = 0.15
 local Players = game:GetService("Players")
 local MAXWELL_TARGET_NAME = "Maxwell" .. Players.LocalPlayer.Name
 local MAXWELL_PROMPT_NAME = "CatPrompt"
-local MAXWELL_TP_OFFSET = -3.5
+local MAXWELL_TP_OFFSET = -4
 local MAXWELL_MOVE_WAIT = 0.15
 local MAXWELL_AFTER_FIRE_WAIT = 0.3
 
