@@ -10,7 +10,7 @@ local hrp = character:WaitForChild("HumanoidRootPart")
 -- Platform config
 local PLATFORM_NAME = "UnderPlayerPlatform"
 local PLATFORM_SIZE = Vector3.new(55550, 5, 55550)
-local PLATFORM_OFFSET_Y = -14
+local PLATFORM_OFFSET_Y = -13
 local PLATFORM_TRANSPARENCY = 0
 local PLATFORM_COLOR = BrickColor.new("Institutional white")
 
@@ -214,7 +214,7 @@ end
 -- ====== DUST: initial 10s cooldown + improved runDustUntilJobEnds (drop-in replacement) ======
 local function runDustUntilJobEnds()
     -- initial cooldown before starting dust collection
-    local COOLDOWN_BEFORE_START = 15
+    local COOLDOWN_BEFORE_START = 20
     print("Dust job accepted — waiting " .. tostring(COOLDOWN_BEFORE_START) .. "s cooldown before starting.")
     local waited = 0
     while waited < COOLDOWN_BEFORE_START and isJobGuiVisible() do
