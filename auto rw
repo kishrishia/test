@@ -1,0 +1,493 @@
+-- ====== CONFIG ======
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
+
+local PLATFORM_NAME = "UnderPlayerPlatform"
+local PLATFORM_SIZE = Vector3.new(55550, 5, 55550)
+local PLATFORM_OFFSET_Y = -13
+local PLATFORM_TRANSPARENCY = 0
+local PLATFORM_COLOR = BrickColor.new("Institutional white")
+
+local JOB_BOARD_POS = Vector3.new(-1093, 15, -935)
+local POS_A = Vector3.new(127, 15, -999)
+
+-- SAFE_POS: teleport here when fatigue threshold is reached during run
+local SAFE_POS = POS_A
+
+local CHECKPOINT_OFFSET_Y = -6
+local REST_WHEN_NO_MARKER_WAIT = 1
+
+local BUY_PARENT_NAME = "BuyButtons"
+local BUY_AREA_NAME = "Gym"
+local BUY_ITEM_NAME = "Roadwork"
+local BUY_PROMPT_NAME = "BuyPrompt"
+
+local EQUIP_REMOTE = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Inventory")
+local EQUIP_ARGS = {
+    {
+        Type = "Item",
+        Action = "Keybind",
+        Equipped = "Roadwork"
+    }
+}
+
+local ACTIVATE_WAIT = 0.6
+local FATIGUE_THRESHOLD = 60 -- percent
+
+-- ====== STOP FLAG ======
+local STOP_AUTO = false
+
+local function stopEntireAutoFarm(reason)
+    STOP_AUTO = true
+    if reason then
+        print("[AutoRoadwork] Stopped: " .. tostring(reason))
+    else
+        print("[AutoRoadwork] Stopped.")
+    end
+end
+
+-- ====== UTIL HELPERS ======
+local function safeFirePrompt(prompt)
+    if not prompt then return false end
+    if type(fireproximityprompt) == "function" then
+        pcall(fireproximityprompt, prompt)
+        return true
+    end
+    for _, v in ipairs(prompt:GetDescendants()) do
+        if v:IsA("BindableEvent") then
+            pcall(function() v:Fire() end)
+        end
+    end
+    return true
+end
+
+local function refreshCharacter()
+    character = player.Character or player.CharacterAdded:Wait()
+    hrp = character:WaitForChild("HumanoidRootPart")
+end
+
+local function teleportToPosition(pos)
+    if STOP_AUTO then return end
+    if not hrp or not hrp.Parent then refreshCharacter() end
+    pcall(function() hrp.CFrame = CFrame.new(pos) end)
+end
+
+local function teleportToCFrame(cf)
+    if STOP_AUTO then return end
+    if not hrp or not hrp.Parent then refreshCharacter() end
+    pcall(function() hrp.CFrame = cf end)
+end
+
+local function findBasePart(inst)
+    if not inst then return nil end
+    local priorityNames = {"HumanoidRootPart","Torso","UpperTorso","LowerTorso","Head"}
+    for _, name in ipairs(priorityNames) do
+        local p = inst:FindFirstChild(name, true)
+        if p and p:IsA("BasePart") then return p end
+    end
+    for _, desc in ipairs(inst:GetDescendants()) do
+        if desc:IsA("BasePart") then return desc end
+    end
+    if inst:IsA("BasePart") then return inst end
+    return nil
+end
+
+local function createPlatformOnce()
+    if STOP_AUTO then return end
+    if workspace:FindFirstChild(PLATFORM_NAME) then return end
+    local platform = Instance.new("Part")
+    platform.Name = PLATFORM_NAME
+    platform.Size = PLATFORM_SIZE
+    platform.Anchored = true
+    platform.CanCollide = true
+    platform.Transparency = PLATFORM_TRANSPARENCY
+    platform.BrickColor = PLATFORM_COLOR
+    platform.Material = Enum.Material.SmoothPlastic
+    platform.Parent = workspace
+    platform.Position = hrp.Position + Vector3.new(0, PLATFORM_OFFSET_Y, 0)
+    print("Platform created under player.")
+end
+
+-- ====== WALLET / FATIGUE / INVENTORY HELPERS ======
+local function parseNumberFromString(s)
+    if not s then return nil end
+    local num = s:match("(%d[%d,]*)")
+    if not num then return nil end
+    num = num:gsub(",", "")
+    return tonumber(num)
+end
+
+local function getFatiguePercent()
+    local ok, main = pcall(function()
+        return player.PlayerGui and player.PlayerGui:FindFirstChild("Main", true) and player.PlayerGui.Main.GlobalFrame.Main
+    end)
+    if not ok or not main then return 0 end
+
+    local fatigueLabel = main:FindFirstChild("Fatigue", true) or main:FindFirstChild("Fatigue")
+    if not fatigueLabel then return 0 end
+
+    local txt = tostring(fatigueLabel.Text or "")
+
+    -- capture decimal number first (e.g. 38.67 or 38,67), then fall back to integer
+    local numStr = txt:match("(%d+[%.,]%d+)%s*%%")   -- matches "38.67%" or "38,67%"
+                 or txt:match("(%d+[%.,]?%d*)%s*%%") -- matches "38%" or "38.67%"
+                 or txt:match("(%d+[%.,]?%d*)")       -- fallback: any number in string
+
+    if not numStr then return 0 end
+
+    numStr = numStr:gsub(",", ".")
+    local num = tonumber(numStr)
+    if not num then return 0 end
+
+    return num
+end
+
+local function roadworkInInventory()
+    local ok, exists = pcall(function()
+        return player.PlayerGui and player.PlayerGui:FindFirstChild("Inventory", true)
+            and player.PlayerGui.Inventory.GlobalFrame.Inventory.ScrollingFrame:FindFirstChild("Roadwork")
+    end)
+    return ok and exists ~= nil
+end
+
+-- ====== BUY LOOP (teleport-under before firing prompt) ======
+local function buyRoadworkUntilOwned()
+    if STOP_AUTO then return false end
+    createPlatformOnce()
+
+    local buyParent = workspace:FindFirstChild(BUY_PARENT_NAME) and workspace[BUY_PARENT_NAME]:FindFirstChild(BUY_AREA_NAME)
+    if not buyParent then
+        warn("BuyButtons.Gym not found.")
+        return false
+    end
+
+    local buyInst = buyParent:FindFirstChild(BUY_ITEM_NAME) or buyParent:FindFirstChild(BUY_ITEM_NAME, true)
+    if not buyInst then
+        warn("BuyButtons.Gym.Roadwork not found.")
+        return false
+    end
+
+    local tries = 0
+    print("Buying Roadwork if needed...")
+
+    while not roadworkInInventory() do
+        if STOP_AUTO then return false end
+
+        -- immediate stop check during buy: if already fatigued, stop entire script
+        local fat = getFatiguePercent()
+        if fat and fat > FATIGUE_THRESHOLD then
+            stopEntireAutoFarm("Fatigue reached ("..tostring(fat).."%) before starting session.")
+            return false
+        end
+
+        -- teleport under the buy object
+        local base = findBasePart(buyInst)
+        if base then
+            pcall(function()
+                teleportToCFrame(base.CFrame * CFrame.new(0, - (base.Size.Y/2) - 4, 0))
+            end)
+            task.wait(0.08)
+        else
+            teleportToPosition(JOB_BOARD_POS)
+            task.wait(0.4)
+        end
+
+        -- fire prompt if present
+        local prompt = buyInst:FindFirstChild(BUY_PROMPT_NAME, true) or buyInst:FindFirstChild(BUY_PROMPT_NAME)
+        if not prompt then
+            for _, d in ipairs(buyInst:GetDescendants()) do
+                if d:IsA("ProximityPrompt") then
+                    prompt = d
+                    break
+                end
+            end
+        end
+
+        if prompt then
+            pcall(function() safeFirePrompt(prompt) end)
+            task.wait(0.45)
+        else
+            if base then teleportToCFrame(base.CFrame * CFrame.new(0, - (base.Size.Y/2) - 4, 0)) end
+            task.wait(0.8)
+        end
+
+        tries = tries + 1
+        if tries % 30 == 0 then task.wait(1) end
+
+        if roadworkInInventory() then break end
+    end
+
+    if roadworkInInventory() then
+        print("Roadwork now in inventory.")
+        return true
+    else
+        warn("Stopped buy loop; Roadwork still not in inventory.")
+        return false
+    end
+end
+
+-- ====== EQUIP & ACTIVATE HELPERS (robust) ======
+local function waitForToolInCharacter(toolName, timeout)
+    timeout = timeout or 6
+    local waited = 0
+    while waited < timeout do
+        if STOP_AUTO then return nil end
+        refreshCharacter()
+        for _, obj in ipairs(character:GetChildren()) do
+            if obj:IsA("Tool") and obj.Name == toolName then
+                return obj
+            end
+        end
+        task.wait(0.3)
+        waited = waited + 0.3
+    end
+    return nil
+end
+
+local function equipRoadworkViaRemoteAndWait()
+    if STOP_AUTO then return false end
+    if not EQUIP_REMOTE then return false end
+    local ok, err = pcall(function()
+        EQUIP_REMOTE:FireServer(unpack(EQUIP_ARGS))
+    end)
+    if not ok then
+        warn("Equip remote error:", err)
+        return false
+    end
+
+    local tool = waitForToolInCharacter("Roadwork", 6)
+    if tool then
+        task.wait(0.2)
+        return true
+    end
+
+    local invOk = false
+    for i = 1, 6 do
+        if STOP_AUTO then return false end
+        if roadworkInInventory() then invOk = true; break end
+        task.wait(0.5)
+    end
+    return invOk
+end
+
+local function activateEquippedToolRepeated(times, delay)
+    if STOP_AUTO then return end
+    times = times or 4
+    delay = delay or 0.5
+    refreshCharacter()
+    for i = 1, times do
+        if STOP_AUTO then return end
+        for _, obj in ipairs(character:GetChildren()) do
+            if obj:IsA('Tool') then
+                pcall(function() obj:Activate() end)
+            end
+        end
+        task.wait(delay)
+    end
+end
+
+-- ====== CHECKPOINT HELPERS (ONLY check Roadwork GUI enabled) ======
+local function isRoadworkRunning()
+    if STOP_AUTO then return false end
+    local ok, trainings = pcall(function()
+        return player.PlayerGui and player.PlayerGui:FindFirstChild("Trainings", true) and player.PlayerGui.Trainings
+    end)
+    if not ok or not trainings then return false end
+
+    local ok2, roadGui = pcall(function()
+        return trainings:FindFirstChild("Roadwork", true) or trainings:FindFirstChild("Roadwork")
+    end)
+    if not ok2 or not roadGui then return false end
+
+    if type(roadGui.Enabled) == "boolean" then
+        return roadGui.Enabled
+    end
+    if type(roadGui.Visible) == "boolean" then
+        return roadGui.Visible
+    end
+    return false
+end
+
+local function getAnyCheckpointMarker()
+    if STOP_AUTO then return nil end
+    for _, inst in ipairs(workspace:GetDescendants()) do
+        if inst.Name == "CheckpointMarker" then
+            return inst
+        end
+    end
+    for _, inst in ipairs(workspace:GetChildren()) do
+        if inst.Name == "CheckpointMarker" then
+            return inst
+        end
+    end
+    return nil
+end
+
+-- ====== CHECKPOINT COUNTER & MODIFIED CYCLE ======
+local checkpointCounter = 0  -- Track how many checkpoints completed this session
+
+-- Run a single checkpoint + count them
+local function runSingleCheckpointCycle()
+    if STOP_AUTO then return end
+    if not isRoadworkRunning() then return end
+
+    local marker = getAnyCheckpointMarker()
+    if not marker then
+        task.wait(1)
+        return
+    end
+
+    pcall(function()
+        local base = findBasePart(marker)
+        if base then
+            teleportToCFrame(base.CFrame * CFrame.new(0, - (base.Size.Y/2) + CHECKPOINT_OFFSET_Y, 0))
+        end
+    end)
+
+    -- Wait until marker disappears or timeout
+    local t = 0
+    while t < 1.2 and isRoadworkRunning() and not STOP_AUTO do
+        task.wait(1)
+        t = t + 1
+    end
+
+    -- Marker gone → checkpoint completed
+    checkpointCounter = checkpointCounter + 1
+    print("[AutoRoadwork] Checkpoint #" .. checkpointCounter .. " completed.")
+
+    -- === EVERY 3 CHECKPOINTS: TP to POS_A and wait 6s ===
+    if checkpointCounter % 5 == 0 then
+        print("[AutoRoadwork] 5 checkpoints reached! Teleporting to POS_A for 6-second reset...")
+        pcall(function()
+            teleportToPosition(POS_A)
+        end)
+        task.wait(0.4) -- let teleport settle
+
+        local resetWait = 0
+        while resetWait < 34 and isRoadworkRunning() and not STOP_AUTO do
+            -- Still check fatigue during the 6s reset!
+            local currentFat = getFatiguePercent()
+            if currentFat and currentFat > FATIGUE_THRESHOLD then
+                print("[AutoRoadwork] Fatigue "..tostring(currentFat).."% exceeded during 3-checkpoint reset. Teleporting to SAFE_POS and stopping.")
+                pcall(function() teleportToPosition(SAFE_POS) end)
+                task.wait(0.3)
+                stopEntireAutoFarm("Fatigue threshold exceeded during run (at reset). Fatigue: "..tostring(currentFat).."%.")
+                return
+            end
+            task.wait(1)
+            resetWait = resetWait + 1
+        end
+        print("[AutoRoadwork] 6-second reset complete. Continuing Roadwork...")
+        -- Do NOT return or break — continue looping
+    else
+        -- Normal flow: just go back to POS_A briefly before next marker
+        if isRoadworkRunning() and not STOP_AUTO then
+            teleportToPosition(POS_A)
+        end
+    end
+end
+
+-- ====== ORCHESTRATOR ======
+local function runAutoRoadwork()
+    createPlatformOnce()
+    print("Starting Auto Roadwork loop. Stop if fatigue > "..tostring(FATIGUE_THRESHOLD).."%.")
+    while true do
+        if STOP_AUTO then
+            print("STOP flag detected — exiting Auto Roadwork loop.")
+            return
+        end
+
+        -- immediate pre-start fatigue check: if already above threshold, stop immediately
+        local fat = getFatiguePercent()
+        if fat and fat > FATIGUE_THRESHOLD then
+            stopEntireAutoFarm("Fatigue is "..tostring(fat).."%.")
+            return
+        end
+
+        local bought = false
+        repeat
+            if STOP_AUTO then return end
+            bought = buyRoadworkUntilOwned()
+            if not bought then
+                -- re-check fatigue; if exceeded stop whole script
+                local fat2 = getFatiguePercent()
+                if fat2 and fat2 > FATIGUE_THRESHOLD then
+                    stopEntireAutoFarm("Fatigue is "..tostring(fat2).."%.")
+                    return
+                end
+                task.wait(2)
+            end
+        until bought or STOP_AUTO
+
+        if STOP_AUTO then return end
+
+        local okEquip = equipRoadworkViaRemoteAndWait()
+        if not okEquip then
+            warn("Failed to equip Roadwork; will retry next cycle.")
+            task.wait(1)
+        else
+            activateEquippedToolRepeated(6, 0.4)
+            task.wait(ACTIVATE_WAIT)
+        end
+
+        local safetyWait = 0
+        while not roadworkInInventory() and safetyWait < 5 and not STOP_AUTO do
+            task.wait(0.8)
+            safetyWait = safetyWait + 1
+        end
+
+              -- Run cycles while roadwork GUI enabled
+        checkpointCounter = 0  -- Reset counter each new session
+        while isRoadworkRunning() and not STOP_AUTO do
+            -- Fatigue check during running
+            local currentFat = getFatiguePercent()
+            if currentFat and currentFat > FATIGUE_THRESHOLD then
+                print("[AutoRoadwork] Fatigue "..tostring(currentFat).."% exceeded threshold during run. Teleporting to SAFE_POS and stopping.")
+                pcall(function()
+                    teleportToPosition(SAFE_POS)
+                end)
+                task.wait(0.3)
+                stopEntireAutoFarm("Fatigue threshold exceeded during run. Fatigue: "..tostring(currentFat).."%.")
+                return
+            end
+
+            runSingleCheckpointCycle()
+        end
+		
+		-- Roadwork session ended -> teleport to POS_A and cooldown 10s
+print("[AutoRoadwork] Roadwork session ended. Teleporting to POS_A and starting cooldown (5s).")
+pcall(function()
+    teleportToPosition(POS_A)
+end)
+-- small wait to let teleport apply
+task.wait(0.3)
+
+local cd = 0
+while cd < 1 and not STOP_AUTO do
+    task.wait(1)
+    cd = cd + 1
+end
+
+print("[AutoRoadwork] Cooldown finished ("..tostring(cd).."s). Resuming loop.")
+
+		
+        if STOP_AUTO then return end
+
+        -- small rest before next loop
+        local rest = 0
+        while rest < REST_WHEN_NO_MARKER_WAIT and not STOP_AUTO do
+            task.wait(1)
+            rest = rest + 1
+        end
+    end
+
+    print("Auto Roadwork finished.")
+end
+
+-- ====== RUN ======
+spawn(function()
+    pcall(runAutoRoadwork)
+end)
