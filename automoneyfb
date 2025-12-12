@@ -214,7 +214,7 @@ end
 -- ====== DUST: initial 10s cooldown + improved runDustUntilJobEnds (drop-in replacement) ======
 local function runDustUntilJobEnds()
     -- initial cooldown before starting dust collection
-    local COOLDOWN_BEFORE_START = 10
+    local COOLDOWN_BEFORE_START = 15
     print("Dust job accepted — waiting " .. tostring(COOLDOWN_BEFORE_START) .. "s cooldown before starting.")
     local waited = 0
     while waited < COOLDOWN_BEFORE_START and isJobGuiVisible() do
