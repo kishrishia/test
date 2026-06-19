@@ -1,7 +1,6 @@
 --!native
 --!optimize 2
 --!divine-intellect
--- https://discord.gg/wx4ThpAsmw
 
 local function string_find(s, pattern, init)
 	return string.find(s, pattern, init, true)
@@ -2121,9 +2120,9 @@ do
 			end,
 		}
 		for i, fetcher in APIDUMP_FETCHERS do
-			if i == 2 then -- skip full-api-dump (incomplete on latest ver); keep [1] cache, [3] reflection, [4] mini-dump as fallbacks
-				continue
-			end
+			-- Try every source in order: [1] cache, [2] full-api-dump, [3] reflection, [4] mini-dump.
+			-- Method 3 (reflection) can throw "readonly table" in some executors; method 4 is incomplete
+			-- and produces deformed meshes / dropped ImageLabel props, so it must stay last-resort only.
 			local o, r = pcall(fetcher)
 			if o and r then
 				API_Dump = r
